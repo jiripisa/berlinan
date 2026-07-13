@@ -1,0 +1,19 @@
+# Build artifacts (Sampio-style SPM + bundle pipeline)
+.build/
+build/
+.swiftpm/
+*.xcodeproj
+xcuserdata/
+DerivedData/
+.DS_Store
+
+# Claude Code per-user local settings
+.claude/settings.local.json
+
+# Source transcripts of third-party YouTube videos — potentially copyrighted
+# material, kept out of the repo (same policy as Sampio's examples/).
+# The distilled knowledge lives in berlin_school_manual.md.
+docs/synthkeeper/
+
+# Claude Code runtime files
+.claude/scheduled_tasks.lock
