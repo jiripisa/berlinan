@@ -7,7 +7,7 @@
   musical depth (remaining generators, gate/pitch decoupling, progressions,
   CC lanes + gate ramps, MIDI delay + delay hints, pattern editor, snapshots,
   undo, documents).
-- **Next entry point**: phase 16 — generators 4-6 + gate/pitch decoupling render.
+- **Next entry point**: phase 17 — modulation (CC lanes, gate ramps, MIDI delay + delay hints + cheat sheet).
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in
   the jam, degree buttons audible, capture export lands in Ableton).
 - Phasewerk question RESOLVED 2026-07-14: user decision — ignore Phasewerk
