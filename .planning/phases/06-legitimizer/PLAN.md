@@ -10,7 +10,7 @@ Law 1 as code (FR-L-1/2/3): the pattern lifecycle (N verbatim repeats before any
   - `Legitimizer.Config` — `repeats` (N, default 4, range 2–32; FR-L-1).
   - `advanceAtLoopBoundary(_:)` — lifecycle countdown: `.repeating(n) → .repeating(n−1) → .established`; `.established` is stable.
   - `isMutable(_:)` — established AND not locked (FR-V-4).
-  - `mutate(voice:key:meter:seed:config:)` — returns the voice with a mutated pattern and lifecycle reset to `.repeating(N−1)`. No-op (identity) for locked or not-yet-established patterns. Operators (FR-L-2, spec §7.4):
+  - `mutate(voice:key:meter:seed:config:)` — returns the voice with a mutated pattern and lifecycle reset to `.repeating(remaining: N)`. No-op (identity) for locked or not-yet-established patterns. Operators (FR-L-2, spec §7.4):
     - **degree shift**: each non-first note has a 30% chance of a scale-fold-safe degree move up to ±1 octave of degrees; shifts that would push the resolved span past 24 semitones are skipped;
     - **time nudge**: one non-anchor note ±1–2 steps (collision-safe);
     - **accent move**: relocate or toggle one accent ("keep the notes, move the accents" [M §5.8]);
@@ -20,13 +20,13 @@ Law 1 as code (FR-L-1/2/3): the pattern lifecycle (N verbatim repeats before any
 
 ## Acceptance criteria
 
-- [ ] Lifecycle countdown: `.repeating(3)` → 3 boundaries → `.established`; `.established` stays; fresh generator output plays exactly N=4 times before becoming mutable
-- [ ] `mutate` is identity for locked patterns and for patterns still repeating (Law 1)
-- [ ] `mutate` on established patterns: deterministic per seed; produces a change for at least one seed in 1…10
-- [ ] Post-mutation invariants hold across 50 seeds: first sounding note = root, accidentals 0, positions in loop, span ≤ 24 st, bass anchor preserved, roots-only bass
-- [ ] Post-mutation lifecycle = `.repeating(N−1)`; rendering the mutated pattern is loop-stable (identical content every repeat — randomness never re-rolls per render)
-- [ ] At most one note carries ratchet > 1 after any mutation
-- [ ] TDD red → green; `swift test` green
+- [x] Lifecycle countdown: `.repeating(3)` → 3 boundaries → `.established`; `.established` stays; fresh generator output plays exactly N=4 times before becoming mutable
+- [x] `mutate` is identity for locked patterns and for patterns still repeating (Law 1)
+- [x] `mutate` on established patterns: deterministic per seed; produces a change for at least one seed in 1…10
+- [x] Post-mutation invariants hold across 50 seeds: first sounding note = root, accidentals 0, positions in loop, span ≤ 24 st, bass anchor preserved, roots-only bass
+- [x] Post-mutation lifecycle = `.repeating(remaining: N)`; rendering the mutated pattern is loop-stable (identical content every repeat — randomness never re-rolls per render)
+- [x] At most one note carries ratchet > 1 after any mutation
+- [x] TDD red → green; `swift test` green
 
 ## Out of scope
 

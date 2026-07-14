@@ -70,9 +70,11 @@ public struct Provenance: Codable, Equatable, Sendable {
 /// Legitimization lifecycle (M Law 1). Transitions are the Legitimizer's job
 /// (phase 06); this is only the persisted state.
 public enum Lifecycle: Codable, Equatable, Sendable {
-    /// Freshly generated/mutated; plays verbatim `remaining` more times.
+    /// Fresh/mutated material with `remaining` verbatim plays left before it
+    /// becomes mutable. A fresh pattern starts at N (default 4 — "generate
+    /// once + repeat 3× = 4 total plays").
     case repeating(remaining: Int)
-    /// Played its N verbatim repeats; eligible for mutation.
+    /// Played its N verbatim plays; eligible for mutation.
     case established
 }
 
@@ -101,7 +103,7 @@ public struct Pattern: Codable, Equatable, Sendable {
                 notes: [PatternNote], gateCycle: [GateStep]? = nil,
                 gateCycleLength: Tick? = nil, provenance: Provenance,
                 locked: Bool = false,
-                lifecycle: Lifecycle = .repeating(remaining: 3)) {
+                lifecycle: Lifecycle = .repeating(remaining: 4)) {
         precondition(length > 0, "pattern length must be positive")
         precondition(notes.allSatisfy { $0.position < length },
                      "note positions must lie within the loop")

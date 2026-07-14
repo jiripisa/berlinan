@@ -29,9 +29,11 @@ private func established(_ voice: Voice) -> Voice {
 @Suite("Legitimization lifecycle")
 struct LifecycleTests {
 
-    @Test("Countdown: repeating(3) → 3 boundaries → established, then stable")
+    @Test("Countdown: fresh = 4 plays remaining → established after 4 boundaries, then stable")
     func countdown() {
         var p = freshVoice().pattern
+        #expect(p.lifecycle == .repeating(remaining: 4))
+        p = Legitimizer.advanceAtLoopBoundary(p)
         #expect(p.lifecycle == .repeating(remaining: 3))
         p = Legitimizer.advanceAtLoopBoundary(p)
         #expect(p.lifecycle == .repeating(remaining: 2))
@@ -129,12 +131,12 @@ struct MutationTests {
         }
     }
 
-    @Test("Mutation resets the lifecycle to repeating(N−1)")
+    @Test("Mutation resets the lifecycle to N plays remaining")
     func lifecycleReset() {
         let v = established(freshVoice())
         for seed in UInt64(1)...10 {
             let out = Legitimizer.mutate(v, key: key, meter: meter, seed: seed)
-            #expect(out.pattern.lifecycle == .repeating(remaining: 3))
+            #expect(out.pattern.lifecycle == .repeating(remaining: 4))
         }
     }
 
@@ -143,7 +145,7 @@ struct MutationTests {
         let v = established(freshVoice())
         let cfg = Legitimizer.Config(repeats: 8)
         let out = Legitimizer.mutate(v, key: key, meter: meter, seed: 3, config: cfg)
-        #expect(out.pattern.lifecycle == .repeating(remaining: 7))
+        #expect(out.pattern.lifecycle == .repeating(remaining: 8))
     }
 
     @Test("Loop-stability: a mutated pattern renders identically every repeat (FR-L-3)")
