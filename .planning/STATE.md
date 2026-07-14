@@ -7,7 +7,7 @@
   musical depth (remaining generators, gate/pitch decoupling, progressions,
   CC lanes + gate ramps, MIDI delay + delay hints, pattern editor, snapshots,
   undo, documents).
-- **Next entry point**: phase 17 — modulation (CC lanes, gate ramps, MIDI delay + delay hints + cheat sheet).
+- **Next entry point**: phase 18 — legitimizer plus (accumulators, ratchet policy, snapshots + slots UI, undo).
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in
   the jam, degree buttons audible, capture export lands in Ableton).
 - 2026-07-14 — MIDI delay (FR-MOD-7) deferred from phase 17 to M4 by user

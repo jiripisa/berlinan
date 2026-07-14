@@ -34,7 +34,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 |---|---|---|---|
 | 15-harmony-engines | Progression player (+ manual presets), weighted-random transposition, bass reharmonization, harmony strip UI | FR-H-4/5/6/9 | ✅ |
 | 16-generators-4-6 | Drunkard's walk, staged pluck, arpeggiator expansion; gate/pitch decoupling render; duplicate-and-tweak + accent ops | FR-P-1(4–6)/4/5/6 | ✅ |
-| 17-modulation | CC LFO lanes (musical time, S&H pre-strike), gate ramps, per-voice CC maps, delay hints + cheat sheet | FR-MOD-2/3/4/5/8 | ☐ |
+| 17-modulation | CC LFO lanes (musical time, S&H pre-strike), gate ramps, per-voice CC maps, delay hints + cheat sheet | FR-MOD-2/3/4/5/8 | ✅ |
 | 18-legitimizer-plus | Accumulators, ratchet policy, snapshots + slots UI, undo | FR-L-4/5/6, FR-UX-3/5 | ☐ |
 | 19-editor-and-documents | Pattern editor (hand edits lock), project settings (key/tempo/meter, bar-quantized), .berlinan documents | FR-P-7, FR-GS-4/5, spec §10 | ☐ |
 
