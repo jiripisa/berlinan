@@ -18,15 +18,15 @@ A byte-exact, deterministic Standard MIDI File writer (FR-IO-6, engine part of F
 
 ## Acceptance criteria
 
-- [ ] VLQ vectors: 0→`00`, 127→`7F`, 128→`81 00`, 960→`87 40`, 0x0FFFFFFF→`FF FF FF 7F`
-- [ ] Header bytes exact: `MThd 00000006 0001 <ntrks> 03C0`
-- [ ] Track 0 carries `FF 51 03 0A2C2B` (90 BPM) and `FF 58 04 04 02 18 08` (4/4)
-- [ ] Single-note fixture produces the exact expected track bytes (on/off pair, EoT at length)
-- [ ] Ratchet 2 with gate 120 → onsets at 0 and 60; sub-gates ≤ slice
-- [ ] Same-pitch overlap: first note's off clipped to the second's onset; offs precede ons at equal ticks
-- [ ] Every note-on has exactly one matching note-off (fuzz over generated ensembles)
-- [ ] Determinism: identical inputs → identical bytes
-- [ ] TDD red → green; `swift test` green
+- [x] VLQ vectors: 0→`00`, 127→`7F`, 128→`81 00`, 960→`87 40`, 0x0FFFFFFF→`FF FF FF 7F`
+- [x] Header bytes exact: `MThd 00000006 0001 <ntrks> 03C0`
+- [x] Track 0 carries `FF 51 03 0A2C2B` (90 BPM) and `FF 58 04 04 02 18 08` (4/4)
+- [x] Single-note fixture produces the exact expected track bytes (on/off pair, EoT at length)
+- [x] Ratchet 2 with gate 120 → onsets at 0 and 60; sub-gates ≤ slice
+- [x] Same-pitch overlap: first note's off clipped to the second's onset; offs precede ons at equal ticks
+- [x] Every note-on has exactly one matching note-off (fuzz over generated ensembles)
+- [x] Determinism: identical inputs → identical bytes
+- [x] TDD red → green; `swift test` green
 
 ## Out of scope
 

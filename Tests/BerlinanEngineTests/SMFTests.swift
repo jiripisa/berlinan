@@ -75,11 +75,11 @@ struct SMFStructureTests {
         let bytes = SMFWriter.encode(bpm: 90, meter: meter, tracks: [track], length: beat)
         let expectedTrack: [UInt8] =
             [0x4D, 0x54, 0x72, 0x6B,                  // MTrk
-             0x00, 0x00, 0x00, 0x14,                  // chunk length = 20 bytes
+             0x00, 0x00, 0x00, 0x12,                  // chunk length = 18 bytes
              0x00, 0xFF, 0x03, 0x01] + Array("v".utf8) +  // track name "v"
             [0x00, 0x90, 60, 100,                     // Δ0 note on C4 vel 100
              0x78, 0x80, 60, 0,                       // Δ120 note off
-             0x87, 0x28,                              // Δ840 (to tick 960)
+             0x86, 0x48,                              // Δ840 (to tick 960)
              0xFF, 0x2F, 0x00]                        // end of track
         #expect(suffix(of: bytes, is: expectedTrack))
     }
@@ -111,7 +111,11 @@ struct SMFIntegrityTests {
         ])
         let events = noteEvents(SMFWriter.encode(bpm: 90, meter: meter,
                                                  tracks: [track], length: beat))
-        #expect(events.map { ($0.at, $0.on) } == [(0, true), (240, false), (240, true), (360, false)])
+        let expected: [(at: Tick, on: Bool)] = [(0, true), (240, false), (240, true), (360, false)]
+        #expect(events.count == expected.count)
+        for (e, x) in zip(events, expected) {
+            #expect(e.at == x.at && e.on == x.on)
+        }
     }
 
     @Test("Fuzz: every note-on has exactly one matching note-off (generated ensemble)")
