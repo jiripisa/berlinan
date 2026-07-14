@@ -13,13 +13,13 @@ The first three pattern generators (FR-P-1), deterministic and invariant-safe: S
 
 ## Acceptance criteria (all generators unless noted)
 
-- [ ] Determinism: same (config, seed) ⇒ identical pattern; varying seeds produce differing note content
-- [ ] Invariants (FR-P-2): first sounding note = root; all accidentals 0; positions within loop; resolved span ≤ 24 semitones; gates 40–60% of a 16th step
-- [ ] Seed procedure: onsets exist at beats 1&3 (bed roles); bass role → passes `satisfiesAnchor(.beats1and3)` with roots only
-- [ ] High/Mid/Low: high contains the +4 (5th-up) degree; low = exactly two onsets (beats 1&3); mid keeps beats 1&3 as on-grid roots
-- [ ] Pulsing bass: onset count = 16th steps per bar; ≥ 75% root pitch class; exactly the off-root notes are accented with velocity > baseline
-- [ ] Provenance carries generator id + seed
-- [ ] TDD red → green; `swift test` green
+- [x] Determinism: same (config, seed) ⇒ identical pattern; varying seeds produce differing note content
+- [x] Invariants (FR-P-2): first sounding note = root; all accidentals 0; positions within loop; resolved span ≤ 24 semitones; gates 40–60% of a 16th step
+- [x] Seed procedure: onsets exist at beats 1&3 (bed roles); bass role → passes `satisfiesAnchor(.beats1and3)` with roots only
+- [x] High/Mid/Low: high contains the +4 (5th-up) degree; low = exactly two onsets (beats 1&3); mid keeps beats 1&3 as on-grid roots
+- [x] Pulsing bass: onset count = 16th steps per bar; ≥ 75% root pitch class; exactly the off-root notes are accented with velocity > baseline
+- [x] Provenance carries generator id + seed
+- [x] TDD red → green; `swift test` green
 
 ## Out of scope
 
