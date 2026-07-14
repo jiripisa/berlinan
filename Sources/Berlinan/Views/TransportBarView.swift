@@ -7,6 +7,7 @@ struct TransportBarView: View {
     let ui: UIState
     let midiStatus: String
     let midiUp: Bool
+    var onSettings: () -> Void = {}
 
     var body: some View {
         HStack(spacing: 16) {
@@ -53,6 +54,20 @@ struct TransportBarView: View {
             }
 
             Spacer()
+
+            Button(action: onSettings) {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(ui.isPlaying ? AppColor.ink4 : AppColor.ink2)
+                    .frame(width: 28, height: 24)
+                    .background(AppColor.bgPanel)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4)
+                        .stroke(AppColor.line, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .disabled(ui.isPlaying)
+            .help(ui.isPlaying ? "Stop playback to change settings" : "Project settings")
 
             HStack(spacing: 6) {
                 Circle()

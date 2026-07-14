@@ -30,6 +30,21 @@ struct BerlinanApp: App {
                     .keyboardShortcut("z", modifiers: .command)
                     .disabled(!ui.canUndo)
             }
+            // Documents (spec §10, M3 subset).
+            CommandGroup(replacing: .newItem) {
+                Button("Open Project…") {
+                    if let project = services.openDocument() {
+                        ui.loadSlots(project.snapshots)
+                    }
+                }
+                .keyboardShortcut("o", modifiers: .command)
+                .disabled(ui.isPlaying)
+
+                Button("Save Project As…") {
+                    services.saveDocument(snapshots: ui.snapshotSlots)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .shift])
+            }
         }
 
         // Studio reference card (FR-MOD-8) — appears in the Window menu.

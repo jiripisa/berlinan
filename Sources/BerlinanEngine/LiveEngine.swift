@@ -19,6 +19,9 @@ public struct LiveEngine: Sendable {
         /// Restore a captured state; binds at the next bar — all loops
         /// re-align there (FR-L-6).
         case recallSnapshot(StateSnapshot)
+        /// Hand-edited pattern (FR-P-7); binds at the voice's next loop
+        /// boundary and arrives locked + established.
+        case replacePattern(voiceID: String, pattern: Pattern)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -37,6 +40,7 @@ public struct LiveEngine: Sendable {
         var blankActive = false
         var blankRequestTick: Tick? = nil
         var regenerateRequestTick: Tick? = nil
+        var replaceRequest: (tick: Tick, pattern: Pattern)? = nil
         var accumBase: Int? = nil
         var accumCycle = 0
 
@@ -133,6 +137,8 @@ public struct LiveEngine: Sendable {
             let bar = HarmonyEngine.quantizedEventBar(requestTick: tick,
                                                       meter: project.meter)
             pendingRecall = (tick: Tick(bar) * project.meter.ticksPerBar, snapshot)
+        case .replacePattern(let voiceID, let pattern):
+            withState(voiceID) { $0.replaceRequest = (tick: requestTick, pattern: pattern) }
         }
     }
 
@@ -267,6 +273,20 @@ public struct LiveEngine: Sendable {
         if let request = state.blankRequestTick, tick >= request {
             state.blankRequestTick = nil
             state.blankActive = true
+            return
+        }
+
+        // 2b. Hand-edited replacement (FR-P-7) takes top priority: it arrives
+        //     locked and established — the producer's word is final.
+        if let request = state.replaceRequest, tick >= request.tick {
+            state.replaceRequest = nil
+            state.regenerateRequestTick = nil
+            var pattern = request.pattern
+            pattern.locked = true
+            pattern.lifecycle = .established
+            state.voice.pattern = pattern
+            state.accumBase = nil
+            state.accumCycle = 0
             return
         }
 

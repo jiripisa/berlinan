@@ -8,6 +8,7 @@ import BerlinanRuntime
 struct VoiceLaneView: View {
     let ui: UIState
     let voice: LiveEngine.Snapshot.VoiceSnapshot
+    var onEdit: () -> Void = {}
 
     private var identity: Color {
         switch voice.role {
@@ -74,6 +75,12 @@ struct VoiceLaneView: View {
                                activeColor: AppColor.cyan, help: "Blank cycle (one silent loop)") {
                         ui.blankCycle(voice.id)
                     }
+                }
+                laneButton("pencil",
+                           active: voice.pattern.provenance.generator == .handEdited,
+                           activeColor: AppColor.amber,
+                           help: "Edit pattern (hand edits lock)") {
+                    onEdit()
                 }
             }
         }

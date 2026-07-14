@@ -18,13 +18,13 @@ Close M3 (→ v0.3.0): hand-editable patterns that lock (FR-P-7), a project sett
 
 ## Acceptance criteria
 
-- [ ] replacePattern: binds at the next loop boundary (old bar before, new after); pattern locked + established; never auto-mutates afterwards; chunk-independent
-- [ ] overridePattern: materialized verbatim and locked; renders reproduce the hand-edited notes exactly
-- [ ] Project.snapshots + overridePattern survive JSON round-trip; 0.2.x JSON (neither key) still decodes; goldens untouched
-- [ ] Open/save round-trip via CLI-written file (automated: decode(saved) == project)
-- [ ] `swift test` green; `./build.sh debug` clean; smoke launch; editor + settings sheets render (visual check)
+- [x] replacePattern: binds at the next loop boundary (old bar before, new after); pattern locked + established; never auto-mutates afterwards; chunk-independent
+- [x] overridePattern: materialized verbatim and locked; renders reproduce the hand-edited notes exactly
+- [x] Project.snapshots + overridePattern survive JSON round-trip; 0.2.x JSON (neither key) still decodes; goldens untouched
+- [x] Open/save round-trip via CLI-written file (automated: decode(saved) == project)
+- [x] `swift test` green; `./build.sh debug` clean; smoke launch; editor + settings sheets render (visual check)
 - [ ] Human: edit a note in a lane → hear it change at the next loop and see the lock engage; save, reopen, the edit survives
-- [ ] Tag v0.3.0 after merge
+- [x] Tag v0.3.0 after merge
 
 ## Out of scope
 
