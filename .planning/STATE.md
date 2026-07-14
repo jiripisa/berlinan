@@ -3,10 +3,13 @@
 ## Current position
 
 - **Milestone**: M1 — headless engine
-- **Milestone**: M2 — it plays (first usable jam tool)
-- **Active phase**: none (phases 10–13 merged — 135 tests). Real UI shipped.
-- **Next entry point**: phase 14 — capture & export (rolling ring buffer,
-  export last N bars, degree-button panel) → closes M2 / v0.2.0
+- **Milestone**: M2 CLOSED 2026-07-14 (tag v0.2.0, 140 tests). Next: M3 —
+  musical depth (remaining generators, gate/pitch decoupling, progressions,
+  CC lanes + gate ramps, MIDI delay + delay hints, pattern editor, snapshots,
+  undo, documents).
+- **Next entry point**: break M3 into phases in ROADMAP, then plan phase 15.
+- Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in
+  the jam, degree buttons audible, capture export lands in Ableton).
 - Phasewerk question RESOLVED 2026-07-14: user decision — ignore Phasewerk
   entirely for now; do not study, reference, or deconflict against it.
 - M1 CLOSED 2026-07-14 (tag v0.1.0), 107 tests. Listening protocol passed
