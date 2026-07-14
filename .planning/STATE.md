@@ -34,5 +34,5 @@
 
 - LinkKit licensing check before M4 (spec OQ-3)
 - AppIcon.png not yet created — build.sh warns, app has no icon (needed before first dist build)
-- Musical sign-off of the M1 demo render deferred — re-listen during M2 with
-  real synths/live MIDI before calling the generators style-correct
+- ~~Musical sign-off of the M1 demo render deferred~~ RESOLVED 2026-07-14:
+  user confirmed the live M2 jam plays and sounds good
