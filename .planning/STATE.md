@@ -4,11 +4,12 @@
 
 - **Milestone**: M1 — headless engine
 - **Milestone**: M2 — it plays (first usable jam tool)
-- **Active phase**: none (phases 10–12 merged — 129 tests). THE APP PLAYS:
-  demo project streams to 'Berlinan Out' with clock; awaiting user's live
-  listening (= deferred M1 musical sign-off too).
-- **Next entry point**: phase 13 — UI shell (transport bar, voice lanes with
-  pattern strips + lifecycle dots, per-voice controls incl. runtime mute)
+- **Active phase**: none (phases 10–13 merged — 135 tests). Real UI shipped.
+- **Next entry point**: phase 14 — capture & export (rolling ring buffer,
+  export last N bars, degree-button panel) → closes M2 / v0.2.0
+- **OPEN QUESTION for user**: relationship to the Phasewerk app
+  (~/Development/Claude/Phasewerk — mature Berlin School sequencer with
+  overlapping features). Study it like Sampio? Differentiate? Merge ideas?
 - M1 CLOSED 2026-07-14 (tag v0.1.0), 107 tests. Listening protocol passed
   PROVISIONALLY (user could not confidently judge; re-verify musically during
   M2 live jamming — carried as a watch-list item).
