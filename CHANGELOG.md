@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.3.0 — 2026-07-14 (M3 — musical depth)
+
+The full manual toolkit lands in the engine and the UI.
+
+- Harmony modes: progression player with the manual's preset walks,
+  weighted-random transposition ("sweet vs dark"), bass reharmonization
+  with held roots; harmony strip with upcoming-event chips
+- Generators 4-6: drunkard's walk, staged pluck (signature closing note),
+  arpeggiator expansion with cycle-length loops (native polymeter);
+  decoupled gate/pitch patterns (8v6 -> re-sync at 24)
+- Modulation output: CC LFO lanes in musical time (bars, not Hz) with
+  stateless delta filtering, S&H pre-strike, gate ramps, per-voice CC maps;
+  Delay Cheat Sheet window (per-voice audio-delay settings at live tempo)
+- Legitimizer plus: Metropolix accumulators, configurable ratchet policy
+  (+ live/export ratchet consistency fix), state snapshots with 6 UI slots
+  (recall at next bar), undo (Cmd-Z) over generative actions
+- Pattern editor (hand edits lock and persist), project settings sheet
+  (key/mode/BPM/meter presets), .berlinan documents (open/save incl.
+  snapshot slots and hand edits)
+- Deferred by user decision: MIDI delay echo notes (FR-MOD-7 -> M4)
+
 ## 0.2.0 — 2026-07-14 (M2 — "it plays")
 
 First usable jam tool. Berlinan publishes a virtual MIDI source ("Berlinan

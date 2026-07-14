@@ -135,9 +135,18 @@ public enum OfflineRenderer {
 
     /// Build the runtime Voice from its config (also LiveEngine's init path).
     static func materialize(_ config: VoiceConfig, project: Project) -> Voice {
-        let pattern = makePattern(config, project: project,
+        var pattern: Pattern
+        if let override = config.overridePattern {
+            // Hand-edited material (FR-P-7): verbatim, locked, established —
+            // it never mutates and never regenerates.
+            pattern = override
+            pattern.locked = true
+            pattern.lifecycle = .established
+        } else {
+            pattern = makePattern(config, project: project,
                                   seedLabels: ["voice", config.id, "gen0"],
                                   idSuffix: "gen0")
+        }
         // Bass reharm overrides participation: ONLY the bass transposes
         // (FR-H-6) — regardless of the per-voice config flag.
         let participates: Bool

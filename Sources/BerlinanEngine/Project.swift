@@ -23,6 +23,9 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
     public var gateRamp: GateRampProgram?
     /// Metropolix-style per-cycle drift (FR-L-4).
     public var accumulator: AccumulatorConfig?
+    /// Hand-edited pattern (FR-P-7): used verbatim (locked) instead of the
+    /// generator when present — hand edits survive in the document.
+    public var overridePattern: Pattern?
 
     public init(id: String, role: VoiceRole, register: RegisterWindow,
                 referenceC: Int, generator: GeneratorConfig, channel: UInt8,
@@ -30,7 +33,8 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
                 participatesInTransposition: Bool? = nil,
                 ccLanes: [CCLane]? = nil, ccMap: [String: UInt8]? = nil,
                 gateRamp: GateRampProgram? = nil,
-                accumulator: AccumulatorConfig? = nil) {
+                accumulator: AccumulatorConfig? = nil,
+                overridePattern: Pattern? = nil) {
         self.id = id
         self.role = role
         self.register = register
@@ -44,6 +48,7 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
         self.ccMap = ccMap
         self.gateRamp = gateRamp
         self.accumulator = accumulator
+        self.overridePattern = overridePattern
     }
 }
 
@@ -77,13 +82,16 @@ public struct Project: Codable, Equatable, Sendable {
     public var harmony: HarmonyModeConfig?
     public var legitimization: Legitimizer.Config?
     public var velocity: VelocityPolicy?
+    /// Persisted snapshot slots (FR-L-6, spec §6.6).
+    public var snapshots: [LiveEngine.StateSnapshot?]?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],
                 transposition: TranspositionSchedule = .pedal,
                 harmony: HarmonyModeConfig? = nil,
                 legitimization: Legitimizer.Config? = nil,
-                velocity: VelocityPolicy? = nil) {
+                velocity: VelocityPolicy? = nil,
+                snapshots: [LiveEngine.StateSnapshot?]? = nil) {
         self.formatVersion = formatVersion
         self.masterSeed = masterSeed
         self.bpm = bpm
@@ -94,6 +102,7 @@ public struct Project: Codable, Equatable, Sendable {
         self.harmony = harmony
         self.legitimization = legitimization
         self.velocity = velocity
+        self.snapshots = snapshots
     }
 }
 

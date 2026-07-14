@@ -89,7 +89,13 @@ final class UIState {
 
     func togglePlayback() {
         guard let transport = services.transport else { return }
-        if transport.isPlaying { transport.stop() } else { transport.play() }
+        if transport.isPlaying {
+            transport.stop()
+            // Project edits made mid-play (hand edits) reach the next run.
+            services.rebuildTransportIfStale()
+        } else {
+            transport.play()
+        }
         refresh()
     }
 
@@ -144,6 +150,30 @@ final class UIState {
     func undo() {
         guard let state = undoStack.popLast() else { return }
         services.transport?.enqueue(.recallSnapshot(state))
+    }
+
+    /// Restore slots from an opened document (phase 19).
+    func loadSlots(_ slots: [LiveEngine.StateSnapshot?]?) {
+        var normalized = slots ?? []
+        if normalized.count < 6 {
+            normalized += Array(repeating: nil, count: 6 - normalized.count)
+        }
+        snapshotSlots = Array(normalized.prefix(6))
+        undoStack.removeAll()
+    }
+
+    // MARK: - Hand edits (FR-P-7)
+
+    /// Persist the edit into the project AND swap it live at the next loop
+    /// boundary when playing.
+    func applyHandEdit(voiceID: String, pattern: BerlinanEngine.Pattern) {
+        pushUndo()
+        services.updateVoiceOverride(voiceID, pattern: pattern)
+        if isPlaying {
+            services.transport?.enqueue(.replacePattern(voiceID: voiceID,
+                                                        pattern: pattern))
+        }
+        refresh()
     }
 
     // MARK: - Performance macros (FR-UX-3 partial)
