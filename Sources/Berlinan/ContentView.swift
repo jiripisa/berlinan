@@ -27,6 +27,8 @@ struct ContentView: View {
                     .background(AppColor.bgWindow)
 
                     Rectangle().fill(AppColor.lineSoft).frame(height: 1)
+                    PerformancePanelView(ui: ui)
+                    Rectangle().fill(AppColor.lineSoft).frame(height: 1)
                     ConvergenceView(ui: ui)
                 }
             } else {

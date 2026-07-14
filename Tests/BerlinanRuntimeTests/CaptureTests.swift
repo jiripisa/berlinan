@@ -36,14 +36,16 @@ struct CaptureBufferTests {
         #expect(clip.map(\.at) == [beat, bar, 2 * bar - 1])   // rebased below
     }
 
-    @Test("Rebase: export starts on a bar boundary and ticks re-zero")
+    @Test("Rebase: export covers whole bars only, starts on a boundary, re-zeroes ticks")
     func rebase() {
         var capture = CaptureBuffer(capacityTicks: 100 * bar)
-        capture.append([note(5 * bar + beat, midi: 61)], upTo: 6 * bar)
-        // endTick mid-bar 6: window floors to whole bars [4·bar, 6·bar).
+        capture.append([note(4 * bar + beat, midi: 61), note(5 * bar + beat, midi: 62)],
+                       upTo: 6 * bar)
+        // endTick mid-bar 6 floors to 5·bar → window is [3·bar, 5·bar):
+        // the partial current bar (and anything in it) is excluded.
         let clip = capture.notes(lastBars: 2, endTick: 6 * bar - 5, meter: meter)
         #expect(clip.count == 1)
-        #expect(clip[0].at == bar + beat)     // 5·bar+beat − 4·bar
+        #expect(clip[0].at == bar + beat)     // 4·bar+beat − 3·bar
         #expect(clip[0].midiNote == 61)
     }
 

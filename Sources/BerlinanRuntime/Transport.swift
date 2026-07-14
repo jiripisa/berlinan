@@ -25,6 +25,7 @@ public final class Transport: @unchecked Sendable {
     private var latestSnapshot: LiveEngine.Snapshot?
     private var latestOffset: Int = 0
     private var activeClock: TickClock?
+    private var capture: CaptureBuffer
     public private(set) var sendsClock = true
 
     public init(project: Project, midi: MIDIService) {
@@ -34,6 +35,9 @@ public final class Transport: @unchecked Sendable {
             project.voices.map { ($0.id, $0.channel) })
         // Preview snapshot so the UI shows the initial patterns before play.
         self.latestSnapshot = LiveEngine(project: project).snapshot()
+        // Rolling capture ≈ 60 minutes at the project tempo (FR-IO-7).
+        self.capture = CaptureBuffer(
+            capacityTicks: Tick(project.bpm * 60.0 * Double(Time.ppqn)))
     }
 
     public var isPlaying: Bool {
@@ -68,6 +72,31 @@ public final class Transport: @unchecked Sendable {
     public func isMuted(_ voiceID: String) -> Bool {
         lock.lock(); defer { lock.unlock() }
         return mutedVoices.contains(voiceID)
+    }
+
+    // MARK: - Capture export (FR-IO-7 + FR-IO-6a)
+
+    /// The last `lastBars` whole bars of the capture as an SMF, or nil when
+    /// nothing has been captured yet. Callable any time, including mid-play.
+    public func exportCapture(lastBars: Int) -> [UInt8]? {
+        lock.lock()
+        let buffer = capture
+        lock.unlock()
+        guard !buffer.isEmpty else { return nil }
+        let clip = buffer.notes(lastBars: lastBars, endTick: buffer.head,
+                                meter: project.meter)
+        guard !clip.isEmpty else { return nil }
+
+        let barTicks = project.meter.ticksPerBar
+        let coveredBars = min(Tick(lastBars), buffer.head / barTicks)
+        let length = max(barTicks, coveredBars * barTicks)
+        let tracks = project.voices.map { config in
+            SMFTrack(name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue)",
+                     channel: config.channel,
+                     notes: clip.filter { $0.voiceID == config.id })
+        }
+        return SMFWriter.encode(bpm: project.bpm, meter: project.meter,
+                                tracks: tracks, length: length)
     }
 
     // MARK: - Transport controls
@@ -153,9 +182,9 @@ public final class Transport: @unchecked Sendable {
             let target = clock.tick(atMach: machAfter(nanos: lookaheadNanos))
             if target > renderHead {
                 let window = renderHead..<target
+                let rendered = engine.render(range: window)
                 var timed = NoteEventConverter.events(
-                    for: engine.render(range: window),
-                    channelMap: channelMap, muted: muted)
+                    for: rendered, channelMap: channelMap, muted: muted)
                 if sendsClock {
                     timed += NoteEventConverter.clockTicks(in: window)
                         .map { NoteEventConverter.TimedEvent(tick: $0, event: .clock) }
@@ -163,6 +192,11 @@ public final class Transport: @unchecked Sendable {
                 midi.send(timed.map {
                     (hostTime: clock.machTime(forTick: $0.tick), event: $0.event)
                 })
+                // Capture what the engine PLAYED (pre-mute — muting is a
+                // monitor decision, the jam is recorded whole; FR-IO-7).
+                lock.lock()
+                capture.append(rendered, upTo: target)
+                lock.unlock()
                 renderHead = target
             }
 
