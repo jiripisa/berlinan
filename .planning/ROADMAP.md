@@ -38,9 +38,16 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 | 18-legitimizer-plus | Accumulators, ratchet policy, snapshots + slots UI, undo | FR-L-4/5/6, FR-UX-3/5 | ✅ |
 | 19-editor-and-documents | Pattern editor (hand edits lock), project settings (key/tempo/meter, bar-quantized), .berlinan documents | FR-P-7, FR-GS-4/5, spec §10 | ✅ |
 
-## M4 — Sync & integration
+## M4 — Sync & integration → v1.0
 
-Clock slave, Ableton Link, MIDI learn, drag & drop clips, synth profiles, meter changes, **MIDI delay (FR-MOD-7 — deferred from M3 by user decision 2026-07-14)**. → v1.0
+| Phase | Scope | FR-IDs | Status |
+|---|---|---|---|
+| 20-midi-delay | Echo-note post-processor (per-voice toggle, live action, cheat-sheet warning) | FR-MOD-7 (+8 interplay) | ☐ |
+| 21-runtime-changes | Tempo/key/meter changes while playing, bar-quantized (clock re-anchoring, re-quantize at boundary) | FR-GS-4/5 | ☐ |
+| 22-clock-slave | MIDI clock in with PLL smoothing; transport follows Start/Stop | FR-IO-4 | ☐ |
+| 23-link | Ableton Link via LinkKit (licensing check FIRST — OQ-3 gate; clock-slave is the fallback) | FR-IO-5 | ☐ |
+| 24-learn-dnd-profiles | MIDI learn for macros, drag & drop clips (pattern pool + capture), global synth CC profiles | FR-IO-9/10, FR-MOD-5 | ☐ |
+| 25-v1-release | AppIcon, dist smoke (Developer ID + notarized DMG), README, release checklist | NFR-7, workflow §4.5 | ☐ |
 
 ## M5 — Arranger & polish
 
