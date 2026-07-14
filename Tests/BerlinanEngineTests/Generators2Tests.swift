@@ -190,7 +190,7 @@ struct DecoupledTests {
         for o in occ {
             let step = Int(o.at / eighth)
             #expect(o.note.pitch.degree == step % 8, "step \(step)")
-            #expect(gates[step % 6].on)
+            #expect(gates[step % 6])
         }
     }
 
