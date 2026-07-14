@@ -34,6 +34,32 @@ struct ContentView: View {
                         .font(AppFont.monoCaption)
                         .foregroundStyle(AppColor.ink2)
                 }
+
+                if services.transport != nil {
+                    Button {
+                        services.togglePlayback()
+                    } label: {
+                        Text(services.isPlaying ? "STOP" : "PLAY")
+                            .font(AppFont.sansBold(12))
+                            .tracking(AppTracking.label)
+                            .foregroundStyle(services.isPlaying ? AppColor.rec : AppColor.tangerine)
+                            .frame(width: 96, height: 30)
+                            .background(services.isPlaying ? AppColor.recGlow : AppColor.tangerineGlow)
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(services.isPlaying ? AppColor.recLine : AppColor.tangerineLine,
+                                            lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardShortcut(.space, modifiers: [])
+                    .padding(.top, 8)
+
+                    Text("demo project — 90 BPM C minor · ch1 bed1 · ch2 bed2 · ch3 bass")
+                        .font(AppFont.monoCaption)
+                        .foregroundStyle(AppColor.ink3)
+                }
             }
             .padding(24)
             .background(AppColor.bgPanel)
