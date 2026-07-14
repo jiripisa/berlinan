@@ -14,13 +14,13 @@ The engine's tonal and temporal foundation (spec §6.1–6.2): time math, scale/
 
 ## Acceptance criteria
 
-- [ ] Scale presets match manual §4.2 offset lists exactly
-- [ ] Resolution: C minor @ referenceC 60 — degree 0→60, 2→63, 4→67, 7→72, negative degrees descend correctly
-- [ ] Property: resolved pitch class ∈ scale pitch classes for random degree/octave (accidental 0)
-- [ ] Fold: preserves pitch class, lands inside window, never clamps (window span ≥ 11 enforced)
-- [ ] Quantize: in-scale MIDI is idempotent; C# in C major → C (tie goes DOWN)
-- [ ] SplitMix64: same seed ⇒ identical sequence; SeedStream.derive stable and label-sensitive
-- [ ] `swift test` green; tests written before implementation (TDD commits)
+- [x] Scale presets match manual §4.2 offset lists exactly
+- [x] Resolution: C minor @ referenceC 60 — degree 0→60, 2→63, 4→67, 7→72, negative degrees descend correctly
+- [x] Property: resolved pitch class ∈ scale pitch classes for random degree/octave (accidental 0)
+- [x] Fold: preserves pitch class, lands inside window, never clamps (window span ≥ 11 enforced)
+- [x] Quantize: in-scale MIDI is idempotent; C# in C major → C (tie goes DOWN)
+- [x] SplitMix64: same seed ⇒ identical sequence; SeedStream.derive stable and label-sensitive
+- [x] `swift test` green; tests written before implementation (TDD commits)
 
 ## Out of scope
 
