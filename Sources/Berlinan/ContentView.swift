@@ -15,6 +15,8 @@ struct ContentView: View {
                                      midiStatus: services.midiStatus,
                                      midiUp: services.midi != nil)
                     Rectangle().fill(AppColor.line).frame(height: 1)
+                    HarmonyStripView(ui: ui, services: services)
+                    Rectangle().fill(AppColor.lineSoft).frame(height: 1)
 
                     ScrollView {
                         VStack(spacing: 8) {

@@ -36,11 +36,16 @@ public struct LiveEngine: Sendable {
     private var states: [VoiceState]           // stable order = project order
     private var renderedUpTo: Tick = 0
 
+    /// True when only the bass participates in transposition (bass reharm).
+    private let bassOnly: Bool
+
     public init(project: Project) {
         self.project = project
         self.legit = project.legitimization ?? .default
         self.velocity = project.velocity ?? VelocityPolicy()
-        self.schedule = project.transposition
+        let resolved = HarmonyScheduler.resolve(project: project)
+        self.schedule = resolved.schedule
+        self.bassOnly = resolved.bassOnly
         self.states = project.voices.map {
             VoiceState(voice: OfflineRenderer.materialize($0, project: project))
         }
@@ -60,6 +65,9 @@ public struct LiveEngine: Sendable {
             public let blankActive: Bool
         }
         public let voices: [VoiceSnapshot]
+        /// The effective transposition timeline (incl. live-enqueued events)
+        /// — for the harmony strip (FR-H-9).
+        public let scheduleEvents: [TranspositionEvent]
     }
 
     public func snapshot() -> Snapshot {
@@ -67,7 +75,7 @@ public struct LiveEngine: Sendable {
             Snapshot.VoiceSnapshot(id: $0.voice.id, role: $0.voice.role,
                                    pattern: $0.voice.pattern,
                                    blankActive: $0.blankActive)
-        })
+        }, scheduleEvents: schedule.events)
     }
 
     /// Current transposition offset for a bar — includes live-enqueued events.
@@ -139,6 +147,7 @@ public struct LiveEngine: Sendable {
                                                        key: project.key,
                                                        meter: project.meter,
                                                        in: lower..<upper)
+                    let stretchBassGates = bassOnly && state.voice.role == .bass
                     notes += segment.map { n in
                         var out = n
                         let local = Tick(floorMod(Int(n.at + startOffset), Int(length)))
@@ -146,6 +155,9 @@ public struct LiveEngine: Sendable {
                                                       accent: n.accent,
                                                       patternSeed: humanSeed,
                                                       localPosition: local)
+                        if stretchBassGates {
+                            out.gate = max(out.gate, project.meter.ticksPerBeat)
+                        }
                         return out
                     }
                 }
