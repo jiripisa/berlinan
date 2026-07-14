@@ -4,9 +4,11 @@
 
 - **Milestone**: M1 — headless engine
 - **Milestone**: M3 CLOSED 2026-07-14 (tag v0.3.0, 191 tests).
-- **Next entry point**: phase 21 — runtime tempo/key/meter changes
-  (bar-quantized; clock re-anchoring). Then 22 clock slave, 23 Link
-  (licensing gate!), 24 learn/dnd/profiles, 25 v1 release.
+- **Next entry point**: phase 22 — clock slave (MIDI clock in, PLL
+  smoothing, transport follows Start/Stop). Then 23 Link (licensing gate!),
+  24 learn/dnd/profiles, 25 v1 release.
+- Backlog: runtime METER changes (piecewise meter map design sketch in
+  phases/21 PLAN).
 - Pending human checks (19): hand edit audible + survives save/reopen;
   settings regenerate in new key/meter.
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in

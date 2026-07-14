@@ -44,7 +44,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 |---|---|---|---|
 | 20-midi-delay | Echo-note post-processor (per-voice toggle, live action, cheat-sheet warning) | FR-MOD-7 (+8 interplay) | ✅ |
 | 20b-seed-variety | Random session seed, 🎲 New Seed (live next-bar swap), FR-UX-6 | FR-UX-6 (user feedback) | ✅ |
-| 21-runtime-changes | Tempo + key changes while playing, bar-quantized (clock re-anchoring; degree-space re-rooting). Runtime METER descoped to backlog (needs a piecewise meter map for bar-indexed harmony; stopped-only stays) | FR-GS-5 (+4 partial) | ☐ |
+| 21-runtime-changes | Tempo + key changes while playing, bar-quantized (clock re-anchoring; degree-space re-rooting). Runtime METER descoped to backlog (needs a piecewise meter map for bar-indexed harmony; stopped-only stays) | FR-GS-5 (+4 partial) | ✅ |
 | 22-clock-slave | MIDI clock in with PLL smoothing; transport follows Start/Stop | FR-IO-4 | ☐ |
 | 23-link | Ableton Link via LinkKit (licensing check FIRST — OQ-3 gate; clock-slave is the fallback) | FR-IO-5 | ☐ |
 | 24-learn-dnd-profiles | MIDI learn for macros, drag & drop clips (pattern pool + capture), global synth CC profiles | FR-IO-9/10, FR-MOD-5 | ☐ |
