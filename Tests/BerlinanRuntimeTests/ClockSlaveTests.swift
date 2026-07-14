@@ -77,7 +77,7 @@ struct ExternalSyncTests {
         project.bpm = 90                      // must be OVERRIDDEN by the estimate
 
         let transport = Transport(project: project, midi: midi)
-        transport.setSyncMode(.externalClock, sourceName: "Berlin Test Clock Master".replacingOccurrences(of: "Berlin ", with: "Berlinan "))
+        transport.setSyncMode(.externalClock, sourceName: "Berlinan Test Clock Master")
 
         // Drive: Start + ~1.2 s of 240 BPM pulses (interval ≈ 10.42 ms).
         senderMIDI.send([(hostTime: 0, event: .start)])

@@ -66,6 +66,48 @@ public final class MIDIService {
         }
     }
 
+    // MARK: - Clock input (FR-IO-4)
+
+    public enum RealTimeMessage: Sendable {
+        case clock, start, continuePlayback, stop
+    }
+
+    private var inputPort = MIDIPortRef()
+
+    /// Connect an input port to external sources (self excluded; optionally
+    /// filtered by display name) and deliver real-time messages with their
+    /// packet timestamps (mach units). Call once.
+    public func connectClockInput(sourceName: String? = nil,
+                                  handler: @escaping @Sendable (RealTimeMessage, UInt64) -> Void) {
+        guard inputPort == 0 else { return }
+        let status = MIDIInputPortCreateWithProtocol(client, "clock-in" as CFString,
+                                                     ._1_0, &inputPort) { list, _ in
+            for packet in list.unsafeSequence() {
+                let timeStamp = packet.pointee.timeStamp
+                for word in packet.words() {
+                    switch word {
+                    case 0x10F8_0000: handler(.clock, timeStamp)
+                    case 0x10FA_0000: handler(.start, timeStamp)
+                    case 0x10FB_0000: handler(.continuePlayback, timeStamp)
+                    case 0x10FC_0000: handler(.stop, timeStamp)
+                    default: break
+                    }
+                }
+            }
+        }
+        guard status == noErr else { return }
+        for index in 0..<MIDIGetNumberOfSources() {
+            let endpoint = MIDIGetSource(index)
+            guard endpoint != sourceEndpoint else { continue }   // never self
+            if let sourceName {
+                var name: Unmanaged<CFString>?
+                MIDIObjectGetStringProperty(endpoint, kMIDIPropertyDisplayName, &name)
+                guard (name?.takeRetainedValue() as String?) == sourceName else { continue }
+            }
+            MIDIPortConnectSource(inputPort, endpoint, nil)
+        }
+    }
+
     // MARK: - Note-off safety net (FR-IO-8)
 
     /// Immediately silence everything sounding (optionally one channel):

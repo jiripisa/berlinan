@@ -31,6 +31,64 @@ public final class Transport: @unchecked Sendable {
     private var liveBPM: Double
     public private(set) var sendsClock = true
 
+    // MARK: - Sync mode (FR-IO-4)
+
+    public enum SyncMode: Equatable, Sendable { case internalClock, externalClock }
+
+    private var syncMode: SyncMode = .internalClock
+    private var estimator = ClockEstimator()
+    private var latestPulse: (index: Int, mach: UInt64)? = nil
+    private var externalStartMach: UInt64? = nil
+    private var clockInputConnected = false
+
+    public var currentSyncMode: SyncMode {
+        lock.lock(); defer { lock.unlock() }
+        return syncMode
+    }
+
+    /// Switch clock source (stopped only). External mode listens to the
+    /// named source (nil = all external sources), follows Start/Stop and
+    /// locks tempo/phase to the pulse stream.
+    public func setSyncMode(_ mode: SyncMode, sourceName: String? = nil) {
+        lock.lock()
+        guard !running else { lock.unlock(); return }
+        syncMode = mode
+        let needsConnect = mode == .externalClock && !clockInputConnected
+        if needsConnect { clockInputConnected = true }
+        lock.unlock()
+        if needsConnect {
+            midi.connectClockInput(sourceName: sourceName) { [weak self] message, mach in
+                self?.handleRealTime(message, mach: mach)
+            }
+        }
+    }
+
+    private func handleRealTime(_ message: MIDIService.RealTimeMessage, mach: UInt64) {
+        lock.lock()
+        guard syncMode == .externalClock else { lock.unlock(); return }
+        switch message {
+        case .clock:
+            estimator.pulse(atNanos: Self.nanos(fromMach: mach))
+            latestPulse = (index: estimator.pulseCount - 1, mach: mach)
+            lock.unlock()
+        case .start, .continuePlayback:
+            estimator.reset()
+            latestPulse = nil
+            externalStartMach = mach
+            lock.unlock()
+            play()
+        case .stop:
+            lock.unlock()
+            stop()
+        }
+    }
+
+    private static func nanos(fromMach mach: UInt64) -> UInt64 {
+        var info = mach_timebase_info_data_t()
+        mach_timebase_info(&info)
+        return mach * UInt64(info.numer) / UInt64(info.denom)
+    }
+
     /// The tempo in force (tracks runtime changes; FR-GS-5).
     public var currentBPM: Double {
         lock.lock(); defer { lock.unlock() }
@@ -160,7 +218,10 @@ public final class Transport: @unchecked Sendable {
             Thread.sleep(forTimeInterval: 0.005)
         }
         thread = nil
-        if sendsClock { midi.send([(hostTime: 0, event: .stop)]) }
+        lock.lock()
+        let external = syncMode == .externalClock
+        lock.unlock()
+        if sendsClock && !external { midi.send([(hostTime: 0, event: .stop)]) }
         midi.flush()                                    // FR-IO-8
     }
 
@@ -188,13 +249,21 @@ public final class Transport: @unchecked Sendable {
 
     private func schedulerLoop() {
         var engine = LiveEngine(project: project)
+        lock.lock()
+        let external = syncMode == .externalClock
+        let startAnchor = externalStartMach
+        externalStartMach = nil
+        lock.unlock()
+
         var clock = TickClock.current(
             bpm: currentBPM,
-            anchorMach: machAfter(nanos: prerollNanos))
+            anchorMach: external ? (startAnchor ?? mach_absolute_time())
+                                 : machAfter(nanos: prerollNanos))
         lock.lock()
         activeClock = clock
         lock.unlock()
-        if sendsClock {
+        let emitClock = sendsClock && !external      // never re-broadcast a followed clock
+        if emitClock {
             midi.send([(hostTime: clock.machTime(forTick: 0), event: .start)])
         }
         var renderHead: Tick = 0
@@ -206,7 +275,9 @@ public final class Transport: @unchecked Sendable {
             let actions = pendingActions
             pendingActions.removeAll()
             let muted = mutedVoices
-            let requestedBPM = pendingBPM
+            let requestedBPM = external ? nil : pendingBPM
+            let estimate = external ? estimator.bpm : nil
+            let pulse = latestPulse
             lock.unlock()
             guard stillRunning else { return }
 
@@ -214,9 +285,26 @@ public final class Transport: @unchecked Sendable {
                 engine.enqueue(action, atTick: renderHead)
             }
 
-            // Runtime tempo (FR-GS-5): bind at the next bar boundary — the
-            // window clamps to it, and once the render head reaches it the
-            // clock swaps with segment continuity.
+            // External sync (FR-IO-4): re-anchor the clock segment to the
+            // latest pulse (pulse k = tick k·40) with the smoothed tempo —
+            // micro-warping through piecewise segments, never tick jumps.
+            if external, let estimate, let pulse {
+                if abs(estimate - clock.bpm) > 0.25 {
+                    clock = TickClock.current(bpm: estimate,
+                                              anchorMach: pulse.mach,
+                                              anchorTick: Tick(pulse.index) * 40)
+                    lock.lock()
+                    activeClock = clock
+                    liveBPM = estimate
+                    lock.unlock()
+                }
+                // Freewheel: no pulse for > 500 ms → hold the last segment
+                // (nothing to do — the segment simply keeps running).
+            }
+
+            // Runtime tempo (FR-GS-5, internal mode): bind at the next bar
+            // boundary — the window clamps to it, and once the render head
+            // reaches it the clock swaps with segment continuity.
             var tempoBoundary: Tick? = nil
             if let newBPM = requestedBPM {
                 let boundary = (renderHead + barTicks - 1) / barTicks * barTicks
@@ -246,7 +334,7 @@ public final class Transport: @unchecked Sendable {
                     for: rendered, channelMap: channelMap, muted: muted)
                 timed += NoteEventConverter.ccEvents(
                     for: engine.renderCC(range: window), channelMap: channelMap)
-                if sendsClock {
+                if emitClock {
                     timed += NoteEventConverter.clockTicks(in: window)
                         .map { NoteEventConverter.TimedEvent(tick: $0, event: .clock) }
                 }
