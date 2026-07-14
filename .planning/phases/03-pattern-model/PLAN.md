@@ -12,13 +12,13 @@ The engine's pattern and voice value types (spec §6.3) with loop-cursor math: g
 
 ## Acceptance criteria
 
-- [ ] Pattern preconditions reject invalid data (empty length, out-of-range positions, zero gate, velocity 0/>127)
-- [ ] `occurrences(in:)`: correct global positions across multiple loop iterations, half-open ranges, non-power-of-two lengths (15 steps)
-- [ ] Rotation (`startOffset`) shifts occurrence times per `localTick = (global + offset) mod length`
-- [ ] `firstSoundingIsRoot` true iff earliest note is a root pitch class with no accidental
-- [ ] Anchor check: bass with onsets on beats 1+3 passes; missing beat-3 onset fails; rotated pattern evaluated correctly; verified over LCM(pattern, bar)
-- [ ] Codable round-trip: Pattern and Voice survive JSON encode/decode intact
-- [ ] TDD: red commit precedes implementation; `swift test` green
+- [x] Pattern preconditions reject invalid data (empty length, out-of-range positions, zero gate, velocity 0/>127)
+- [x] `occurrences(in:)`: correct global positions across multiple loop iterations, half-open ranges, non-power-of-two lengths (15 steps)
+- [x] Rotation (`startOffset`) shifts occurrence times per `localTick = (global + offset) mod length`
+- [x] `firstSoundingIsRoot` true iff earliest note is a root pitch class with no accidental
+- [x] Anchor check: bass with onsets on beats 1+3 passes; missing beat-3 onset fails; rotated pattern evaluated correctly; verified over LCM(pattern, bar)
+- [x] Codable round-trip: Pattern and Voice survive JSON encode/decode intact
+- [x] TDD: red commit precedes implementation; `swift test` green
 
 ## Out of scope
 
