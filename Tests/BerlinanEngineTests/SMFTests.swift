@@ -90,17 +90,17 @@ struct SMFStructureTests {
 @Suite("Ratchets and note-off integrity")
 struct SMFIntegrityTests {
 
-    @Test("Ratchet 2 splits a note into retriggers across its gate")
+    @Test("Ratchet 2 subdivides ONE 16th STEP (not the gate) — the audible d-d")
     func ratchet() {
         let track = SMFTrack(name: "v", channel: 0,
                              notes: [rendered(0, gate: 120, ratchet: 2)])
         let events = noteEvents(SMFWriter.encode(bpm: 90, meter: meter,
                                                  tracks: [track], length: beat))
         let ons = events.filter { $0.on }
-        #expect(ons.map(\.at) == [0, 60])
-        for e in events where !e.on {
-            #expect(e.at <= 120)
-        }
+        // Step = 240 ticks; slice = 120 → retriggers at 32nd-note spacing.
+        #expect(ons.map(\.at) == [0, 120])
+        // Sub-gate = min(90% of slice, original gate) = 108.
+        #expect(events.filter { !$0.on }.map(\.at) == [108, 228])
     }
 
     @Test("Same-pitch overlap: first off clipped to second onset; offs before ons")

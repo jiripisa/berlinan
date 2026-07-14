@@ -23,27 +23,14 @@ public enum NoteEventConverter {
         for note in notes {
             guard !muted.contains(note.voiceID),
                   let channel = channelMap[note.voiceID] else { continue }
-            if note.ratchet > 1 {
-                let slice = max(1, note.gate / Tick(note.ratchet))
-                for k in 0..<Tick(note.ratchet) {
-                    let at = note.at + k * slice
-                    let gate = max(1, slice * 9 / 10)
-                    result.append(TimedEvent(tick: at,
-                                             event: .noteOn(channel: channel,
-                                                            note: note.midiNote,
-                                                            velocity: note.velocity)))
-                    result.append(TimedEvent(tick: at + gate,
-                                             event: .noteOff(channel: channel,
-                                                             note: note.midiNote)))
-                }
-            } else {
-                result.append(TimedEvent(tick: note.at,
+            for hit in Ratchet.expand(note) {
+                result.append(TimedEvent(tick: hit.at,
                                          event: .noteOn(channel: channel,
-                                                        note: note.midiNote,
-                                                        velocity: note.velocity)))
-                result.append(TimedEvent(tick: note.at + note.gate,
+                                                        note: hit.midiNote,
+                                                        velocity: hit.velocity)))
+                result.append(TimedEvent(tick: hit.at + hit.gate,
                                          event: .noteOff(channel: channel,
-                                                         note: note.midiNote)))
+                                                         note: hit.midiNote)))
             }
         }
         return result

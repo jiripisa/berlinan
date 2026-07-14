@@ -83,19 +83,12 @@ public enum SMFWriter {
         events += vlq(0) + [0xFF, 0x03] + vlq(Tick(track.name.utf8.count))
             + Array(track.name.utf8)
 
-        // 1. Ratchet expansion (M §13.5): r retriggers across the gate,
-        //    sub-gate ≈ 90% of the slice.
+        // 1. Ratchet expansion (M §13.5): step-based retriggers via the
+        //    shared Ratchet helper (same math as the live converter).
         var expanded: [(at: Tick, note: UInt8, velocity: UInt8, off: Tick)] = []
         for n in track.notes {
-            if n.ratchet > 1 {
-                let slice = max(1, n.gate / Tick(n.ratchet))
-                for k in 0..<Tick(n.ratchet) {
-                    let at = n.at + k * slice
-                    let gate = max(1, slice * 9 / 10)
-                    expanded.append((at, n.midiNote, n.velocity, at + gate))
-                }
-            } else {
-                expanded.append((n.at, n.midiNote, n.velocity, n.at + n.gate))
+            for hit in Ratchet.expand(n) {
+                expanded.append((hit.at, hit.midiNote, hit.velocity, hit.at + hit.gate))
             }
         }
         expanded.sort { $0.at < $1.at || ($0.at == $1.at && $0.note < $1.note) }
