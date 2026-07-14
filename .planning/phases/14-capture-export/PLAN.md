@@ -13,13 +13,13 @@ Close M2 (→ v0.2.0): the record-the-jam workflow (FR-IO-7 + FR-IO-6a) and the 
 
 ## Acceptance criteria
 
-- [ ] CaptureBuffer: prune respects capacity; selection returns exactly the notes in the window; rebase lands on a bar boundary and re-zeroes ticks
-- [ ] Transport integration: after a short play, `exportCapture(lastBars: 1)` returns a valid SMF (MThd prefix, ≥ 1 note-on) — loopback-style test
-- [ ] Degree buttons enqueue `.transpose(degreeOffset: k−1)`; DEG chip follows (engine offset covered by existing tests; UI wiring manual)
-- [ ] Re-roll enqueues `.regenerate` for every unlocked voice only
-- [ ] `swift test` green; `./build.sh debug` clean
+- [x] CaptureBuffer: prune respects capacity; selection returns exactly the notes in the window; rebase lands on a bar boundary and re-zeroes ticks
+- [x] Transport integration: after a short play, `exportCapture(lastBars: 1)` returns a valid SMF (MThd prefix, ≥ 1 note-on) — loopback-style test
+- [x] Degree buttons enqueue `.transpose(degreeOffset: k−1)`; DEG chip follows (engine offset covered by existing tests; UI wiring manual)
+- [x] Re-roll enqueues `.regenerate` for every unlocked voice only
+- [x] `swift test` green; `./build.sh debug` clean
 - [ ] Human checklist: jam → press degree buttons (bed transposes at next bar) → export last 16 bars → drag into Ableton: clip starts on a bar, plays what you heard
-- [ ] M2 exit: version bump to 0.2.0 + tag (DMG smoke deferred until a Developer ID cert exists — watch list)
+- [x] M2 exit: version bump to 0.2.0 + tag (DMG smoke deferred until a Developer ID cert exists — watch list)
 
 ## Out of scope
 

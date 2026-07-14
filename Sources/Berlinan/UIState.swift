@@ -1,5 +1,7 @@
+import AppKit
 import Foundation
 import Observation
+import UniformTypeIdentifiers
 import BerlinanEngine
 import BerlinanRuntime
 
@@ -92,5 +94,41 @@ final class UIState {
 
     func blankCycle(_ voiceID: String) {
         services.transport?.enqueue(.blankCycle(voiceID: voiceID))
+    }
+
+    // MARK: - Performance macros (FR-UX-3 partial)
+
+    /// Degree button 1–7: 1 = home (offset 0), k = offset k−1; binds at the
+    /// next bar (FR-H-3 via the engine).
+    func pressDegree(_ degree: Int) {
+        precondition((1...7).contains(degree))
+        services.transport?.enqueue(.transpose(degreeOffset: degree - 1))
+    }
+
+    /// "Re-roll all unlocked" (FR-UX-2): regenerate every voice whose pattern
+    /// is not locked.
+    func rerollAllUnlocked() {
+        guard let transport = services.transport else { return }
+        for voice in voices where !voice.pattern.locked {
+            transport.enqueue(.regenerate(voiceID: voice.id))
+        }
+    }
+
+    // MARK: - Capture export (FR-IO-7)
+
+    func exportCapture(lastBars: Int) {
+        guard let transport = services.transport,
+              let bytes = transport.exportCapture(lastBars: lastBars) else { return }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "berlinan-capture-\(lastBars)bars.mid"
+        panel.allowedContentTypes = [.midi]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? Data(bytes).write(to: url)
+        }
+    }
+
+    var captureAvailable: Bool {
+        services.transport?.exportCapture(lastBars: 1) != nil
     }
 }
