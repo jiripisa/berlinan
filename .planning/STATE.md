@@ -4,10 +4,11 @@
 
 - **Milestone**: M1 — headless engine
 - **Milestone**: M2 — it plays (first usable jam tool)
-- **Active phase**: none (phases 10+11 merged — 122 tests)
-- **Next entry point**: phase 12 — transport & scheduler (Clock hostTime↔tick
-  mapping, lookahead loop on a dedicated thread, MIDI clock master 24 PPQ,
-  start/stop; NFR-1 jitter test via loopback timestamps)
+- **Active phase**: none (phases 10–12 merged — 129 tests). THE APP PLAYS:
+  demo project streams to 'Berlinan Out' with clock; awaiting user's live
+  listening (= deferred M1 musical sign-off too).
+- **Next entry point**: phase 13 — UI shell (transport bar, voice lanes with
+  pattern strips + lifecycle dots, per-voice controls incl. runtime mute)
 - M1 CLOSED 2026-07-14 (tag v0.1.0), 107 tests. Listening protocol passed
   PROVISIONALLY (user could not confidently judge; re-verify musically during
   M2 live jamming — carried as a watch-list item).
