@@ -1,0 +1,102 @@
+{
+  "bpm" : 90,
+  "formatVersion" : 1,
+  "key" : {
+    "root" : 0,
+    "scale" : {
+      "mode" : "naturalMinor",
+      "offsets" : [
+        0,
+        2,
+        3,
+        5,
+        7,
+        8,
+        10
+      ]
+    }
+  },
+  "masterSeed" : 3188879785,
+  "meter" : {
+    "beatUnit" : 4,
+    "beatsPerBar" : 4,
+    "grouping" : [
+
+    ]
+  },
+  "transposition" : {
+    "events" : [
+      {
+        "bar" : 8,
+        "degreeOffset" : 5
+      },
+      {
+        "bar" : 12,
+        "degreeOffset" : 3
+      },
+      {
+        "bar" : 16,
+        "degreeOffset" : 0
+      },
+      {
+        "bar" : 24,
+        "degreeOffset" : 4
+      },
+      {
+        "bar" : 28,
+        "degreeOffset" : 0
+      }
+    ]
+  },
+  "voices" : [
+    {
+      "channel" : 0,
+      "generator" : {
+        "seedProcedure" : {
+          "bars" : 1,
+          "mutations" : 4
+        }
+      },
+      "id" : "bedPluck1",
+      "referenceC" : 60,
+      "register" : {
+        "high" : 79,
+        "low" : 55
+      },
+      "role" : "bedPluck1"
+    },
+    {
+      "channel" : 1,
+      "generator" : {
+        "seedProcedure" : {
+          "bars" : 1,
+          "mutations" : 4
+        }
+      },
+      "id" : "bedPluck2",
+      "phaseSteps" : -1,
+      "referenceC" : 60,
+      "register" : {
+        "high" : 84,
+        "low" : 60
+      },
+      "role" : "bedPluck2"
+    },
+    {
+      "anchorPolicy" : "beats1and3",
+      "channel" : 2,
+      "generator" : {
+        "pulsingBass" : {
+          "accents" : 3
+        }
+      },
+      "id" : "bass",
+      "referenceC" : 36,
+      "register" : {
+        "high" : 48,
+        "low" : 24
+      },
+      "role" : "bass"
+    }
+  ]
+}
