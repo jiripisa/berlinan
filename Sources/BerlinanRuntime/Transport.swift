@@ -22,6 +22,9 @@ public final class Transport: @unchecked Sendable {
     private var running = false
     private var pendingActions: [LiveEngine.Action] = []
     private var mutedVoices: Set<String> = []
+    private var latestSnapshot: LiveEngine.Snapshot?
+    private var latestOffset: Int = 0
+    private var activeClock: TickClock?
     public private(set) var sendsClock = true
 
     public init(project: Project, midi: MIDIService) {
@@ -29,11 +32,42 @@ public final class Transport: @unchecked Sendable {
         self.midi = midi
         self.channelMap = Dictionary(uniqueKeysWithValues:
             project.voices.map { ($0.id, $0.channel) })
+        // Preview snapshot so the UI shows the initial patterns before play.
+        self.latestSnapshot = LiveEngine(project: project).snapshot()
     }
 
     public var isPlaying: Bool {
         lock.lock(); defer { lock.unlock() }
         return running
+    }
+
+    // MARK: - UI mirror (spec §5.4)
+
+    /// The engine state as of the last scheduler wake (or the pre-play
+    /// preview). Safe to call from any thread at UI rates.
+    public func snapshot() -> LiveEngine.Snapshot? {
+        lock.lock(); defer { lock.unlock() }
+        return latestSnapshot
+    }
+
+    /// The transposition offset in force at the last wake.
+    public var currentDegreeOffset: Int {
+        lock.lock(); defer { lock.unlock() }
+        return latestOffset
+    }
+
+    /// The tick sounding right now, or nil when stopped. Derived from the
+    /// clock, so it moves smoothly between scheduler wakes.
+    public var currentTick: Tick? {
+        lock.lock(); defer { lock.unlock() }
+        guard running, let clock = activeClock else { return nil }
+        let tick = clock.tick(atMach: mach_absolute_time())
+        return tick >= 0 ? tick : 0
+    }
+
+    public func isMuted(_ voiceID: String) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        return mutedVoices.contains(voiceID)
     }
 
     // MARK: - Transport controls
@@ -56,6 +90,7 @@ public final class Transport: @unchecked Sendable {
         lock.lock()
         let wasRunning = running
         running = false
+        activeClock = nil
         lock.unlock()
         guard wasRunning else { return }
         // The loop observes `running` at each wake (≤ 25 ms) and exits.
@@ -94,6 +129,9 @@ public final class Transport: @unchecked Sendable {
         let clock = TickClock.current(
             bpm: project.bpm,
             anchorMach: machAfter(nanos: prerollNanos))
+        lock.lock()
+        activeClock = clock
+        lock.unlock()
         if sendsClock {
             midi.send([(hostTime: clock.machTime(forTick: 0), event: .start)])
         }
@@ -127,6 +165,16 @@ public final class Transport: @unchecked Sendable {
                 })
                 renderHead = target
             }
+
+            // Publish the UI mirror (spec §5.4).
+            let snap = engine.snapshot()
+            let bar = Int(renderHead / project.meter.ticksPerBar)
+            let offset = engine.transpositionOffset(atBar: bar)
+            lock.lock()
+            latestSnapshot = snap
+            latestOffset = offset
+            lock.unlock()
+
             Thread.sleep(forTimeInterval: wakeInterval)
         }
     }

@@ -18,9 +18,9 @@ The real main window per spec §11.1–11.3 and design_language.md: transport ba
 
 ## Acceptance criteria
 
-- [ ] Engine: snapshot reflects pattern changes after boundary renders; offset lookup matches the schedule (unit tests)
-- [ ] Runtime: preview snapshot exists before play; currentTick nil when stopped / advances while playing (integration test)
-- [ ] `swift test` green; `./build.sh debug` clean
+- [x] Engine: snapshot reflects pattern changes after boundary renders; offset lookup matches the schedule (unit tests)
+- [x] Runtime: preview snapshot exists before play; currentTick nil when stopped / advances while playing (integration test)
+- [x] `swift test` green; `./build.sh debug` clean
 - [ ] Manual checklist (human):
   - [ ] Lanes show 3 voices with distinct identity colors; playheads drift apart (16 vs 15 steps visible)
   - [ ] Lifecycle dots count down and reset on mutation; pattern strip changes when a mutation lands
