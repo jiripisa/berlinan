@@ -55,6 +55,22 @@ struct TransportBarView: View {
 
             Spacer()
 
+            Button {
+                ui.newSeed()
+            } label: {
+                Image(systemName: "dice")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(AppColor.tangerine)
+                    .frame(width: 28, height: 24)
+                    .background(AppColor.tangerineGlow)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4)
+                        .stroke(AppColor.tangerineLine, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut("n", modifiers: [])
+            .help("New seed — a whole new musical universe (live: at the next bar; ⌘Z undoes)")
+
             Button(action: onSettings) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 12, weight: .medium))

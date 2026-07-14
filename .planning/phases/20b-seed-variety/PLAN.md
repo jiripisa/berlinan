@@ -17,10 +17,10 @@ Kill the "it plays the same melody every time" problem (user feedback 2026-07-14
 
 ## Acceptance criteria
 
-- [ ] Cross-seed recall test: post-recall snapshot patterns + schedule equal the fresh engine's (engine-level)
-- [ ] Launch seed differs between app sessions (code inspection — nondeterministic by design); opened documents keep their seed
-- [ ] 🎲 works stopped and mid-play (next-bar swap), pushes an undo point
-- [ ] Goldens + full suite untouched/green
+- [x] Cross-seed recall test: post-recall snapshot patterns + schedule equal the fresh engine's (engine-level)
+- [x] Launch seed differs between app sessions (code inspection — nondeterministic by design); opened documents keep their seed
+- [x] 🎲 works stopped and mid-play (next-bar swap), pushes an undo point
+- [x] Goldens + full suite untouched/green
 - [ ] Human: play → 🎲 → a genuinely different bed arrives at the next bar; play/stop/play repeats the current universe until 🎲 or relaunch
 
 ## Out of scope

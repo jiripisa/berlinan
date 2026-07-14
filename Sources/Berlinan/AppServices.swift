@@ -25,11 +25,18 @@ final class AppServices {
     private var transportStale = false
 
     init() {
+        // Seed freshness (FR-UX-6, phase 20b): every app session starts the
+        // built-in project in a NEW musical universe. Saved documents keep
+        // their stored seed — reproducibility on demand, not by accident.
+        var fresh = Project.demo
+        fresh.masterSeed = UInt64.random(in: UInt64.min...UInt64.max)
+        self.project = fresh
+
         do {
             let midi = try MIDIService(clientName: "Berlinan", sourceName: "Berlinan Out")
             self.midi = midi
             self.midiStatus = "Berlinan Out"
-            self.transport = Transport(project: project, midi: midi)
+            self.transport = Transport(project: fresh, midi: midi)
         } catch {
             self.midi = nil
             self.midiStatus = "MIDI unavailable: \(error)"
@@ -55,6 +62,22 @@ final class AppServices {
         guard transport?.isPlaying != true else { return }
         project = newProject
         rebuildTransport()
+    }
+
+    /// 🎲 New Seed (FR-UX-6): a whole new musical universe from the same
+    /// configuration. Stopped → rebuild; playing → live swap at the next bar
+    /// (a fresh engine's state recalled through the phase-18 machinery).
+    func reseed() {
+        var newProject = project
+        newProject.masterSeed = UInt64.random(in: UInt64.min...UInt64.max)
+        if transport?.isPlaying == true {
+            let freshState = LiveEngine(project: newProject).captureState()
+            project = newProject
+            transportStale = true                 // next stop rebuilds on the new seed
+            transport?.enqueue(.recallSnapshot(freshState))
+        } else {
+            applyProject(newProject)
+        }
     }
 
     /// Change the harmony mode (FR-H-4/5/6). Only while stopped.
