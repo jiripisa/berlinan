@@ -20,13 +20,13 @@ Make it play (FR-IO-2/3, NFR-1/2): the musical↔host-time clock, the lookahead 
 
 ## Acceptance criteria
 
-- [ ] TickClock: 1 beat @ 90 BPM = 666.67 ms in mach(=ns) units; tick(anchor) = 0; round-trip monotonic
-- [ ] clockTicks: 96 clocks per 4/4 bar, multiples of 40 ticks
-- [ ] Converter: on/off pair per note (off = at + gate), channel from map, muted voices dropped
-- [ ] Integration (loopback): play ≈ 0.6 s → Start received, clock count in expected range, note-ons arrive, clock timestamp spacing ≈ 40 ticks ± 1 ms (NFR-1 evidence at the scheduling layer)
-- [ ] Stop: MIDI Stop received, `activeNoteCount == 0` after flush
+- [x] TickClock: 1 beat @ 90 BPM = 666.67 ms in mach(=ns) units; tick(anchor) = 0; round-trip monotonic
+- [x] clockTicks: 96 clocks per 4/4 bar, multiples of 40 ticks
+- [x] Converter: on/off pair per note (off = at + gate), channel from map, muted voices dropped
+- [x] Integration (loopback): play ≈ 0.6 s → Start received, clock count in expected range, note-ons arrive, clock timestamp spacing ≈ 40 ticks ± 1 ms (NFR-1 evidence at the scheduling layer)
+- [x] Stop: MIDI Stop received, `activeNoteCount == 0` after flush
 - [ ] Human item: app running + Play → notes audible on an Ableton instrument track armed to "Berlinan Out"; Ableton clock-syncs when Sync is enabled on the port
-- [ ] `swift test` green
+- [x] `swift test` green
 
 ## Out of scope
 

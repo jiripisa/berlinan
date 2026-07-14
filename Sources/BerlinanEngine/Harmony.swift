@@ -56,6 +56,17 @@ public struct RenderedNote: Equatable, Sendable {
     public var gate: Tick
     public var accent: Bool
     public var ratchet: Int
+
+    public init(voiceID: String, at: Tick, midiNote: UInt8, velocity: UInt8,
+                gate: Tick, accent: Bool, ratchet: Int) {
+        self.voiceID = voiceID
+        self.at = at
+        self.midiNote = midiNote
+        self.velocity = velocity
+        self.gate = gate
+        self.accent = accent
+        self.ratchet = ratchet
+    }
 }
 
 public enum HarmonyEngine {
