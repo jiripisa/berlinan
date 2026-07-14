@@ -120,6 +120,48 @@ public struct Pattern: Codable, Equatable, Sendable {
         self.lifecycle = lifecycle
     }
 
+    // MARK: Decoupled gate/pitch mode (FR-P-4, M §6.4)
+
+    /// Build a decoupled pattern: independent pitch and gate cycles that BOTH
+    /// advance every step; a gate-off step is silent while the pitch cycle
+    /// keeps moving (the manual's 8v6 → re-sync-at-24 model). The loop length
+    /// is the full composite period.
+    public static func decoupled(id: String, pitches: [DegreePitch],
+                                 gates: [GateStep], stepTicks: Tick,
+                                 provenance: Provenance) -> Pattern {
+        precondition(!pitches.isEmpty && !gates.isEmpty && stepTicks > 0)
+        let steps = lcm(Tick(pitches.count), Tick(gates.count))
+        let notes = pitches.enumerated().map { index, pitch in
+            PatternNote(position: Tick(index) * stepTicks, pitch: pitch,
+                        velocity: 100, gate: max(1, stepTicks / 2))
+        }
+        return Pattern(id: id, length: steps * stepTicks, notes: notes,
+                       gateCycle: gates, gateCycleLength: Tick(gates.count) * stepTicks,
+                       provenance: provenance)
+    }
+
+    /// In decoupled mode `notes` is the pitch cycle; expand both cycles into
+    /// concrete per-step notes across one composite period. Plain patterns
+    /// return `notes` unchanged.
+    var effectiveNotes: [PatternNote] {
+        guard let gates = gateCycle, let gateLength = gateCycleLength else { return notes }
+        let stepTicks = gateLength / Tick(gates.count)
+        var expanded: [PatternNote] = []
+        for index in 0..<Int(length / stepTicks) {
+            let gate = gates[index % gates.count]
+            guard gate.on else { continue }
+            let base = notes[index % notes.count]
+            expanded.append(PatternNote(
+                position: Tick(index) * stepTicks,
+                pitch: base.pitch,
+                velocity: base.velocity,
+                gate: max(1, Tick(Double(stepTicks) * gate.width)),
+                accent: base.accent,
+                ratchet: base.ratchet))
+        }
+        return expanded
+    }
+
     // MARK: Loop-cursor math
 
     /// All note onsets sounding within the half-open global tick range.
@@ -127,6 +169,7 @@ public struct Pattern: Codable, Equatable, Sendable {
     /// (g + startOffset) mod length == p, i.e. g = p − startOffset + k·length.
     /// Result is sorted by time.
     public func occurrences(in range: Range<Tick>) -> [(at: Tick, note: PatternNote)] {
+        let notes = effectiveNotes
         guard !notes.isEmpty, range.lowerBound < range.upperBound else { return [] }
         var result: [(at: Tick, note: PatternNote)] = []
         for note in notes {
@@ -147,7 +190,7 @@ public struct Pattern: Codable, Equatable, Sendable {
     /// True when something sounds exactly at the given global tick.
     public func hasOnset(atGlobalTick tick: Tick) -> Bool {
         let local = Tick(floorMod(Int(tick + startOffset), Int(length)))
-        return notes.contains { $0.position == local }
+        return effectiveNotes.contains { $0.position == local }
     }
 
     // MARK: Invariant helpers (FR-P-2)

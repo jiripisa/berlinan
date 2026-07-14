@@ -15,14 +15,14 @@ Complete the generator palette (FR-P-1 items 4–6), render the decoupled gate/p
 
 ## Acceptance criteria
 
-- [ ] New generators join the shared determinism + FR-P-2 invariant suites (50 seeds each)
-- [ ] Walk: consecutive sounding pitches ≤ scatter semitones apart; rests exist; density < 70% of steps
-- [ ] Staged pluck: root at position 0; octave-up note present; accented signature note on the final step
-- [ ] Arpeggiator: up = ascending resolved pitches; down starts on a root pitch class; 3×2-octave 8th cycle → 3-beat loop
-- [ ] Decoupled: 8 pitches v 6 gates (8ths) → 24-step composite, 16 onsets/period, correct pitch indexing, silent gaps; 7v8 → 56-step period; window chaining seam-safe
-- [ ] duplicateAndTweak: first half verbatim, ≥1 change in the later reps (across seeds), deterministic; moveAccents keeps pitches/times/velocities intact
-- [ ] `swift test` green; goldens untouched
-- [ ] TDD red → green
+- [x] New generators join the shared determinism + FR-P-2 invariant suites (50 seeds each)
+- [x] Walk: consecutive sounding pitches ≤ scatter semitones apart; rests exist; density < 70% of steps
+- [x] Staged pluck: root at position 0; octave-up note present; accented signature note on the final step
+- [x] Arpeggiator: up = ascending resolved pitches; down starts on a root pitch class; 3×2-octave 8th cycle → 3-beat loop
+- [x] Decoupled: 8 pitches v 6 gates (8ths) → 24-step composite, 16 onsets/period, correct pitch indexing, silent gaps; 7v8 → 56-step period; window chaining seam-safe
+- [x] duplicateAndTweak: first half verbatim, ≥1 change in the later reps (across seeds), deterministic; moveAccents keeps pitches/times/velocities intact
+- [x] `swift test` green; goldens untouched
+- [x] TDD red → green
 
 ## Out of scope
 
