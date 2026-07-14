@@ -11,10 +11,17 @@ public enum OfflineRenderer {
         var tracks: [SMFTrack] = []
         for config in project.voices {
             let notes = renderVoice(config, project: project, total: total)
+            let ccs = ModulationEngine.render(
+                lanes: config.ccLanes ?? [], ccMap: config.ccMap ?? [:],
+                voiceID: config.id, in: 0..<total, meter: project.meter,
+                seed: SeedStream.derive(master: project.masterSeed,
+                                        "voice", config.id, "cc"))
+            let hint = DelayHint.compute(role: config.role, bpm: project.bpm)
             tracks.append(SMFTrack(
-                name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue)",
+                name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue) | delay: \(hint.division.label)",
                 channel: config.channel,
-                notes: notes
+                notes: notes,
+                ccs: ccs
             ))
         }
         let markers = resolved.schedule.events
@@ -61,6 +68,13 @@ public enum OfflineRenderer {
                 out.velocity = velocity.apply(velocity: n.velocity, accent: n.accent,
                                               patternSeed: humanSeed,
                                               localPosition: local)
+                if let ramp = config.gateRamp {
+                    // Gate arc (FR-MOD-2, M §11.4): duration alone sweeps the
+                    // timbre against a slow-release filter envelope.
+                    let barIndex = Int(n.at / project.meter.ticksPerBar)
+                    let multiplier = ramp.profile[barIndex % ramp.profile.count]
+                    out.gate = max(1, Tick(Double(out.gate) * multiplier))
+                }
                 if stretchBassGates {
                     // Held roots under a reharm walk (M §7.2); same-pitch
                     // overlaps are clipped at the SMF/send layer.

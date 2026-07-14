@@ -22,15 +22,15 @@ The sequencer emits more than notes (M §11): CC LFO lanes in musical time with 
 
 ## Acceptance criteria
 
-- [ ] Sine lane: correct values at known phases, 0–127 clamp, 40-tick grid, delta-filtered (constant lane emits only t=0)
-- [ ] Chunk-safety: renderCC windows chained == whole range
-- [ ] S&H: 8th-note steps, pre-strike offset, deterministic per seed, bounded by depth/center
-- [ ] Gate ramp: profile multipliers audible in note gates per bar
-- [ ] CC map: named target resolves; unmapped target → lane skipped
-- [ ] SMF: CC events land on voice tracks; goldens regenerated once with justification
-- [ ] DelayHint: dotted 8th @ 90 BPM = 500 ms; 8th = 333 ms; quarter = 667 ms
-- [ ] Runtime loopback: a project with a lane produces 0xB0 words live
-- [ ] `swift test` green; Delay Cheat Sheet renders (visual check)
+- [x] Sine lane: correct values at known phases, 0–127 clamp, 40-tick grid, delta-filtered (constant lane emits only t=0)
+- [x] Chunk-safety: renderCC windows chained == whole range
+- [x] S&H: 8th-note steps, pre-strike offset, deterministic per seed, bounded by depth/center
+- [x] Gate ramp: profile multipliers audible in note gates per bar
+- [x] CC map: named target resolves; unmapped target → lane skipped
+- [x] SMF: CC events land on voice tracks; goldens regenerated once with justification
+- [x] DelayHint: dotted 8th @ 90 BPM = 500 ms; 8th = 333 ms; quarter = 667 ms
+- [x] Runtime loopback: a project with a lane produces 0xB0 words live
+- [x] `swift test` green; Delay Cheat Sheet renders (visual check)
 
 ## Out of scope
 

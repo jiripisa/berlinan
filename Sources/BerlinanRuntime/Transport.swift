@@ -90,10 +90,12 @@ public final class Transport: @unchecked Sendable {
         let barTicks = project.meter.ticksPerBar
         let coveredBars = min(Tick(lastBars), buffer.head / barTicks)
         let length = max(barTicks, coveredBars * barTicks)
-        let tracks = project.voices.map { config in
-            SMFTrack(name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue)",
-                     channel: config.channel,
-                     notes: clip.filter { $0.voiceID == config.id })
+        let tracks = project.voices.map { config -> SMFTrack in
+            let hint = DelayHint.compute(role: config.role, bpm: project.bpm)
+            return SMFTrack(
+                name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue) | delay: \(hint.division.label)",
+                channel: config.channel,
+                notes: clip.filter { $0.voiceID == config.id })
         }
         return SMFWriter.encode(bpm: project.bpm, meter: project.meter,
                                 tracks: tracks, length: length)
@@ -185,6 +187,8 @@ public final class Transport: @unchecked Sendable {
                 let rendered = engine.render(range: window)
                 var timed = NoteEventConverter.events(
                     for: rendered, channelMap: channelMap, muted: muted)
+                timed += NoteEventConverter.ccEvents(
+                    for: engine.renderCC(range: window), channelMap: channelMap)
                 if sendsClock {
                     timed += NoteEventConverter.clockTicks(in: window)
                         .map { NoteEventConverter.TimedEvent(tick: $0, event: .clock) }

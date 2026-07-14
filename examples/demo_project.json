@@ -50,6 +50,20 @@
   },
   "voices" : [
     {
+      "ccLanes" : [
+        {
+          "center" : 0.6,
+          "cycleBars" : 16,
+          "depth" : 0.3,
+          "phase" : 0,
+          "preStrikeTicks" : 10,
+          "shape" : "sine",
+          "target" : "filter"
+        }
+      ],
+      "ccMap" : {
+        "filter" : 74
+      },
       "channel" : 0,
       "generator" : {
         "seedProcedure" : {
