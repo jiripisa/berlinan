@@ -120,6 +120,17 @@ final class UIState {
         services.transport?.enqueue(.blankCycle(voiceID: voiceID))
     }
 
+    /// Toggle the MIDI delay (FR-MOD-7): live action + document persistence.
+    func toggleMIDIDelay(_ voiceID: String) {
+        let current = voices.first { $0.id == voiceID }?.midiDelayEnabled ?? false
+        services.updateVoiceMIDIDelay(voiceID, enabled: !current)
+        if isPlaying {
+            services.transport?.enqueue(.setMIDIDelay(voiceID: voiceID,
+                                                      enabled: !current))
+        }
+        refresh()
+    }
+
     // MARK: - Snapshots & undo (FR-L-6, FR-UX-5)
 
     private(set) var snapshotSlots: [LiveEngine.StateSnapshot?] =

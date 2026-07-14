@@ -26,6 +26,8 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
     /// Hand-edited pattern (FR-P-7): used verbatim (locked) instead of the
     /// generator when present — hand edits survive in the document.
     public var overridePattern: Pattern?
+    /// MIDI delay (FR-MOD-7); nil = off.
+    public var midiDelay: MIDIDelayConfig?
 
     public init(id: String, role: VoiceRole, register: RegisterWindow,
                 referenceC: Int, generator: GeneratorConfig, channel: UInt8,
@@ -34,7 +36,8 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
                 ccLanes: [CCLane]? = nil, ccMap: [String: UInt8]? = nil,
                 gateRamp: GateRampProgram? = nil,
                 accumulator: AccumulatorConfig? = nil,
-                overridePattern: Pattern? = nil) {
+                overridePattern: Pattern? = nil,
+                midiDelay: MIDIDelayConfig? = nil) {
         self.id = id
         self.role = role
         self.register = register
@@ -49,6 +52,7 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
         self.gateRamp = gateRamp
         self.accumulator = accumulator
         self.overridePattern = overridePattern
+        self.midiDelay = midiDelay
     }
 }
 

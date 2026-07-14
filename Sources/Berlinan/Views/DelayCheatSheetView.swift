@@ -53,6 +53,7 @@ struct DelayCheatSheetView: View {
 
     private func row(for voice: VoiceConfig) -> some View {
         let hint = DelayHint.compute(role: voice.role, bpm: services.project.bpm)
+        let midiDelayOn = voice.midiDelay?.enabled == true
         return HStack {
             Text(voice.id)
                 .font(AppFont.monoCaption)
@@ -66,6 +67,13 @@ struct DelayCheatSheetView: View {
                 .font(AppFont.monoCaption)
                 .foregroundStyle(AppColor.ink2)
                 .frame(width: 70, alignment: .trailing)
+            if midiDelayOn {
+                // FR-MOD-8 interplay: don't stack MIDI echoes with audio delay.
+                Text("⚠ echoes already in MIDI — disable/lower the audio delay")
+                    .font(AppFont.monoCaption)
+                    .foregroundStyle(AppColor.amber)
+                    .padding(.leading, 8)
+            }
             Spacer()
             Button {
                 let pasteboard = NSPasteboard.general

@@ -86,8 +86,8 @@ struct MIDIDelayRenderTests {
         let with = OfflineRenderer.renderNotes(project: delayProject(enabled: true), bars: 2)
         let without = OfflineRenderer.renderNotes(project: delayProject(enabled: false), bars: 2)
         #expect(with.count > without.count)
-        #expect(with.contains(where: \.isEcho))
-        #expect(!without.contains(where: \.isEcho))
+        #expect(with.contains { $0.isEcho })
+        #expect(!without.contains { $0.isEcho })
         // Non-echo notes identical in both.
         let originals = with.filter { !$0.isEcho }
         #expect(originals.map(\.at) == without.map(\.at))
@@ -126,16 +126,16 @@ struct MIDIDelayRenderTests {
     func liveToggle() {
         var engine = LiveEngine(project: delayProject(enabled: true))
         let first = engine.render(range: 0..<bar)
-        #expect(first.contains(where: \.isEcho))
+        #expect(first.contains { $0.isEcho })
 
         engine.enqueue(.setMIDIDelay(voiceID: "bedPluck1", enabled: false), atTick: bar)
         let second = engine.render(range: bar..<(2 * bar))
-        #expect(!second.contains(where: \.isEcho))
+        #expect(!second.contains { $0.isEcho })
         #expect(!engine.snapshot().voices[0].midiDelayEnabled)
 
         engine.enqueue(.setMIDIDelay(voiceID: "bedPluck1", enabled: true), atTick: 2 * bar)
         let third = engine.render(range: (2 * bar)..<(3 * bar))
-        #expect(third.contains(where: \.isEcho))
+        #expect(third.contains { $0.isEcho })
     }
 
     @Test("SMF render with delay has more note-ons")
