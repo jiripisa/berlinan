@@ -16,13 +16,13 @@ The manual's three harmony mechanisms as first-class modes (FR-H-4/5/6): the pro
 
 ## Acceptance criteria
 
-- [ ] Progression unroll: looped steps repeat with correct bars/offsets; non-looped holds the last offset
-- [ ] Presets match manual §7.1 degree sequences
-- [ ] Weighted mode: deterministic per master seed; offsets only from the weight table; gaps within periodBars; horizon covered
-- [ ] Bass reharm: upper-voice pitches identical across event bars while bass follows the progression; bass gates ≥ 1 beat
-- [ ] Backward compat: 0.2.0 project JSON (no `harmony` field) renders byte-identically (golden master stays green)
-- [ ] Snapshot exposes schedule events; UI strip shows next event
-- [ ] `swift test` green; `./build.sh debug` clean; visual check of the strip
+- [x] Progression unroll: looped steps repeat with correct bars/offsets; non-looped holds the last offset
+- [x] Presets match manual §7.1 degree sequences
+- [x] Weighted mode: deterministic per master seed; offsets only from the weight table; gaps within periodBars; horizon covered
+- [x] Bass reharm: upper-voice pitches identical across event bars while bass follows the progression; bass gates ≥ 1 beat
+- [x] Backward compat: 0.2.0 project JSON (no `harmony` field) renders byte-identically (golden master stays green)
+- [x] Snapshot exposes schedule events; UI strip shows next event
+- [x] `swift test` green; `./build.sh debug` clean; visual check of the strip
 - [ ] Human: pick "1-7-6-5" progression, play — the bed walks the degrees every 4 bars; pick bass reharm — bed static, bass re-roots
 
 ## Out of scope

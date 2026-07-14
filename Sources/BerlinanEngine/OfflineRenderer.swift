@@ -7,6 +7,7 @@ public enum OfflineRenderer {
     /// Full render to SMF bytes.
     public static func render(project: Project, bars: Int) -> [UInt8] {
         let total = Tick(bars) * project.meter.ticksPerBar
+        let resolved = HarmonyScheduler.resolve(project: project)
         var tracks: [SMFTrack] = []
         for config in project.voices {
             let notes = renderVoice(config, project: project, total: total)
@@ -16,7 +17,7 @@ public enum OfflineRenderer {
                 notes: notes
             ))
         }
-        let markers = project.transposition.events
+        let markers = resolved.schedule.events
             .filter { Tick($0.bar) * project.meter.ticksPerBar < total }
             .map { (at: Tick($0.bar) * project.meter.ticksPerBar,
                     label: "HARM:\($0.degreeOffset >= 0 ? "+" : "")\($0.degreeOffset)") }
@@ -37,7 +38,10 @@ public enum OfflineRenderer {
                                     total: Tick) -> [RenderedNote] {
         let legit = project.legitimization ?? .default
         let velocity = project.velocity ?? VelocityPolicy()
+        let resolved = HarmonyScheduler.resolve(project: project)
         var voice = materialize(config, project: project)
+        // Bass-reharm participation mask (FR-H-6): uppers frozen, bass follows.
+        let stretchBassGates = resolved.bassOnly && voice.role == .bass
         var generation = 1
         var notes: [RenderedNote] = []
         var t: Tick = 0
@@ -46,7 +50,7 @@ public enum OfflineRenderer {
             let segmentEnd = min(t + voice.pattern.length, total)
             let humanSeed = voice.pattern.provenance.seed
             let segment = HarmonyEngine.render(voices: [voice],
-                                               schedule: project.transposition,
+                                               schedule: resolved.schedule,
                                                key: project.key,
                                                meter: project.meter,
                                                in: t..<segmentEnd)
@@ -57,6 +61,11 @@ public enum OfflineRenderer {
                 out.velocity = velocity.apply(velocity: n.velocity, accent: n.accent,
                                               patternSeed: humanSeed,
                                               localPosition: local)
+                if stretchBassGates {
+                    // Held roots under a reharm walk (M §7.2); same-pitch
+                    // overlaps are clipped at the SMF/send layer.
+                    out.gate = max(out.gate, project.meter.ticksPerBeat)
+                }
                 return out
             }
 
@@ -101,9 +110,17 @@ public enum OfflineRenderer {
         let pattern = makePattern(config, project: project,
                                   seedLabels: ["voice", config.id, "gen0"],
                                   idSuffix: "gen0")
+        // Bass reharm overrides participation: ONLY the bass transposes
+        // (FR-H-6) — regardless of the per-voice config flag.
+        let participates: Bool
+        if HarmonyScheduler.resolve(project: project).bassOnly {
+            participates = config.role == .bass
+        } else {
+            participates = config.participatesInTransposition ?? true
+        }
         return Voice(id: config.id, role: config.role, register: config.register,
                      referenceC: config.referenceC, pattern: pattern,
-                     participatesInTransposition: config.participatesInTransposition ?? true,
+                     participatesInTransposition: participates,
                      anchorPolicy: config.anchorPolicy ?? .none)
     }
 }

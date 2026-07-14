@@ -20,6 +20,7 @@ final class UIState {
     private(set) var currentTick: Tick? = nil
     private(set) var degreeOffset = 0
     private(set) var mutedIDs: Set<String> = []
+    private(set) var scheduleEvents: [TranspositionEvent] = []
 
     var project: Project { services.project }
 
@@ -51,8 +52,24 @@ final class UIState {
         degreeOffset = transport.currentDegreeOffset
         if let snapshot = transport.snapshot() {
             voices = snapshot.voices
+            scheduleEvents = snapshot.scheduleEvents
         }
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
+    }
+
+    /// Events at or after the current bar (harmony strip chips, FR-H-9).
+    var upcomingHarmonyEvents: [TranspositionEvent] {
+        let currentBar = Int((currentTick ?? 0) / project.meter.ticksPerBar)
+        return scheduleEvents.filter { $0.bar > currentBar }
+    }
+
+    /// "→ +5 in 3 bars" countdown, nil when nothing is scheduled ahead.
+    var nextHarmonyEventText: String? {
+        guard let next = upcomingHarmonyEvents.first, currentTick != nil else { return nil }
+        let currentBar = Int((currentTick ?? 0) / project.meter.ticksPerBar)
+        let inBars = next.bar - currentBar
+        let label = next.degreeOffset == 0 ? "1" : String(format: "%+d", next.degreeOffset)
+        return "→ \(label) in \(inBars) bar\(inBars == 1 ? "" : "s")"
     }
 
     var barBeatText: String {

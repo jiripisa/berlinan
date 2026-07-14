@@ -39,13 +39,18 @@ public struct Project: Codable, Equatable, Sendable {
     public var key: Key
     public var meter: Meter
     public var voices: [VoiceConfig]
+    /// Legacy hand-written schedule; used when `harmony` is nil.
     public var transposition: TranspositionSchedule
+    /// Harmony mode (FR-H-4/5/6). nil = the legacy schedule above, so 0.2.0
+    /// project files stay valid.
+    public var harmony: HarmonyModeConfig?
     public var legitimization: Legitimizer.Config?
     public var velocity: VelocityPolicy?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],
                 transposition: TranspositionSchedule = .pedal,
+                harmony: HarmonyModeConfig? = nil,
                 legitimization: Legitimizer.Config? = nil,
                 velocity: VelocityPolicy? = nil) {
         self.formatVersion = formatVersion
@@ -55,6 +60,7 @@ public struct Project: Codable, Equatable, Sendable {
         self.meter = meter
         self.voices = voices
         self.transposition = transposition
+        self.harmony = harmony
         self.legitimization = legitimization
         self.velocity = velocity
     }
