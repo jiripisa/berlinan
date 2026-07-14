@@ -3,10 +3,11 @@
 ## Current position
 
 - **Milestone**: M1 — headless engine
-- **Active phase**: none (phases 01–08 merged to main, all green — 95 tests)
-- **Next entry point**: phase 09 — CLI render + velocity policy + golden masters
-  + FIRST LISTENING PROTOCOL (render demo project, import into Ableton, check
-  against the style checklist with the user)
+- **Active phase**: 09 merged; M1 exit gate = LISTENING PROTOCOL pending
+  (user imports build/berlinan_demo_64bars.mid into Ableton, checks style
+  checklist in phases/09 VERIFICATION). All engine work green — 107 tests.
+- **Next entry point**: after listening sign-off → tag v0.1.0, start M2
+  (virtual MIDI out, clock master, transport, voice-lane UI)
 
 ## Decisions log
 
