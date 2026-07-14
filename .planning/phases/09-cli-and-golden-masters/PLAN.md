@@ -23,7 +23,7 @@ Close M1: `berlinan-cli render project.json --bars N -o out.mid` produces a musi
 - [x] Golden master: render(demo, 16 bars) byte-equals the committed `demo16.mid` (FR-UX-1)
 - [x] CLI: `render examples/demo_project.json --bars 64 -o build/demo64.mid` succeeds; `--version`/`--help` intact
 - [x] `swift test` green
-- [ ] **Listening protocol**: 64-bar render imported into Ableton and checked against the style checklist (bed phasing, bass anchor, transposition movement, no hanging notes) — human item, closes M1
+- [x] **Listening protocol**: PROVISIONALLY passed 2026-07-14 — user imported the render, judged it "OK for now" without confident assessment; full musical sign-off deferred to M2 live jamming (better sounds, real-time context). No defects reported.
 
 ## Out of scope
 

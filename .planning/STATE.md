@@ -3,11 +3,12 @@
 ## Current position
 
 - **Milestone**: M1 — headless engine
-- **Active phase**: 09 merged; M1 exit gate = LISTENING PROTOCOL pending
-  (user imports build/berlinan_demo_64bars.mid into Ableton, checks style
-  checklist in phases/09 VERIFICATION). All engine work green — 107 tests.
-- **Next entry point**: after listening sign-off → tag v0.1.0, start M2
-  (virtual MIDI out, clock master, transport, voice-lane UI)
+- **Milestone**: M2 — it plays (first usable jam tool)
+- **Active phase**: 10-live-engine
+- **Next entry point**: phase 10 — pull-model incremental renderer + action queue
+- M1 CLOSED 2026-07-14 (tag v0.1.0), 107 tests. Listening protocol passed
+  PROVISIONALLY (user could not confidently judge; re-verify musically during
+  M2 live jamming — carried as a watch-list item).
 
 ## Decisions log
 
@@ -30,3 +31,5 @@
 
 - LinkKit licensing check before M4 (spec OQ-3)
 - AppIcon.png not yet created — build.sh warns, app has no icon (needed before first dist build)
+- Musical sign-off of the M1 demo render deferred — re-listen during M2 with
+  real synths/live MIDI before calling the generators style-correct
