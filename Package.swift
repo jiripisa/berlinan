@@ -21,6 +21,12 @@ let package = Package(
             name: "BerlinanEngine",
             path: "Sources/BerlinanEngine"
         ),
+        // Runtime layer (spec §5.1): owns CoreMIDI and real time. No UI.
+        .target(
+            name: "BerlinanRuntime",
+            dependencies: ["BerlinanEngine"],
+            path: "Sources/BerlinanRuntime"
+        ),
         .executableTarget(
             name: "BerlinanCLI",
             dependencies: ["BerlinanEngine"],
@@ -28,7 +34,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "Berlinan",
-            dependencies: ["BerlinanEngine"],
+            dependencies: ["BerlinanEngine", "BerlinanRuntime"],
             path: "Sources/Berlinan"
         ),
         .testTarget(
@@ -38,6 +44,11 @@ let package = Package(
             resources: [
                 .copy("Goldens")
             ]
+        ),
+        .testTarget(
+            name: "BerlinanRuntimeTests",
+            dependencies: ["BerlinanRuntime"],
+            path: "Tests/BerlinanRuntimeTests"
         ),
     ]
 )
