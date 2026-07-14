@@ -4,9 +4,9 @@
 
 - **Milestone**: M1 — headless engine
 - **Milestone**: M3 CLOSED 2026-07-14 (tag v0.3.0, 191 tests).
-- **Next entry point**: break M4 into phases (clock slave, Ableton Link,
-  MIDI learn, drag & drop clips, synth profiles, runtime meter/tempo/key
-  changes, MIDI delay from M3 deferral) → v1.0.
+- **Next entry point**: phase 21 — runtime tempo/key/meter changes
+  (bar-quantized; clock re-anchoring). Then 22 clock slave, 23 Link
+  (licensing gate!), 24 learn/dnd/profiles, 25 v1 release.
 - Pending human checks (19): hand edit audible + survives save/reopen;
   settings regenerate in new key/meter.
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in

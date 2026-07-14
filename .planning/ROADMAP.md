@@ -42,7 +42,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
-| 20-midi-delay | Echo-note post-processor (per-voice toggle, live action, cheat-sheet warning) | FR-MOD-7 (+8 interplay) | ☐ |
+| 20-midi-delay | Echo-note post-processor (per-voice toggle, live action, cheat-sheet warning) | FR-MOD-7 (+8 interplay) | ✅ |
 | 21-runtime-changes | Tempo/key/meter changes while playing, bar-quantized (clock re-anchoring, re-quantize at boundary) | FR-GS-4/5 | ☐ |
 | 22-clock-slave | MIDI clock in with PLL smoothing; transport follows Start/Stop | FR-IO-4 | ☐ |
 | 23-link | Ableton Link via LinkKit (licensing check FIRST — OQ-3 gate; clock-slave is the fallback) | FR-IO-5 | ☐ |
