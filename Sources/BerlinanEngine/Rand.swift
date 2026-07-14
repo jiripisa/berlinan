@@ -36,6 +36,10 @@ public enum SeedStream {
     }
 
     public static func derive(master: UInt64, _ labels: String...) -> UInt64 {
+        derive(master: master, labels: labels)
+    }
+
+    public static func derive(master: UInt64, labels: [String]) -> UInt64 {
         var hash: UInt64 = 0xCBF2_9CE4_8422_2325   // FNV offset basis
         for label in labels {
             fnv1a(label, into: &hash)

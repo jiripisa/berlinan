@@ -76,12 +76,12 @@ public enum OfflineRenderer {
         return notes
     }
 
-    /// Build the runtime Voice from its config: generate the initial pattern
-    /// (seed derived from the master seed), then apply the phased-copy step.
-    private static func materialize(_ config: VoiceConfig, project: Project) -> Voice {
-        let seed = SeedStream.derive(master: project.masterSeed,
-                                     "voice", config.id, "gen0")
-        var pattern = PatternFactory.make(id: "\(config.id)/gen0",
+    /// Generate a fresh pattern for a voice config (shared with LiveEngine —
+    /// regeneration uses different seed labels but the identical build path).
+    static func makePattern(_ config: VoiceConfig, project: Project,
+                            seedLabels: [String], idSuffix: String) -> Pattern {
+        let seed = SeedStream.derive(master: project.masterSeed, labels: seedLabels)
+        var pattern = PatternFactory.make(id: "\(config.id)/\(idSuffix)",
                                           config: config.generator,
                                           role: config.role, key: project.key,
                                           meter: project.meter, seed: seed)
@@ -93,6 +93,14 @@ public enum OfflineRenderer {
         }
         // Fresh material starts a full legitimization cycle at the configured N.
         pattern.lifecycle = .repeating(remaining: (project.legitimization ?? .default).repeats)
+        return pattern
+    }
+
+    /// Build the runtime Voice from its config (also LiveEngine's init path).
+    static func materialize(_ config: VoiceConfig, project: Project) -> Voice {
+        let pattern = makePattern(config, project: project,
+                                  seedLabels: ["voice", config.id, "gen0"],
+                                  idSuffix: "gen0")
         return Voice(id: config.id, role: config.role, register: config.register,
                      referenceC: config.referenceC, pattern: pattern,
                      participatesInTransposition: config.participatesInTransposition ?? true,

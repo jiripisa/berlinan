@@ -18,13 +18,13 @@ The engine side of "it plays" (spec §5.2): a stateful `LiveEngine` the future s
 
 ## Acceptance criteria
 
-- [ ] No-action equivalence: `LiveEngine` chunked renders (unaligned windows) byte-match `OfflineRenderer.renderNotes` for the demo project
-- [ ] Chunk-independence WITH actions: same actions at same request ticks ⇒ identical output regardless of window sizes
-- [ ] Regenerate: content changes at the first boundary ≥ request tick, never before; new provenance seed; lifecycle restarts at N
-- [ ] Blank cycle: exactly one loop of silence; pattern resumes verbatim; remaining-repeat count unchanged across the blank
-- [ ] Transpose: enqueued mid-bar binds at the next bar (notes before/after the boundary prove it)
-- [ ] Lock: an established, locked pattern never auto-mutates; unlock resumes mutation
-- [ ] TDD red → green; `swift test` green
+- [x] No-action equivalence: `LiveEngine` chunked renders (unaligned windows) byte-match `OfflineRenderer.renderNotes` for the demo project
+- [x] Chunk-independence WITH actions: same actions at same request ticks ⇒ identical output regardless of window sizes
+- [x] Regenerate: content changes at the first boundary ≥ request tick, never before; new provenance seed; lifecycle restarts at N
+- [x] Blank cycle: exactly one loop of silence; pattern resumes verbatim; remaining-repeat count unchanged across the blank
+- [x] Transpose: enqueued mid-bar binds at the next bar (notes before/after the boundary prove it)
+- [x] Lock: an established, locked pattern never auto-mutates; unlock resumes mutation
+- [x] TDD red → green; `swift test` green
 
 ## Out of scope
 
