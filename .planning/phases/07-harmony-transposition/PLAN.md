@@ -14,15 +14,15 @@ The style's primary harmony mechanism (M §7.1; FR-H-1/2/3): a bar-indexed trans
 
 ## Acceptance criteria
 
-- [ ] Empty schedule = pedal: all offsets 0 (FR-H-1)
-- [ ] Schedule lookup: events at bars 4 (+3) and 8 (0) partition the timeline correctly; unsorted input normalized; same-bar duplicates last-wins
-- [ ] Diatonic correctness in C minor: offsets +2/+4/+5 move the root to Eb/G/Ab; the i→VI→iv→i bass walk renders C–Ab–F–C
-- [ ] Law 2 property: transposed + resolved pitch class stays in scale for random offsets −7…+7
-- [ ] Per-voice opt-out: non-participating voice's pitches unchanged while others move (FR-H-2)
-- [ ] Bar boundary precision: onset at bar-start tick uses the new offset; onset one tick earlier uses the old one
-- [ ] `quantizedEventBar`: mid-bar request → next bar; exact boundary → same bar; quantum 4 honored
-- [ ] Register fold applies after transposition (high offsets fold back into the voice window)
-- [ ] TDD red → green; `swift test` green
+- [x] Empty schedule = pedal: all offsets 0 (FR-H-1)
+- [x] Schedule lookup: events at bars 4 (+3) and 8 (0) partition the timeline correctly; unsorted input normalized; same-bar duplicates last-wins
+- [x] Diatonic correctness in C minor: offsets +2/+4/+5 move the root to Eb/G/Ab; the i→VI→iv→i bass walk renders C–Ab–F–C
+- [x] Law 2 property: transposed + resolved pitch class stays in scale for random offsets −7…+7
+- [x] Per-voice opt-out: non-participating voice's pitches unchanged while others move (FR-H-2)
+- [x] Bar boundary precision: onset at bar-start tick uses the new offset; onset one tick earlier uses the old one
+- [x] `quantizedEventBar`: mid-bar request → next bar; exact boundary → same bar; quantum 4 honored
+- [x] Register fold applies after transposition (high offsets fold back into the voice window)
+- [x] TDD red → green; `swift test` green
 
 ## Out of scope
 
