@@ -28,7 +28,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 | 13-ui-shell | Transport bar, voice lanes (pattern strips, lifecycle dots), per-voice controls, runtime mute/solo | FR-UX-2/4, UI §11.1/11.2 | ✅ |
 | 14-capture-export | Rolling capture ring, export last N bars/minutes, degree-button panel | FR-IO-7, FR-IO-6(a), FR-UX-3(partial) | ✅ |
 
-## M3 — Musical depth → v0.3.0
+## M3 — Musical depth → v0.3.0 ✅ (tagged 2026-07-14)
 
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
@@ -36,7 +36,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 | 16-generators-4-6 | Drunkard's walk, staged pluck, arpeggiator expansion; gate/pitch decoupling render; duplicate-and-tweak + accent ops | FR-P-1(4–6)/4/5/6 | ✅ |
 | 17-modulation | CC LFO lanes (musical time, S&H pre-strike), gate ramps, per-voice CC maps, delay hints + cheat sheet | FR-MOD-2/3/4/5/8 | ✅ |
 | 18-legitimizer-plus | Accumulators, ratchet policy, snapshots + slots UI, undo | FR-L-4/5/6, FR-UX-3/5 | ✅ |
-| 19-editor-and-documents | Pattern editor (hand edits lock), project settings (key/tempo/meter, bar-quantized), .berlinan documents | FR-P-7, FR-GS-4/5, spec §10 | ☐ |
+| 19-editor-and-documents | Pattern editor (hand edits lock), project settings (key/tempo/meter, bar-quantized), .berlinan documents | FR-P-7, FR-GS-4/5, spec §10 | ✅ |
 
 ## M4 — Sync & integration
 

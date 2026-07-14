@@ -3,11 +3,12 @@
 ## Current position
 
 - **Milestone**: M1 — headless engine
-- **Milestone**: M2 CLOSED 2026-07-14 (tag v0.2.0, 140 tests). Next: M3 —
-  musical depth (remaining generators, gate/pitch decoupling, progressions,
-  CC lanes + gate ramps, MIDI delay + delay hints, pattern editor, snapshots,
-  undo, documents).
-- **Next entry point**: phase 19 — pattern editor, project settings, .berlinan documents (closes M3 / v0.3.0).
+- **Milestone**: M3 CLOSED 2026-07-14 (tag v0.3.0, 191 tests).
+- **Next entry point**: break M4 into phases (clock slave, Ableton Link,
+  MIDI learn, drag & drop clips, synth profiles, runtime meter/tempo/key
+  changes, MIDI delay from M3 deferral) → v1.0.
+- Pending human checks (19): hand edit audible + survives save/reopen;
+  settings regenerate in new key/meter.
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in
   the jam, degree buttons audible, capture export lands in Ableton).
 - 2026-07-14 — MIDI delay (FR-MOD-7) deferred from phase 17 to M4 by user
