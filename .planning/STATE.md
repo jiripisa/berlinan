@@ -11,6 +11,8 @@
   settings regenerate in new key/meter.
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in
   the jam, degree buttons audible, capture export lands in Ableton).
+- 2026-07-15 — user feedback "generates the same melody": fixed by FR-UX-6
+  (random session seed + New Seed button); determinism stays engine-only.
 - 2026-07-14 — MIDI delay (FR-MOD-7) deferred from phase 17 to M4 by user
   decision; delay hints (FR-MOD-8) stay in M3.
 - Phasewerk question RESOLVED 2026-07-14: user decision — ignore Phasewerk
