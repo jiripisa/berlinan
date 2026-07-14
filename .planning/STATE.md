@@ -10,6 +10,8 @@
 - **Next entry point**: phase 17 — modulation (CC lanes, gate ramps, MIDI delay + delay hints + cheat sheet).
 - Pending human checks from 13/14 (playheads drift, mute/lock/regen/blank in
   the jam, degree buttons audible, capture export lands in Ableton).
+- 2026-07-14 — MIDI delay (FR-MOD-7) deferred from phase 17 to M4 by user
+  decision; delay hints (FR-MOD-8) stay in M3.
 - Phasewerk question RESOLVED 2026-07-14: user decision — ignore Phasewerk
   entirely for now; do not study, reference, or deconflict against it.
 - M1 CLOSED 2026-07-14 (tag v0.1.0), 107 tests. Listening protocol passed

@@ -753,8 +753,8 @@ Standard File/Edit plus: Export ▸ (Capture… / Forward render… / Pattern po
 |---|---|---|
 | **M1 — Headless engine** | `BerlinanEngine` SPM package + CLI (`berlinan render project.json --bars 64 -o out.mid`). No UI, no CoreMIDI. | FR-GS-1/2/3/6, FR-V-1/3/5, FR-P-1(gen 1–3)/2/3, FR-PH-1/4, FR-L-1/2/3, FR-H-1/2/3, FR-MOD-1, FR-IO-6(a-forward)/8(engine part), FR-UX-1 · §12 tests 1/2/5/6 |
 | **M2 — It plays** | Minimal app: transport, voice lanes (read-only patterns), virtual MIDI out, clock master, capture buffer + export, lock/regenerate/blank/mute, degree buttons. **First usable jam tool.** | FR-IO-1/2/3/7, FR-V-4, FR-UX-2/4, UI §11.1/11.2(partial)/11.4(partial) |
-| **M3 — Musical depth** | Remaining generators, gate/pitch decoupling, accents & mutations complete, progressions + weighted harmony + bass reharm, CC lanes + gate ramps, MIDI delay + delay hints, pattern editor, snapshots, undo. | FR-P-4/5/6/7, FR-PH-2/3, FR-L-4/5/6, FR-H-4/5/6/9, FR-MOD-2/3/4/5/7/8, FR-UX-3/5 |
-| **M4 — Sync & integration** | Clock slave, Ableton Link, MIDI learn, drag & drop clips, synth profiles, meter changes + odd-meter presets. | FR-IO-4/5/9/10, FR-GS-4/5, FR-MOD-5 |
+| **M3 — Musical depth** | Remaining generators, gate/pitch decoupling, accents & mutations complete, progressions + weighted harmony + bass reharm, CC lanes + gate ramps, delay hints, pattern editor, snapshots, undo. | FR-P-4/5/6/7, FR-PH-2/3, FR-L-4/5/6, FR-H-4/5/6/9, FR-MOD-2/3/4/5/8, FR-UX-3/5 |
+| **M4 — Sync & integration** | Clock slave, Ableton Link, MIDI learn, drag & drop clips, synth profiles, meter changes + odd-meter presets, MIDI delay (deferred from M3). | FR-IO-4/5/9/10, FR-GS-4/5, FR-MOD-5/7 |
 | **M5 — Arranger & polish** | Arrangement state machine, ambient mode, melody engine (accent extraction, alternating), tension budget, chord layer, B-part bundle. | FR-A-*, FR-MEL-*, FR-H-7/8, FR-V-7 |
 | Backlog | `.als` export with scenes; built-in preview synth (AVAudioUnitSampler); AUv3/M4L companion; MPE; custom scales UI. | — |
 
