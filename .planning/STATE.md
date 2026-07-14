@@ -3,9 +3,10 @@
 ## Current position
 
 - **Milestone**: M1 — headless engine
-- **Active phase**: none (phases 01–06 merged to main, all green — 73 tests)
-- **Next entry point**: phase 07 — harmony & global diatonic transposition
-  (FR-H-1/2/3), then 08 SMF export, 09 CLI + golden masters + listening protocol
+- **Active phase**: none (phases 01–08 merged to main, all green — 95 tests)
+- **Next entry point**: phase 09 — CLI render + velocity policy + golden masters
+  + FIRST LISTENING PROTOCOL (render demo project, import into Ableton, check
+  against the style checklist with the user)
 
 ## Decisions log
 
