@@ -7,12 +7,16 @@ public struct SMFTrack: Equatable, Sendable {
     /// MIDI channel 0–15.
     public var channel: UInt8
     public var notes: [RenderedNote]
+    /// CC automation (FR-MOD-3); emitted as 0xB0 events.
+    public var ccs: [RenderedCC]
 
-    public init(name: String, channel: UInt8, notes: [RenderedNote]) {
+    public init(name: String, channel: UInt8, notes: [RenderedNote],
+                ccs: [RenderedCC] = []) {
         precondition(channel <= 15, "MIDI channel must be 0–15")
         self.name = name
         self.channel = channel
         self.notes = notes
+        self.ccs = ccs
     }
 }
 
@@ -71,7 +75,8 @@ public enum SMFWriter {
 
     // MARK: Voice tracks
 
-    private enum EventKind: Int { case off = 0, on = 1 }   // offs sort first
+    // Same-tick ordering: offs → ccs (pre-strike values, spec §11.3) → ons.
+    private enum EventKind: Int { case off = 0, cc = 1, on = 2 }
 
     private static func voiceTrack(_ track: SMFTrack, length: Tick) -> [UInt8] {
         var events: [UInt8] = []
@@ -109,6 +114,10 @@ public enum SMFWriter {
         for (index, n) in expanded.enumerated() {
             timed.append((n.at, .on, index, [0x90 | track.channel, n.note, n.velocity]))
             timed.append((n.off, .off, index, [0x80 | track.channel, n.note, 0]))
+        }
+        for (index, cc) in track.ccs.enumerated() {
+            timed.append((cc.at, .cc, expanded.count + index,
+                          [0xB0 | track.channel, cc.controller, cc.value]))
         }
         timed.sort {
             if $0.tick != $1.tick { return $0.tick < $1.tick }

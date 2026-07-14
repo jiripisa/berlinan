@@ -15,11 +15,19 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
     public var phaseSteps: Int?
     public var anchorPolicy: AnchorPolicy?
     public var participatesInTransposition: Bool?
+    /// CC modulation lanes (FR-MOD-3); targets resolved via `ccMap`.
+    public var ccLanes: [CCLane]?
+    /// Named CC targets → controller numbers (FR-MOD-5), e.g. "filter": 74.
+    public var ccMap: [String: UInt8]?
+    /// Gate-length arc (FR-MOD-2).
+    public var gateRamp: GateRampProgram?
 
     public init(id: String, role: VoiceRole, register: RegisterWindow,
                 referenceC: Int, generator: GeneratorConfig, channel: UInt8,
                 phaseSteps: Int? = nil, anchorPolicy: AnchorPolicy? = nil,
-                participatesInTransposition: Bool? = nil) {
+                participatesInTransposition: Bool? = nil,
+                ccLanes: [CCLane]? = nil, ccMap: [String: UInt8]? = nil,
+                gateRamp: GateRampProgram? = nil) {
         self.id = id
         self.role = role
         self.register = register
@@ -29,6 +37,9 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
         self.phaseSteps = phaseSteps
         self.anchorPolicy = anchorPolicy
         self.participatesInTransposition = participatesInTransposition
+        self.ccLanes = ccLanes
+        self.ccMap = ccMap
+        self.gateRamp = gateRamp
     }
 }
 
@@ -81,7 +92,11 @@ extension Project {
         voices: [
             VoiceConfig(id: "bedPluck1", role: .bedPluck1,
                         register: RegisterWindow(low: 55, high: 79), referenceC: 60,
-                        generator: .seedProcedure(bars: 1, mutations: 4), channel: 0),
+                        generator: .seedProcedure(bars: 1, mutations: 4), channel: 0,
+                        // A slow filter breath (M §11.2 — 16-bar cycle).
+                        ccLanes: [CCLane(target: "filter", shape: .sine,
+                                         cycleBars: 16, depth: 0.3, center: 0.6)],
+                        ccMap: ["filter": 74]),
             VoiceConfig(id: "bedPluck2", role: .bedPluck2,
                         register: RegisterWindow(low: 60, high: 84), referenceC: 60,
                         generator: .seedProcedure(bars: 1, mutations: 4), channel: 1,

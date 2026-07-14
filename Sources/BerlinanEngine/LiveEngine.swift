@@ -83,6 +83,18 @@ public struct LiveEngine: Sendable {
         schedule.offset(atBar: bar)
     }
 
+    /// CC lanes for a window (FR-MOD-3/4). Stateless and chunk-safe — the
+    /// scheduler calls it alongside `render` with the same windows.
+    public func renderCC(range: Range<Tick>) -> [RenderedCC] {
+        project.voices.flatMap { config in
+            ModulationEngine.render(
+                lanes: config.ccLanes ?? [], ccMap: config.ccMap ?? [:],
+                voiceID: config.id, in: range, meter: project.meter,
+                seed: SeedStream.derive(master: project.masterSeed,
+                                        "voice", config.id, "cc"))
+        }
+    }
+
     // MARK: - Actions
 
     public mutating func enqueue(_ action: Action, atTick requestTick: Tick) {
@@ -148,6 +160,8 @@ public struct LiveEngine: Sendable {
                                                        meter: project.meter,
                                                        in: lower..<upper)
                     let stretchBassGates = bassOnly && state.voice.role == .bass
+                    let gateRamp = project.voices
+                        .first { $0.id == state.voice.id }?.gateRamp
                     notes += segment.map { n in
                         var out = n
                         let local = Tick(floorMod(Int(n.at + startOffset), Int(length)))
@@ -155,6 +169,11 @@ public struct LiveEngine: Sendable {
                                                       accent: n.accent,
                                                       patternSeed: humanSeed,
                                                       localPosition: local)
+                        if let ramp = gateRamp {
+                            let barIndex = Int(n.at / project.meter.ticksPerBar)
+                            let multiplier = ramp.profile[barIndex % ramp.profile.count]
+                            out.gate = max(1, Tick(Double(out.gate) * multiplier))
+                        }
                         if stretchBassGates {
                             out.gate = max(out.gate, project.meter.ticksPerBeat)
                         }

@@ -177,3 +177,42 @@ private func machToNanos() -> Double {
     mach_timebase_info(&info)
     return Double(info.denom) / Double(info.numer)
 }
+
+// MARK: - CC over the live stream (phase 17)
+
+@Suite("Transport CC emission", .serialized)
+struct TransportCCTests {
+
+    @Test("A project with a CC lane produces 0xB0 words live")
+    func liveCC() throws {
+        let midi = try MIDIService(clientName: "BerlinanCCTest",
+                                   sourceName: "Berlinan CC Test Out")
+        var project = Project.demo          // bedPluck1 carries a filter lane
+        project.bpm = 240
+
+        var client = MIDIClientRef()
+        MIDIClientCreateWithBlock("CCListener" as CFString, &client, nil)
+        defer { MIDIClientDispose(client) }
+        let collector = EventCollector()
+        var port = MIDIPortRef()
+        MIDIInputPortCreateWithProtocol(client, "in" as CFString, ._1_0, &port) { list, _ in
+            var items: [EventCollector.Received] = []
+            for packet in list.unsafeSequence() {
+                let ts = packet.pointee.timeStamp
+                for word in packet.words() { items.append(.init(word: word, timeStamp: ts)) }
+            }
+            collector.append(items)
+        }
+        MIDIPortConnectSource(port, midi.sourceEndpoint, nil)
+
+        let transport = Transport(project: project, midi: midi)
+        transport.play()
+        Thread.sleep(forTimeInterval: 0.5)
+        transport.stop()
+        Thread.sleep(forTimeInterval: 0.1)
+
+        let ccWords = collector.received.map(\.word)
+            .filter { ($0 & 0xFFFF_0000) == 0x20B0_0000 && (($0 >> 8) & 0x7F) == 74 }
+        #expect(!ccWords.isEmpty, "expected CC74 on channel 0 in the live stream")
+    }
+}

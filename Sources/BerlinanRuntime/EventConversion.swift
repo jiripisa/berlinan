@@ -32,6 +32,20 @@ public enum NoteEventConverter {
         return result
     }
 
+    /// CC lane values → timed events (FR-MOD-3). CC follows the voice's
+    /// channel; muting deliberately does NOT drop CC — mute is a note gate,
+    /// knobs keep their positions consistent.
+    public static func ccEvents(for ccs: [RenderedCC],
+                                channelMap: [String: UInt8]) -> [TimedEvent] {
+        ccs.compactMap { cc in
+            channelMap[cc.voiceID].map {
+                TimedEvent(tick: cc.at,
+                           event: .cc(channel: $0, controller: cc.controller,
+                                      value: cc.value))
+            }
+        }
+    }
+
     /// 24-PPQ MIDI clock grid (FR-IO-3): one pulse every ppqn/24 = 40 ticks,
     /// half-open and seam-safe like every other window function.
     public static func clockTicks(in range: Range<Tick>) -> [Tick] {

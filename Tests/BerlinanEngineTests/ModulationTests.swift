@@ -36,12 +36,13 @@ struct CCLaneTests {
         // t=0: sin(0)=0 → center 0.5 → 64 (rounded).
         #expect(events.first!.at == 0)
         #expect(abs(Int(events.first!.value) - 64) <= 1)
-        // Quarter cycle (bar/4): sin(π/2)=1 → center+depth/2 = 1.0 → 127.
-        let peak = events.first { $0.at == bar / 4 }
-        #expect(peak != nil && peak!.value == 127)
-        // Three quarters: trough → 0.
-        let trough = events.first { $0.at == 3 * bar / 4 }
-        #expect(trough != nil && trough!.value == 0)
+        // Full swing is reached: peak 127 near bar/4, trough 0 near 3·bar/4
+        // (the delta filter emits each value at its FIRST occurrence, so the
+        // exact tick may precede the mathematical extremum by a grid step).
+        let peak = events.filter { $0.value == 127 }.map(\.at)
+        #expect(!peak.isEmpty && abs(peak.first! - bar / 4) <= 3 * grid)
+        let trough = events.filter { $0.value == 0 }.map(\.at)
+        #expect(!trough.isEmpty && abs(trough.first! - 3 * bar / 4) <= 3 * grid)
     }
 
     @Test("Delta filter: a flat lane emits exactly one initial value")
