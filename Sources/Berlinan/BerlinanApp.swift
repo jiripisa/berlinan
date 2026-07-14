@@ -4,6 +4,8 @@ import AppKit
 @main
 struct BerlinanApp: App {
 
+    @State private var services = AppServices()
+
     init() {
         // Studio-dark only in v1 (design_language.md §6) — the app does not
         // follow the system light mode.
@@ -12,7 +14,7 @@ struct BerlinanApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(services: services)
                 .preferredColorScheme(.dark)
         }
         .windowStyle(.automatic)

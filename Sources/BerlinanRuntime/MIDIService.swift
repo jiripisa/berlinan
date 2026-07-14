@@ -38,27 +38,29 @@ public final class MIDIService {
     /// Send events with CoreMIDI host-time timestamps (0 = deliver now).
     /// Events are tracked in the note registry as they are sent.
     public func send(_ events: [(hostTime: UInt64, event: MIDI1Event)]) {
-        guard !events.isEmpty else { return }
+        // Capacity is guaranteed by chunking (MIDIEventListAdd's "list full"
+        // signal is unusable from Swift — the return is imported non-optional):
+        // worst case one packet per event = 16 bytes (8 timestamp + 4 count +
+        // 4 word), so 200 events always fit a 4096-byte list with headroom.
+        let chunkSize = 200
+        var index = 0
+        while index < events.count {
+            sendChunk(events[index..<min(index + chunkSize, events.count)])
+            index += chunkSize
+        }
+    }
 
-        // MIDIEventList has inline storage; build in a fixed buffer and emit
-        // in chunks whenever capacity runs out.
-        let bufferSize = 4096
-        var buffer = [UInt8](repeating: 0, count: bufferSize)
+    private func sendChunk(_ events: ArraySlice<(hostTime: UInt64, event: MIDI1Event)>) {
+        guard !events.isEmpty else { return }
+        var buffer = [UInt8](repeating: 0, count: 4096)
         buffer.withUnsafeMutableBytes { raw in
             let listPtr = raw.baseAddress!.assumingMemoryBound(to: MIDIEventList.self)
             var packet = MIDIEventListInit(listPtr, ._1_0)
             for item in events {
                 registry.track(item.event)
                 var word = item.event.umpWord
-                packet = MIDIEventListAdd(listPtr, bufferSize, packet,
+                packet = MIDIEventListAdd(listPtr, raw.count, packet,
                                           MIDITimeStamp(item.hostTime), 1, &word)
-                if packet == nil {
-                    // Buffer full: flush what we have and start a fresh list.
-                    MIDIReceivedEventList(sourceEndpoint, listPtr)
-                    packet = MIDIEventListInit(listPtr, ._1_0)
-                    packet = MIDIEventListAdd(listPtr, bufferSize, packet,
-                                              MIDITimeStamp(item.hostTime), 1, &word)
-                }
             }
             MIDIReceivedEventList(sourceEndpoint, listPtr)
         }
