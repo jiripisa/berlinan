@@ -15,14 +15,14 @@ Close M1: `berlinan-cli render project.json --bars N -o out.mid` produces a musi
 
 ## Acceptance criteria
 
-- [ ] VelocityPolicy: accent adds boost (clamped 1–127); humanization within ±range; identical across repeats within a cycle; changes when the pattern seed changes
-- [ ] Renderer Law-1 behavior: bars 0–3 identical note content (pedal schedule); some seed mutates content from bar 4 on
-- [ ] phaseSteps −1 → 15-step loop audible in onsets (drift against the bar grid)
-- [ ] Transposition schedule reflected in rendered pitches (bar 8 bass sits on Ab) and as `HARM:` markers
-- [ ] Project JSON round-trip + decode from the committed demo file (documents the format)
-- [ ] Golden master: render(demo, 16 bars) byte-equals the committed `demo16.mid` (FR-UX-1)
-- [ ] CLI: `render examples/demo_project.json --bars 64 -o build/demo64.mid` succeeds; `--version`/`--help` intact
-- [ ] `swift test` green
+- [x] VelocityPolicy: accent adds boost (clamped 1–127); humanization within ±range; identical across repeats within a cycle; changes when the pattern seed changes
+- [x] Renderer Law-1 behavior: bars 0–3 identical note content (pedal schedule); some seed mutates content from bar 4 on
+- [x] phaseSteps −1 → 15-step loop audible in onsets (drift against the bar grid)
+- [x] Transposition schedule reflected in rendered pitches (bar 8 bass sits on Ab) and as `HARM:` markers
+- [x] Project JSON round-trip + decode from the committed demo file (documents the format)
+- [x] Golden master: render(demo, 16 bars) byte-equals the committed `demo16.mid` (FR-UX-1)
+- [x] CLI: `render examples/demo_project.json --bars 64 -o build/demo64.mid` succeeds; `--version`/`--help` intact
+- [x] `swift test` green
 - [ ] **Listening protocol**: 64-bar render imported into Ableton and checked against the style checklist (bed phasing, bass anchor, transposition movement, no hanging notes) — human item, closes M1
 
 ## Out of scope

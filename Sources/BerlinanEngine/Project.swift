@@ -1,0 +1,96 @@
+/// The project document (spec §6.6, M1 subset): everything the renderer
+/// needs, JSON-encodable. Decoding happens in the CLI/app layer — the engine
+/// only defines the Codable types.
+
+public struct VoiceConfig: Codable, Equatable, Sendable {
+    public var id: String
+    public var role: VoiceRole
+    public var register: RegisterWindow
+    public var referenceC: Int
+    public var generator: GeneratorConfig
+    /// MIDI channel 0–15 (displayed 1-based).
+    public var channel: UInt8
+    /// FR-PH-2 in the document format: change the generated loop length by
+    /// this many 16th steps (e.g. −1 → a 15-step copy of a 16-step pattern).
+    public var phaseSteps: Int?
+    public var anchorPolicy: AnchorPolicy?
+    public var participatesInTransposition: Bool?
+
+    public init(id: String, role: VoiceRole, register: RegisterWindow,
+                referenceC: Int, generator: GeneratorConfig, channel: UInt8,
+                phaseSteps: Int? = nil, anchorPolicy: AnchorPolicy? = nil,
+                participatesInTransposition: Bool? = nil) {
+        self.id = id
+        self.role = role
+        self.register = register
+        self.referenceC = referenceC
+        self.generator = generator
+        self.channel = channel
+        self.phaseSteps = phaseSteps
+        self.anchorPolicy = anchorPolicy
+        self.participatesInTransposition = participatesInTransposition
+    }
+}
+
+public struct Project: Codable, Equatable, Sendable {
+    public var formatVersion: Int
+    public var masterSeed: UInt64
+    public var bpm: Double
+    public var key: Key
+    public var meter: Meter
+    public var voices: [VoiceConfig]
+    public var transposition: TranspositionSchedule
+    public var legitimization: Legitimizer.Config?
+    public var velocity: VelocityPolicy?
+
+    public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
+                key: Key, meter: Meter, voices: [VoiceConfig],
+                transposition: TranspositionSchedule = .pedal,
+                legitimization: Legitimizer.Config? = nil,
+                velocity: VelocityPolicy? = nil) {
+        self.formatVersion = formatVersion
+        self.masterSeed = masterSeed
+        self.bpm = bpm
+        self.key = key
+        self.meter = meter
+        self.voices = voices
+        self.transposition = transposition
+        self.legitimization = legitimization
+        self.velocity = velocity
+    }
+}
+
+extension Project {
+
+    /// The default 3-voice Berlin School template (FR-V-2, M §16 defaults):
+    /// two phasing bed plucks (16 vs 15 steps), a pulsing bass, and an
+    /// i→VI→iv→i→v→i transposition walk at 90 BPM in C minor. Also serves as
+    /// the golden-master fixture and the `berlinan-cli demo` output.
+    public static let demo = Project(
+        formatVersion: 1,
+        masterSeed: 0xBE12_71A9,
+        bpm: 90,
+        key: Key.default,
+        meter: .fourFour,
+        voices: [
+            VoiceConfig(id: "bedPluck1", role: .bedPluck1,
+                        register: RegisterWindow(low: 55, high: 79), referenceC: 60,
+                        generator: .seedProcedure(bars: 1, mutations: 4), channel: 0),
+            VoiceConfig(id: "bedPluck2", role: .bedPluck2,
+                        register: RegisterWindow(low: 60, high: 84), referenceC: 60,
+                        generator: .seedProcedure(bars: 1, mutations: 4), channel: 1,
+                        phaseSteps: -1),
+            VoiceConfig(id: "bass", role: .bass,
+                        register: RegisterWindow(low: 24, high: 48), referenceC: 36,
+                        generator: .pulsingBass(accents: 3), channel: 2,
+                        anchorPolicy: .beats1and3),
+        ],
+        transposition: TranspositionSchedule(events: [
+            TranspositionEvent(bar: 8, degreeOffset: 5),
+            TranspositionEvent(bar: 12, degreeOffset: 3),
+            TranspositionEvent(bar: 16, degreeOffset: 0),
+            TranspositionEvent(bar: 24, degreeOffset: 4),
+            TranspositionEvent(bar: 28, degreeOffset: 0),
+        ])
+    )
+}

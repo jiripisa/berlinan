@@ -34,7 +34,10 @@ let package = Package(
         .testTarget(
             name: "BerlinanEngineTests",
             dependencies: ["BerlinanEngine"],
-            path: "Tests/BerlinanEngineTests"
+            path: "Tests/BerlinanEngineTests",
+            resources: [
+                .copy("Goldens")
+            ]
         ),
     ]
 )

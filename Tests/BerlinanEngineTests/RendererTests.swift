@@ -6,36 +6,9 @@ private let beat: Tick = Time.ppqn
 private let bar: Tick = 4 * beat
 private let sixteenth: Tick = Time.ppqn / 4
 
-/// The demo fixture, mirroring Goldens/demo_project.json.
-private func demoProject() -> Project {
-    Project(
-        formatVersion: 1,
-        masterSeed: 0xBE12_71A9,
-        bpm: 90,
-        key: Key.default,
-        meter: .fourFour,
-        voices: [
-            VoiceConfig(id: "bedPluck1", role: .bedPluck1,
-                        register: RegisterWindow(low: 55, high: 79), referenceC: 60,
-                        generator: .seedProcedure(bars: 1, mutations: 4), channel: 0),
-            VoiceConfig(id: "bedPluck2", role: .bedPluck2,
-                        register: RegisterWindow(low: 60, high: 84), referenceC: 60,
-                        generator: .seedProcedure(bars: 1, mutations: 4), channel: 1,
-                        phaseSteps: -1),
-            VoiceConfig(id: "bass", role: .bass,
-                        register: RegisterWindow(low: 24, high: 48), referenceC: 36,
-                        generator: .pulsingBass(accents: 3), channel: 2,
-                        anchorPolicy: .beats1and3),
-        ],
-        transposition: TranspositionSchedule(events: [
-            TranspositionEvent(bar: 8, degreeOffset: 5),
-            TranspositionEvent(bar: 12, degreeOffset: 3),
-            TranspositionEvent(bar: 16, degreeOffset: 0),
-            TranspositionEvent(bar: 24, degreeOffset: 4),
-            TranspositionEvent(bar: 28, degreeOffset: 0),
-        ])
-    )
-}
+/// The demo fixture is defined once in the engine (Project.demo) — the same
+/// value backs the golden master, the committed JSON, and `berlinan-cli demo`.
+private func demoProject() -> Project { .demo }
 
 private func pedalProject() -> Project {
     var p = demoProject()
