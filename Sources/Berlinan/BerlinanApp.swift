@@ -18,5 +18,11 @@ struct BerlinanApp: App {
                 .preferredColorScheme(.dark)
         }
         .windowStyle(.automatic)
+
+        // Studio reference card (FR-MOD-8) — appears in the Window menu.
+        Window("Delay Cheat Sheet", id: "delayCheatSheet") {
+            DelayCheatSheetView(services: services)
+        }
+        .windowResizability(.contentSize)
     }
 }

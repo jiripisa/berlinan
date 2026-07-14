@@ -211,8 +211,12 @@ struct TransportCCTests {
         transport.stop()
         Thread.sleep(forTimeInterval: 0.1)
 
-        let ccWords = collector.received.map(\.word)
-            .filter { ($0 & 0xFFFF_0000) == 0x20B0_0000 && (($0 >> 8) & 0x7F) == 74 }
+        let words: [UInt32] = collector.received.map(\.word)
+        let ccWords = words.filter { word in
+            let status: UInt32 = (word >> 16) & 0xFF
+            let controller: UInt32 = (word >> 8) & 0x7F
+            return status == 0xB0 && controller == 74
+        }
         #expect(!ccWords.isEmpty, "expected CC74 on channel 0 in the live stream")
     }
 }
