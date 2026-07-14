@@ -13,11 +13,11 @@ First Runtime-layer code (spec §5.1): a new `BerlinanRuntime` library target ho
 
 ## Acceptance criteria
 
-- [ ] UMP vectors: noteOn ch0 60 vel100 → `0x20903C64`; noteOff ch2 48 → `0x2082 3000`; CC ch1 74 → `0x20B14A..`; clock `0x10F80000`, start `0x10FA0000`, continue `0x10FB0000`, stop `0x10FC0000`
-- [ ] NoteRegistry: on adds / off removes; flush emits offs for all sounding notes + CC123 per touched channel, then is empty; per-channel flush leaves other channels sounding; double flush emits nothing
-- [ ] Loopback integration: an in-process input port connected to the virtual source receives the sent words (content verified)
-- [ ] "Berlinan Out" is visible to the system while the service lives (endpoint name check)
-- [ ] `swift test` green (loopback test may be environment-sensitive — must pass locally)
+- [x] UMP vectors: noteOn ch0 60 vel100 → `0x20903C64`; noteOff ch2 48 → `0x2082 3000`; CC ch1 74 → `0x20B14A..`; clock `0x10F80000`, start `0x10FA0000`, continue `0x10FB0000`, stop `0x10FC0000`
+- [x] NoteRegistry: on adds / off removes; flush emits offs for all sounding notes + CC123 per touched channel, then is empty; per-channel flush leaves other channels sounding; double flush emits nothing
+- [x] Loopback integration: an in-process input port connected to the virtual source receives the sent words (content verified)
+- [x] "Berlinan Out" is visible to the system while the service lives (endpoint name check)
+- [x] `swift test` green (loopback test may be environment-sensitive — must pass locally)
 - [ ] Human item: with the test run or app running, "Berlinan Out" appears as a MIDI input in Ableton's preferences
 
 ## Out of scope
