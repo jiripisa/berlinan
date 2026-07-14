@@ -22,6 +22,9 @@ public struct LiveEngine: Sendable {
         /// Hand-edited pattern (FR-P-7); binds at the voice's next loop
         /// boundary and arrives locked + established.
         case replacePattern(voiceID: String, pattern: Pattern)
+        /// Toggle the MIDI delay (FR-MOD-7); binds at the render head
+        /// (≤ lookahead latency).
+        case setMIDIDelay(voiceID: String, enabled: Bool)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -54,6 +57,8 @@ public struct LiveEngine: Sendable {
     private var states: [VoiceState]           // stable order = project order
     private var renderedUpTo: Tick = 0
     private var pendingRecall: (tick: Tick, snapshot: StateSnapshot)? = nil
+    /// Live-toggleable MIDI-delay state (FR-MOD-7), seeded from the project.
+    private var delayConfigs: [String: MIDIDelayConfig] = [:]
 
     /// True when only the bass participates in transposition (bass reharm).
     private let bassOnly: Bool
@@ -67,6 +72,11 @@ public struct LiveEngine: Sendable {
         self.bassOnly = resolved.bassOnly
         self.states = project.voices.map {
             VoiceState(voice: OfflineRenderer.materialize($0, project: project))
+        }
+        for config in project.voices {
+            if let delay = config.midiDelay {
+                delayConfigs[config.id] = delay
+            }
         }
     }
 
@@ -82,6 +92,7 @@ public struct LiveEngine: Sendable {
             public let role: VoiceRole
             public let pattern: Pattern
             public let blankActive: Bool
+            public let midiDelayEnabled: Bool
         }
         public let voices: [VoiceSnapshot]
         /// The effective transposition timeline (incl. live-enqueued events)
@@ -93,7 +104,8 @@ public struct LiveEngine: Sendable {
         Snapshot(voices: states.map {
             Snapshot.VoiceSnapshot(id: $0.voice.id, role: $0.voice.role,
                                    pattern: $0.voice.pattern,
-                                   blankActive: $0.blankActive)
+                                   blankActive: $0.blankActive,
+                                   midiDelayEnabled: delayConfigs[$0.voice.id]?.enabled ?? false)
         }, scheduleEvents: schedule.events)
     }
 
@@ -139,6 +151,13 @@ public struct LiveEngine: Sendable {
             pendingRecall = (tick: Tick(bar) * project.meter.ticksPerBar, snapshot)
         case .replacePattern(let voiceID, let pattern):
             withState(voiceID) { $0.replaceRequest = (tick: requestTick, pattern: pattern) }
+        case .setMIDIDelay(let voiceID, let enabled):
+            guard let role = states.first(where: { $0.voice.id == voiceID })?.voice.role
+            else { return }
+            var config = delayConfigs[voiceID] ?? MIDIDelayConfig(
+                division: DelayHint.compute(role: role, bpm: project.bpm).division)
+            config.enabled = enabled
+            delayConfigs[voiceID] = config
         }
     }
 
@@ -254,6 +273,10 @@ public struct LiveEngine: Sendable {
             guard segmentEnd <= range.upperBound else { break }
             processBoundary(&state, at: segmentEnd)
             state.segmentStart = segmentEnd
+        }
+        // Output boundary: MIDI-delay echoes (FR-MOD-7).
+        if let delay = delayConfigs[state.voice.id], delay.enabled {
+            notes = MIDIDelay.process(notes, config: delay)
         }
         return notes
     }

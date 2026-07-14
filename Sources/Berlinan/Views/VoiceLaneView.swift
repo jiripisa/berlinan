@@ -76,11 +76,19 @@ struct VoiceLaneView: View {
                         ui.blankCycle(voice.id)
                     }
                 }
-                laneButton("pencil",
-                           active: voice.pattern.provenance.generator == .handEdited,
-                           activeColor: AppColor.amber,
-                           help: "Edit pattern (hand edits lock)") {
-                    onEdit()
+                HStack(spacing: 6) {
+                    laneButton("pencil",
+                               active: voice.pattern.provenance.generator == .handEdited,
+                               activeColor: AppColor.amber,
+                               help: "Edit pattern (hand edits lock)") {
+                        onEdit()
+                    }
+                    laneButton("wave.3.right",
+                               active: voice.midiDelayEnabled,
+                               activeColor: AppColor.cyan,
+                               help: "MIDI delay — echoes as notes (use when no audio delay is available)") {
+                        ui.toggleMIDIDelay(voice.id)
+                    }
                 }
             }
         }

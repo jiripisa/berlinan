@@ -56,9 +56,11 @@ public struct RenderedNote: Equatable, Sendable {
     public var gate: Tick
     public var accent: Bool
     public var ratchet: Int
+    /// True for MIDI-delay echoes (FR-MOD-7) — output-boundary only.
+    public var isEcho: Bool
 
     public init(voiceID: String, at: Tick, midiNote: UInt8, velocity: UInt8,
-                gate: Tick, accent: Bool, ratchet: Int) {
+                gate: Tick, accent: Bool, ratchet: Int, isEcho: Bool = false) {
         self.voiceID = voiceID
         self.at = at
         self.midiNote = midiNote
@@ -66,6 +68,7 @@ public struct RenderedNote: Equatable, Sendable {
         self.gate = gate
         self.accent = accent
         self.ratchet = ratchet
+        self.isEcho = isEcho
     }
 }
 

@@ -77,6 +77,22 @@ final class AppServices {
         }
     }
 
+    /// Persist a MIDI-delay toggle (FR-MOD-7); the live engine action is
+    /// enqueued by the caller while playing.
+    func updateVoiceMIDIDelay(_ voiceID: String, enabled: Bool) {
+        guard let idx = project.voices.firstIndex(where: { $0.id == voiceID }) else { return }
+        var config = project.voices[idx].midiDelay ?? MIDIDelayConfig(
+            division: DelayHint.compute(role: project.voices[idx].role,
+                                        bpm: project.bpm).division)
+        config.enabled = enabled
+        project.voices[idx].midiDelay = config
+        if transport?.isPlaying == true {
+            transportStale = true
+        } else {
+            rebuildTransport()
+        }
+    }
+
     // MARK: - Documents (spec §10, M3 subset)
 
     /// File ▸ Open: returns the loaded project so the caller can restore

@@ -16,13 +16,13 @@ The user-requested toggleable MIDI delay (FR-MOD-7, deferred from M3): each note
 
 ## Acceptance criteria
 
-- [ ] process(): echo times at k·division; velocities 100→55→30→17 at decay 0.55; gate ×0.9 chain; cutoff below 8; disabled = identity; echoes tagged
-- [ ] Patterns/snapshot/convergence unaffected (echoes absent from `pattern.notes`)
-- [ ] Live ≡ offline with delay enabled; chunk-independent (echoes ride with their source window)
-- [ ] Toggle action: off → subsequent windows echo-free; on → echoes appear
-- [ ] SMF render with delay carries more note-ons than without; goldens untouched (demo has no delay)
-- [ ] Cheat sheet shows the warning for delay-on voices
-- [ ] `swift test` green; build clean; smoke launch
+- [x] process(): echo times at k·division; velocities 100→55→30→17 at decay 0.55; gate ×0.9 chain; cutoff below 8; disabled = identity; echoes tagged
+- [x] Patterns/snapshot/convergence unaffected (echoes absent from `pattern.notes`)
+- [x] Live ≡ offline with delay enabled; chunk-independent (echoes ride with their source window)
+- [x] Toggle action: off → subsequent windows echo-free; on → echoes appear
+- [x] SMF render with delay carries more note-ons than without; goldens untouched (demo has no delay)
+- [x] Cheat sheet shows the warning for delay-on voices
+- [x] `swift test` green; build clean; smoke launch
 - [ ] Human: toggle the echo button on bedPluck1 while jamming — the "ducka-ducka" appears without any DAW delay; cheat sheet warns
 
 ## Out of scope

@@ -110,6 +110,11 @@ public enum OfflineRenderer {
                                                   cycle: accumCycle, config: accumulator)
             }
         }
+        // Output boundary: MIDI-delay echoes (FR-MOD-7) — after everything
+        // musical, before export/send.
+        if let delay = config.midiDelay {
+            notes = MIDIDelay.process(notes, config: delay)
+        }
         return notes
     }
 
