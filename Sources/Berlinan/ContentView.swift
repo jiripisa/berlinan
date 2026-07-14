@@ -5,11 +5,10 @@ import BerlinanEngine
 /// footer. Documents and the performance panel arrive in later phases.
 struct ContentView: View {
     let services: AppServices
-    @State private var ui: UIState?
+    let ui: UIState
 
     var body: some View {
         Group {
-            if let ui {
                 VStack(spacing: 0) {
                     TransportBarView(ui: ui,
                                      midiStatus: services.midiStatus,
@@ -33,21 +32,10 @@ struct ContentView: View {
                     Rectangle().fill(AppColor.lineSoft).frame(height: 1)
                     ConvergenceView(ui: ui)
                 }
-            } else {
-                AppColor.bgWindow
-            }
         }
         .frame(minWidth: 760, minHeight: 380)
         .background(AppColor.bgWindow.ignoresSafeArea())
-        .onAppear {
-            if ui == nil {
-                let state = UIState(services: services)
-                state.startMirror()
-                ui = state
-            }
-        }
-        .onDisappear {
-            ui?.stopMirror()
-        }
+        .onAppear { ui.startMirror() }
+        .onDisappear { ui.stopMirror() }
     }
 }

@@ -17,12 +17,12 @@ The manual's persistent-variation devices and state control (FR-L-4/5/6, FR-UX-5
 
 ## Acceptance criteria
 
-- [ ] Accumulator: bar k carries drift (k mod wrap)·degreeStep on the last note; base resets after mutation; Live ≡ Offline with an accumulator project
-- [ ] Ratchet policy: probability 0 → no ratchets across 50 seeds; 0.5 → ratchets appear; ≤ 1 ratcheted note invariant holds
-- [ ] Live ratchet expansion: converter emits retriggers matching the SMF writer's math
-- [ ] Snapshot: recall bound at the next bar — pre-recall bars untouched, post-recall content equals the captured patterns and schedule (transposition reverts)
-- [ ] Recall is chunk-independent (window sizes don't change the output)
-- [ ] `swift test` green; goldens untouched
+- [x] Accumulator: bar k carries drift (k mod wrap)·degreeStep on the last note; base resets after mutation; Live ≡ Offline with an accumulator project
+- [x] Ratchet policy: probability 0 → no ratchets across 50 seeds; 0.5 → ratchets appear; ≤ 1 ratcheted note invariant holds
+- [x] Live ratchet expansion: converter emits retriggers matching the SMF writer's math
+- [x] Snapshot: recall bound at the next bar — pre-recall bars untouched, post-recall content equals the captured patterns and schedule (transposition reverts)
+- [x] Recall is chunk-independent (window sizes don't change the output)
+- [x] `swift test` green; goldens untouched
 - [ ] Human: save a snapshot mid-jam, mutate away, recall — the bed returns at the next bar; ⌘Z undoes a regenerate
 
 ## Out of scope
