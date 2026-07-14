@@ -253,3 +253,55 @@ struct AnchorTickTests {
         #expect(beatNew == 2 * beatOld)
     }
 }
+
+// MARK: - Runtime tempo change (phase 21)
+
+@Suite("Runtime tempo change", .serialized)
+struct RuntimeTempoTests {
+
+    @Test("Clock spacing doubles after a live tempo halving at a bar boundary")
+    func tempoSwap() throws {
+        let midi = try MIDIService(clientName: "BerlinanTempoTest",
+                                   sourceName: "Berlinan Tempo Test Out")
+        var project = Project.demo
+        project.bpm = 240                      // 1 bar = 1 s
+
+        var client = MIDIClientRef()
+        MIDIClientCreateWithBlock("TempoListener" as CFString, &client, nil)
+        defer { MIDIClientDispose(client) }
+        let collector = EventCollector()
+        var port = MIDIPortRef()
+        MIDIInputPortCreateWithProtocol(client, "in" as CFString, ._1_0, &port) { list, _ in
+            var items: [EventCollector.Received] = []
+            for packet in list.unsafeSequence() {
+                let ts = packet.pointee.timeStamp
+                for word in packet.words() { items.append(.init(word: word, timeStamp: ts)) }
+            }
+            collector.append(items)
+        }
+        MIDIPortConnectSource(port, midi.sourceEndpoint, nil)
+
+        let transport = Transport(project: project, midi: midi)
+        #expect(transport.currentBPM == 240)
+        transport.play()
+        Thread.sleep(forTimeInterval: 0.4)
+        transport.setTempo(120)
+        Thread.sleep(forTimeInterval: 1.8)
+        #expect(transport.currentBPM == 120)
+        transport.stop()
+        Thread.sleep(forTimeInterval: 0.1)
+
+        let clocks = collector.received.filter { $0.word == 0x10F8_0000 }
+            .map(\.timeStamp).sorted()
+        let spacings = zip(clocks, clocks.dropFirst()).map { Double($1 - $0) }
+        #expect(spacings.count > 20)
+        let fast = spacings.min()!
+        let slow = spacings.max()!
+        // 240 → 120 BPM: pulse spacing doubles (tolerance 15%).
+        #expect(slow / fast > 1.7 && slow / fast < 2.3,
+                "spacing ratio \(slow / fast)")
+        // Both regimes actually present (several pulses each).
+        #expect(spacings.filter { $0 < fast * 1.2 }.count > 5)
+        #expect(spacings.filter { $0 > slow * 0.8 }.count > 5)
+    }
+}

@@ -27,11 +27,32 @@ public final class Transport: @unchecked Sendable {
     private var latestOffset: Int = 0
     private var activeClock: TickClock?
     private var capture: CaptureBuffer
+    private var pendingBPM: Double? = nil
+    private var liveBPM: Double
     public private(set) var sendsClock = true
+
+    /// The tempo in force (tracks runtime changes; FR-GS-5).
+    public var currentBPM: Double {
+        lock.lock(); defer { lock.unlock() }
+        return liveBPM
+    }
+
+    /// Runtime tempo change — binds at the next bar boundary (clock segments
+    /// stay continuous at the swap tick).
+    public func setTempo(_ bpm: Double) {
+        let clamped = max(40, min(220, bpm))
+        lock.lock(); defer { lock.unlock() }
+        if running {
+            pendingBPM = clamped
+        } else {
+            liveBPM = clamped
+        }
+    }
 
     public init(project: Project, midi: MIDIService) {
         self.project = project
         self.midi = midi
+        self.liveBPM = project.bpm
         self.channelMap = Dictionary(uniqueKeysWithValues:
             project.voices.map { ($0.id, $0.channel) })
         // Preview snapshot so the UI shows the initial patterns before play.
@@ -107,7 +128,7 @@ public final class Transport: @unchecked Sendable {
                 channel: config.channel,
                 notes: clip.filter { $0.voiceID == config.id })
         }
-        return SMFWriter.encode(bpm: project.bpm, meter: project.meter,
+        return SMFWriter.encode(bpm: currentBPM, meter: project.meter,
                                 tracks: tracks, length: length)
     }
 
@@ -167,8 +188,8 @@ public final class Transport: @unchecked Sendable {
 
     private func schedulerLoop() {
         var engine = LiveEngine(project: project)
-        let clock = TickClock.current(
-            bpm: project.bpm,
+        var clock = TickClock.current(
+            bpm: currentBPM,
             anchorMach: machAfter(nanos: prerollNanos))
         lock.lock()
         activeClock = clock
@@ -177,6 +198,7 @@ public final class Transport: @unchecked Sendable {
             midi.send([(hostTime: clock.machTime(forTick: 0), event: .start)])
         }
         var renderHead: Tick = 0
+        let barTicks = project.meter.ticksPerBar
 
         while true {
             lock.lock()
@@ -184,6 +206,7 @@ public final class Transport: @unchecked Sendable {
             let actions = pendingActions
             pendingActions.removeAll()
             let muted = mutedVoices
+            let requestedBPM = pendingBPM
             lock.unlock()
             guard stillRunning else { return }
 
@@ -191,7 +214,31 @@ public final class Transport: @unchecked Sendable {
                 engine.enqueue(action, atTick: renderHead)
             }
 
-            let target = clock.tick(atMach: machAfter(nanos: lookaheadNanos))
+            // Runtime tempo (FR-GS-5): bind at the next bar boundary — the
+            // window clamps to it, and once the render head reaches it the
+            // clock swaps with segment continuity.
+            var tempoBoundary: Tick? = nil
+            if let newBPM = requestedBPM {
+                let boundary = (renderHead + barTicks - 1) / barTicks * barTicks
+                if renderHead == boundary {
+                    clock = TickClock.current(
+                        bpm: newBPM,
+                        anchorMach: clock.machTime(forTick: boundary),
+                        anchorTick: boundary)
+                    lock.lock()
+                    activeClock = clock
+                    liveBPM = newBPM
+                    pendingBPM = nil
+                    lock.unlock()
+                } else {
+                    tempoBoundary = boundary
+                }
+            }
+
+            var target = clock.tick(atMach: machAfter(nanos: lookaheadNanos))
+            if let boundary = tempoBoundary {
+                target = min(target, boundary)
+            }
             if target > renderHead {
                 let window = renderHead..<target
                 let rendered = engine.render(range: window)

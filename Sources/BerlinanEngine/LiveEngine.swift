@@ -25,6 +25,15 @@ public struct LiveEngine: Sendable {
         /// Toggle the MIDI delay (FR-MOD-7); binds at the render head
         /// (≤ lookahead latency).
         case setMIDIDelay(voiceID: String, enabled: Bool)
+        /// Runtime key change (FR-GS-5); binds at the next bar. Degree-space
+        /// patterns re-root instantly; sounding notes keep their offs.
+        case setKey(Key)
+    }
+
+    /// Bar-quantized global changes that split the render window.
+    private enum GlobalChange: Sendable {
+        case recall(StateSnapshot)
+        case key(Key)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -50,13 +59,16 @@ public struct LiveEngine: Sendable {
         public var pattern: Pattern { voice.pattern }
     }
 
-    private let project: Project
+    /// Mutable: runtime key changes (FR-GS-5) rewrite `project.key` so every
+    /// downstream consumer (resolution, mutation, regeneration) follows.
+    private var project: Project
     private let legit: Legitimizer.Config
     private let velocity: VelocityPolicy
     private var schedule: TranspositionSchedule
     private var states: [VoiceState]           // stable order = project order
     private var renderedUpTo: Tick = 0
-    private var pendingRecall: (tick: Tick, snapshot: StateSnapshot)? = nil
+    /// Bar-quantized global changes, ordered by bind tick (stable insertion).
+    private var pendingChanges: [(tick: Tick, change: GlobalChange)] = []
     /// Live-toggleable MIDI-delay state (FR-MOD-7), seeded from the project.
     private var delayConfigs: [String: MIDIDelayConfig] = [:]
 
@@ -98,6 +110,8 @@ public struct LiveEngine: Sendable {
         /// The effective transposition timeline (incl. live-enqueued events)
         /// — for the harmony strip (FR-H-9).
         public let scheduleEvents: [TranspositionEvent]
+        /// The effective key (tracks runtime key changes, FR-GS-5).
+        public let key: Key
     }
 
     public func snapshot() -> Snapshot {
@@ -106,7 +120,7 @@ public struct LiveEngine: Sendable {
                                    pattern: $0.voice.pattern,
                                    blankActive: $0.blankActive,
                                    midiDelayEnabled: delayConfigs[$0.voice.id]?.enabled ?? false)
-        }, scheduleEvents: schedule.events)
+        }, scheduleEvents: schedule.events, key: project.key)
     }
 
     /// Current transposition offset for a bar — includes live-enqueued events.
@@ -145,10 +159,9 @@ public struct LiveEngine: Sendable {
         case .setLock(let voiceID, let on):
             withState(voiceID) { $0.voice.pattern.locked = on }
         case .recallSnapshot(let snapshot):
-            let tick = max(requestTick, renderedUpTo)
-            let bar = HarmonyEngine.quantizedEventBar(requestTick: tick,
-                                                      meter: project.meter)
-            pendingRecall = (tick: Tick(bar) * project.meter.ticksPerBar, snapshot)
+            enqueueGlobalChange(.recall(snapshot), requestTick: requestTick)
+        case .setKey(let key):
+            enqueueGlobalChange(.key(key), requestTick: requestTick)
         case .replacePattern(let voiceID, let pattern):
             withState(voiceID) { $0.replaceRequest = (tick: requestTick, pattern: pattern) }
         case .setMIDIDelay(let voiceID, let enabled):
@@ -159,6 +172,17 @@ public struct LiveEngine: Sendable {
             config.enabled = enabled
             delayConfigs[voiceID] = config
         }
+    }
+
+    private mutating func enqueueGlobalChange(_ change: GlobalChange,
+                                              requestTick: Tick) {
+        let tick = max(requestTick, renderedUpTo)
+        let bar = HarmonyEngine.quantizedEventBar(requestTick: tick,
+                                                  meter: project.meter)
+        let bindTick = Tick(bar) * project.meter.ticksPerBar
+        let index = pendingChanges.firstIndex { $0.tick > bindTick }
+            ?? pendingChanges.count
+        pendingChanges.insert((tick: bindTick, change: change), at: index)
     }
 
     /// Capture the complete generative state (FR-L-6).
@@ -196,17 +220,22 @@ public struct LiveEngine: Sendable {
 
     /// Produce all events in the half-open window. Windows must be
     /// consecutive and non-overlapping; any sizes are fine (seam-safe).
-    /// A pending snapshot recall splits the window at its (bar-quantized)
-    /// bind tick.
+    /// Pending global changes (recall, key) split the window at their
+    /// bar-quantized bind ticks, in queue order.
     public mutating func render(range: Range<Tick>) -> [RenderedNote] {
-        if let recall = pendingRecall, recall.tick < range.upperBound {
+        if let next = pendingChanges.first, next.tick < range.upperBound {
             var notes: [RenderedNote] = []
-            if recall.tick > range.lowerBound {
-                notes = renderWindow(range.lowerBound..<recall.tick)
+            if next.tick > range.lowerBound {
+                notes = renderWindow(range.lowerBound..<next.tick)
             }
-            applyRecall(recall.snapshot, at: recall.tick)
-            pendingRecall = nil
-            notes += render(range: max(recall.tick, range.lowerBound)..<range.upperBound)
+            pendingChanges.removeFirst()
+            switch next.change {
+            case .recall(let snapshot):
+                applyRecall(snapshot, at: next.tick)
+            case .key(let key):
+                project.key = key       // everything downstream follows
+            }
+            notes += render(range: max(next.tick, range.lowerBound)..<range.upperBound)
             return notes
         }
         return renderWindow(range)

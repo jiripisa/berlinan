@@ -15,11 +15,11 @@ Change tempo and key while playing, bar-quantized (FR-GS-5): tempo via clock re-
 
 ## Acceptance criteria
 
-- [ ] TickClock: nonzero anchorTick math; old/new segments agree at the boundary tick
-- [ ] Engine key change: binds at the next bar (C-rooted before, A-rooted after); all post-change notes in the new scale (incl. after mutations); chunk-independent; snapshot carries the key
-- [ ] Key + recall interleave correctly (queue ordering by tick)
-- [ ] Transport integration: clock-pulse spacing halves/doubles after a live tempo change at a bar boundary; currentTick stays monotonic; currentBPM updates
-- [ ] `swift test` green; goldens untouched
+- [x] TickClock: nonzero anchorTick math; old/new segments agree at the boundary tick
+- [x] Engine key change: binds at the next bar (C-rooted before, A-rooted after); all post-change notes in the new scale (incl. after mutations); chunk-independent; snapshot carries the key
+- [x] Key + recall interleave correctly (queue ordering by tick)
+- [x] Transport integration: clock-pulse spacing halves/doubles after a live tempo change at a bar boundary; currentTick stays monotonic; currentBPM updates
+- [x] `swift test` green; goldens untouched
 - [ ] Human: while jamming, open settings → change key (bed re-roots at the next bar) and BPM (Ableton follows via clock)
 
 ## Out of scope

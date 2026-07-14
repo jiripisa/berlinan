@@ -6,6 +6,7 @@ import BerlinanEngine
 /// regenerate deterministically from the same seeds in the new key/meter.
 struct SettingsSheet: View {
     let services: AppServices
+    let ui: UIState
     @Environment(\.dismiss) private var dismiss
 
     @State private var root = 0
@@ -67,10 +68,13 @@ struct SettingsSheet: View {
                         }
                     }
                     .labelsHidden().frame(width: 120)
+                    .disabled(ui.isPlaying)
                 }
             }
 
-            Text("applying regenerates the patterns in the new key/meter\n(seeds unchanged — the material stays recognizable)")
+            Text(ui.isPlaying
+                 ? "playing: key + tempo bind at the next bar (meter needs stop)"
+                 : "applying regenerates the patterns in the new key/meter\n(seeds unchanged — the material stays recognizable)")
                 .font(AppFont.monoCaption)
                 .foregroundStyle(AppColor.ink4)
 
@@ -79,11 +83,20 @@ struct SettingsSheet: View {
                 Button("Cancel") { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Button("Apply") {
-                    var project = services.project
-                    project.key = Key(root: root, scale: .preset(mode))
-                    project.bpm = bpm
-                    project.meter = Self.meters[meterIndex].meter
-                    services.applyProject(project)
+                    let newKey = Key(root: root, scale: .preset(mode))
+                    if ui.isPlaying {
+                        // Runtime changes (FR-GS-5): key + tempo at the next
+                        // bar; meter untouched while playing.
+                        services.applyLiveMusicalChanges(
+                            key: newKey == services.project.key ? nil : newKey,
+                            bpm: bpm == services.project.bpm ? nil : bpm)
+                    } else {
+                        var project = services.project
+                        project.key = newKey
+                        project.bpm = bpm
+                        project.meter = Self.meters[meterIndex].meter
+                        services.applyProject(project)
+                    }
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)

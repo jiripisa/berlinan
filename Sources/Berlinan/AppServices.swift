@@ -64,6 +64,21 @@ final class AppServices {
         rebuildTransport()
     }
 
+    /// Runtime key/tempo changes (FR-GS-5) — usable while playing, both
+    /// bar-quantized (key in the engine, tempo in the transport clock).
+    func applyLiveMusicalChanges(key: Key?, bpm: Double?) {
+        if let bpm {
+            project.bpm = bpm
+            transport?.setTempo(bpm)
+            transportStale = true
+        }
+        if let key {
+            project.key = key
+            transport?.enqueue(.setKey(key))
+            transportStale = true
+        }
+    }
+
     /// 🎲 New Seed (FR-UX-6): a whole new musical universe from the same
     /// configuration. Stopped → rebuild; playing → live swap at the next bar
     /// (a fresh engine's state recalled through the phase-18 machinery).

@@ -47,7 +47,7 @@ struct ContentView: View {
             PatternEditorSheet(ui: ui, voiceID: target.id)
         }
         .sheet(isPresented: $showSettings) {
-            SettingsSheet(services: services)
+            SettingsSheet(services: services, ui: ui)
         }
     }
 }
