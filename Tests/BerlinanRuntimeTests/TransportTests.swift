@@ -220,3 +220,36 @@ struct TransportCCTests {
         #expect(!ccWords.isEmpty, "expected CC74 on channel 0 in the live stream")
     }
 }
+
+// MARK: - Piecewise clock (phase 21 — runtime tempo)
+
+@Suite("TickClock anchorTick")
+struct AnchorTickTests {
+
+    @Test("Nonzero anchorTick maps ticks relative to the anchor")
+    func anchoredMath() {
+        let clock = TickClock(bpm: 120, anchorMach: 1_000_000,
+                              anchorTick: 3840,
+                              timebase: (numer: 1, denom: 1))
+        #expect(clock.machTime(forTick: 3840) == 1_000_000)
+        // One beat later @120 = 0.5 s.
+        #expect(clock.machTime(forTick: 3840 + 960) == 1_000_000 + 500_000_000)
+        #expect(clock.tick(atMach: 1_000_000 + 500_000_000) == 3840 + 960)
+        #expect(clock.tick(atMach: 999_999) < 3840)
+    }
+
+    @Test("Segment continuity: old and new clocks agree at the swap boundary")
+    func continuity() {
+        let old = TickClock(bpm: 240, anchorMach: 0,
+                            timebase: (numer: 1, denom: 1))
+        let boundary: Tick = 4 * 3840                         // bar 4
+        let new = TickClock(bpm: 120, anchorMach: old.machTime(forTick: boundary),
+                            anchorTick: boundary,
+                            timebase: (numer: 1, denom: 1))
+        #expect(old.machTime(forTick: boundary) == new.machTime(forTick: boundary))
+        // After the boundary the new segment runs half as fast.
+        let beatOld = old.machTime(forTick: boundary + 960) - old.machTime(forTick: boundary)
+        let beatNew = new.machTime(forTick: boundary + 960) - new.machTime(forTick: boundary)
+        #expect(beatNew == 2 * beatOld)
+    }
+}
