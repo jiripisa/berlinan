@@ -36,7 +36,7 @@ struct TransportBarView: View {
             }
 
             field("BPM") {
-                Text(String(format: "%.0f", ui.project.bpm))
+                Text(ui.bpmText)
                     .font(AppFont.timecodeBig)
                     .foregroundStyle(AppColor.ink2)
             }
@@ -74,7 +74,7 @@ struct TransportBarView: View {
             Button(action: onSettings) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(ui.isPlaying ? AppColor.ink4 : AppColor.ink2)
+                    .foregroundStyle(AppColor.ink2)
                     .frame(width: 28, height: 24)
                     .background(AppColor.bgPanel)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -82,8 +82,7 @@ struct TransportBarView: View {
                         .stroke(AppColor.line, lineWidth: 1))
             }
             .buttonStyle(.plain)
-            .disabled(ui.isPlaying)
-            .help(ui.isPlaying ? "Stop playback to change settings" : "Project settings")
+            .help("Project settings (key + tempo work while playing)")
 
             HStack(spacing: 6) {
                 Circle()

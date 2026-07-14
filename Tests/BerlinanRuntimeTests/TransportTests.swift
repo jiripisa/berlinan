@@ -220,3 +220,88 @@ struct TransportCCTests {
         #expect(!ccWords.isEmpty, "expected CC74 on channel 0 in the live stream")
     }
 }
+
+// MARK: - Piecewise clock (phase 21 — runtime tempo)
+
+@Suite("TickClock anchorTick")
+struct AnchorTickTests {
+
+    @Test("Nonzero anchorTick maps ticks relative to the anchor")
+    func anchoredMath() {
+        let clock = TickClock(bpm: 120, anchorMach: 1_000_000,
+                              anchorTick: 3840,
+                              timebase: (numer: 1, denom: 1))
+        #expect(clock.machTime(forTick: 3840) == 1_000_000)
+        // One beat later @120 = 0.5 s.
+        #expect(clock.machTime(forTick: 3840 + 960) == 1_000_000 + 500_000_000)
+        #expect(clock.tick(atMach: 1_000_000 + 500_000_000) == 3840 + 960)
+        #expect(clock.tick(atMach: 999_999) < 3840)
+    }
+
+    @Test("Segment continuity: old and new clocks agree at the swap boundary")
+    func continuity() {
+        let old = TickClock(bpm: 240, anchorMach: 0,
+                            timebase: (numer: 1, denom: 1))
+        let boundary: Tick = 4 * 3840                         // bar 4
+        let new = TickClock(bpm: 120, anchorMach: old.machTime(forTick: boundary),
+                            anchorTick: boundary,
+                            timebase: (numer: 1, denom: 1))
+        #expect(old.machTime(forTick: boundary) == new.machTime(forTick: boundary))
+        // After the boundary the new segment runs half as fast.
+        let beatOld = old.machTime(forTick: boundary + 960) - old.machTime(forTick: boundary)
+        let beatNew = new.machTime(forTick: boundary + 960) - new.machTime(forTick: boundary)
+        #expect(beatNew == 2 * beatOld)
+    }
+}
+
+// MARK: - Runtime tempo change (phase 21)
+
+@Suite("Runtime tempo change", .serialized)
+struct RuntimeTempoTests {
+
+    @Test("Clock spacing doubles after a live tempo halving at a bar boundary")
+    func tempoSwap() throws {
+        let midi = try MIDIService(clientName: "BerlinanTempoTest",
+                                   sourceName: "Berlinan Tempo Test Out")
+        var project = Project.demo
+        project.bpm = 240                      // 1 bar = 1 s
+
+        var client = MIDIClientRef()
+        MIDIClientCreateWithBlock("TempoListener" as CFString, &client, nil)
+        defer { MIDIClientDispose(client) }
+        let collector = EventCollector()
+        var port = MIDIPortRef()
+        MIDIInputPortCreateWithProtocol(client, "in" as CFString, ._1_0, &port) { list, _ in
+            var items: [EventCollector.Received] = []
+            for packet in list.unsafeSequence() {
+                let ts = packet.pointee.timeStamp
+                for word in packet.words() { items.append(.init(word: word, timeStamp: ts)) }
+            }
+            collector.append(items)
+        }
+        MIDIPortConnectSource(port, midi.sourceEndpoint, nil)
+
+        let transport = Transport(project: project, midi: midi)
+        #expect(transport.currentBPM == 240)
+        transport.play()
+        Thread.sleep(forTimeInterval: 0.4)
+        transport.setTempo(120)
+        Thread.sleep(forTimeInterval: 1.8)
+        #expect(transport.currentBPM == 120)
+        transport.stop()
+        Thread.sleep(forTimeInterval: 0.1)
+
+        let clocks = collector.received.filter { $0.word == 0x10F8_0000 }
+            .map(\.timeStamp).sorted()
+        let spacings = zip(clocks, clocks.dropFirst()).map { Double($1 - $0) }
+        #expect(spacings.count > 20)
+        let fast = spacings.min()!
+        let slow = spacings.max()!
+        // 240 → 120 BPM: pulse spacing doubles (tolerance 15%).
+        #expect(slow / fast > 1.7 && slow / fast < 2.3,
+                "spacing ratio \(slow / fast)")
+        // Both regimes actually present (several pulses each).
+        #expect(spacings.filter { $0 < fast * 1.2 }.count > 5)
+        #expect(spacings.filter { $0 > slow * 0.8 }.count > 5)
+    }
+}

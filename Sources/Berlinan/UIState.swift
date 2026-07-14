@@ -21,6 +21,8 @@ final class UIState {
     private(set) var degreeOffset = 0
     private(set) var mutedIDs: Set<String> = []
     private(set) var scheduleEvents: [TranspositionEvent] = []
+    private(set) var liveKey: Key? = nil
+    private(set) var liveBPM: Double? = nil
 
     var project: Project { services.project }
 
@@ -53,7 +55,9 @@ final class UIState {
         if let snapshot = transport.snapshot() {
             voices = snapshot.voices
             scheduleEvents = snapshot.scheduleEvents
+            liveKey = snapshot.key
         }
+        liveBPM = transport.currentBPM
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
     }
 
@@ -82,7 +86,12 @@ final class UIState {
 
     var keyText: String {
         let names = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-        return "\(names[project.key.root]) \(project.key.scale.mode.rawValue)"
+        let key = liveKey ?? project.key
+        return "\(names[key.root]) \(key.scale.mode.rawValue)"
+    }
+
+    var bpmText: String {
+        String(Int((liveBPM ?? project.bpm).rounded()))
     }
 
     // MARK: - Actions (FR-UX-2/4)
