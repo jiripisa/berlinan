@@ -163,17 +163,17 @@ struct MIDIServiceTests {
 @Suite("Live ratchet expansion")
 struct LiveRatchetTests {
 
-    @Test("Ratchet 2 expands into retriggers matching the SMF writer's math")
+    @Test("Ratchet 2 expands into STEP-based retriggers matching the SMF writer")
     func expansion() {
         let note = RenderedNote(voiceID: "a", at: 0, midiNote: 60, velocity: 100,
                                 gate: 120, accent: false, ratchet: 2)
         let events = NoteEventConverter.events(for: [note],
                                                channelMap: ["a": 0], muted: [])
-        // Two on/off pairs: slices of 60 ticks, sub-gates 54.
+        // One 16th step (240) / 2 = 120-tick slices; sub-gate min(108, gate) = 108.
         #expect(events.count == 4)
         #expect(events.contains { $0.tick == 0 && $0.event == MIDI1Event.noteOn(channel: 0, note: 60, velocity: 100) })
-        #expect(events.contains { $0.tick == 54 && $0.event == MIDI1Event.noteOff(channel: 0, note: 60) })
-        #expect(events.contains { $0.tick == 60 && $0.event == MIDI1Event.noteOn(channel: 0, note: 60, velocity: 100) })
-        #expect(events.contains { $0.tick == 114 && $0.event == MIDI1Event.noteOff(channel: 0, note: 60) })
+        #expect(events.contains { $0.tick == 108 && $0.event == MIDI1Event.noteOff(channel: 0, note: 60) })
+        #expect(events.contains { $0.tick == 120 && $0.event == MIDI1Event.noteOn(channel: 0, note: 60, velocity: 100) })
+        #expect(events.contains { $0.tick == 228 && $0.event == MIDI1Event.noteOff(channel: 0, note: 60) })
     }
 }
