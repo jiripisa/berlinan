@@ -16,6 +16,18 @@ public struct LiveEngine: Sendable {
         case blankCycle(voiceID: String)
         /// Freeze/unfreeze against all mutation and regeneration; immediate.
         case setLock(voiceID: String, on: Bool)
+        /// Restore a captured state; binds at the next bar — all loops
+        /// re-align there (FR-L-6).
+        case recallSnapshot(StateSnapshot)
+    }
+
+    /// The complete recallable generative state (FR-L-6): patterns (inside
+    /// their voices), generation counters, and the transposition timeline.
+    /// Codable — phase 19 persists these into documents.
+    public struct StateSnapshot: Codable, Equatable, Sendable {
+        public var voices: [Voice]
+        public var generations: [String: Int]
+        public var schedule: TranspositionSchedule
     }
 
     public struct VoiceState: Sendable {
@@ -25,6 +37,8 @@ public struct LiveEngine: Sendable {
         var blankActive = false
         var blankRequestTick: Tick? = nil
         var regenerateRequestTick: Tick? = nil
+        var accumBase: Int? = nil
+        var accumCycle = 0
 
         public var pattern: Pattern { voice.pattern }
     }
@@ -35,6 +49,7 @@ public struct LiveEngine: Sendable {
     private var schedule: TranspositionSchedule
     private var states: [VoiceState]           // stable order = project order
     private var renderedUpTo: Tick = 0
+    private var pendingRecall: (tick: Tick, snapshot: StateSnapshot)? = nil
 
     /// True when only the bass participates in transposition (bass reharm).
     private let bassOnly: Bool
@@ -113,6 +128,37 @@ public struct LiveEngine: Sendable {
             withState(voiceID) { $0.blankRequestTick = requestTick }
         case .setLock(let voiceID, let on):
             withState(voiceID) { $0.voice.pattern.locked = on }
+        case .recallSnapshot(let snapshot):
+            let tick = max(requestTick, renderedUpTo)
+            let bar = HarmonyEngine.quantizedEventBar(requestTick: tick,
+                                                      meter: project.meter)
+            pendingRecall = (tick: Tick(bar) * project.meter.ticksPerBar, snapshot)
+        }
+    }
+
+    /// Capture the complete generative state (FR-L-6).
+    public func captureState() -> StateSnapshot {
+        StateSnapshot(
+            voices: states.map(\.voice),
+            generations: Dictionary(uniqueKeysWithValues:
+                states.map { ($0.voice.id, $0.generation) }),
+            schedule: schedule)
+    }
+
+    private mutating func applyRecall(_ snapshot: StateSnapshot, at tick: Tick) {
+        schedule = snapshot.schedule
+        for idx in states.indices {
+            let id = states[idx].voice.id
+            if let voice = snapshot.voices.first(where: { $0.id == id }) {
+                states[idx].voice = voice
+            }
+            states[idx].generation = snapshot.generations[id] ?? states[idx].generation
+            states[idx].segmentStart = tick        // all loops re-align (bar-quantized)
+            states[idx].blankActive = false
+            states[idx].blankRequestTick = nil
+            states[idx].regenerateRequestTick = nil
+            states[idx].accumBase = nil
+            states[idx].accumCycle = 0
         }
     }
 
@@ -125,7 +171,24 @@ public struct LiveEngine: Sendable {
 
     /// Produce all events in the half-open window. Windows must be
     /// consecutive and non-overlapping; any sizes are fine (seam-safe).
+    /// A pending snapshot recall splits the window at its (bar-quantized)
+    /// bind tick.
     public mutating func render(range: Range<Tick>) -> [RenderedNote] {
+        if let recall = pendingRecall, recall.tick < range.upperBound {
+            var notes: [RenderedNote] = []
+            if recall.tick > range.lowerBound {
+                notes = renderWindow(range.lowerBound..<recall.tick)
+            }
+            applyRecall(recall.snapshot, at: recall.tick)
+            pendingRecall = nil
+            notes += render(range: max(recall.tick, range.lowerBound)..<range.upperBound)
+            return notes
+        }
+        return renderWindow(range)
+    }
+
+    private mutating func renderWindow(_ range: Range<Tick>) -> [RenderedNote] {
+        guard range.lowerBound < range.upperBound else { return [] }
         var notes: [RenderedNote] = []
         for idx in states.indices {
             var state = states[idx]
@@ -230,6 +293,22 @@ public struct LiveEngine: Sendable {
                                              meter: project.meter, seed: seed,
                                              config: legit)
             state.generation += 1
+            state.accumBase = nil            // drift restarts on new material
+            state.accumCycle = 0
+        }
+
+        // 5. Accumulator drift (FR-L-4) — mirrors the offline renderer.
+        if let accumulator = project.voices
+            .first(where: { $0.id == state.voice.id })?.accumulator {
+            if state.accumBase == nil {
+                state.accumBase = Legitimizer.accumulatorBase(of: state.voice.pattern)
+                state.accumCycle = 0
+            }
+            state.accumCycle += 1
+            Legitimizer.applyAccumulatorDrift(&state.voice.pattern,
+                                              base: state.accumBase!,
+                                              cycle: state.accumCycle,
+                                              config: accumulator)
         }
     }
 }

@@ -39,10 +39,12 @@ struct AccumulatorTests {
             }
             let lastNote = inBar.first { ($0.at - Tick(barIndex) * bar) == lastPosition }
             let baseNote = base.first { $0.position == lastPosition }!
-            let expectedPitch = key.resolve(
+            let resolved = key.resolve(
                 DegreePitch(degree: baseNote.pitch.degree + expectedDrift,
                             octave: baseNote.pitch.octave),
                 referenceC: 60)
+            // Register fold applies downstream as for any note (FR-V-3).
+            let expectedPitch = Int(RegisterWindow(low: 55, high: 79).fold(resolved))
             #expect(lastNote != nil)
             #expect(Int(lastNote!.midiNote) == expectedPitch,
                     "bar \(barIndex): \(lastNote!.midiNote) vs \(expectedPitch)")

@@ -11,10 +11,18 @@ public enum Legitimizer {
         /// Total verbatim plays of new material (N; "generate once, repeat
         /// 3× = 4 total"). FR-L-1: default 4, configurable 2–32.
         public var repeats: Int
+        /// Chance a mutation arms one intermittent ratchet (FR-L-5).
+        /// nil = the default 0.15; 0 disables ratchets. Optional so old
+        /// project files keep decoding.
+        public var ratchetProbability: Double?
 
-        public init(repeats: Int = 4) {
+        public init(repeats: Int = 4, ratchetProbability: Double? = nil) {
             precondition((2...32).contains(repeats), "repeats must be 2–32")
+            if let p = ratchetProbability {
+                precondition((0...0.5).contains(p), "ratchet probability 0–0.5")
+            }
             self.repeats = repeats
+            self.ratchetProbability = ratchetProbability
         }
 
         public static let `default` = Config()
@@ -40,6 +48,24 @@ public enum Legitimizer {
     /// Only established, unlocked patterns may change (Law 1 + FR-V-4).
     public static func isMutable(_ pattern: Pattern) -> Bool {
         pattern.lifecycle == .established && !pattern.locked
+    }
+
+    // MARK: - Accumulator drift (FR-L-4)
+
+    /// Deterministic Metropolix drift: the LAST sounding note sits at
+    /// base + (cycle mod wrap)·step degrees. Register folding downstream
+    /// keeps the reach safe (FR-V-3).
+    public static func applyAccumulatorDrift(_ pattern: inout Pattern, base: Int,
+                                             cycle: Int, config: AccumulatorConfig) {
+        guard let idx = pattern.notes.indices.max(by: {
+            pattern.notes[$0].position < pattern.notes[$1].position
+        }) else { return }
+        pattern.notes[idx].pitch.degree = base + (cycle % config.wrap) * config.degreeStep
+    }
+
+    /// The drift base: the last note's degree as generated/mutated.
+    public static func accumulatorBase(of pattern: Pattern) -> Int {
+        pattern.notes.max { $0.position < $1.position }?.pitch.degree ?? 0
     }
 
     // MARK: - Mutation (FR-L-2)
@@ -108,11 +134,11 @@ public enum Legitimizer {
             }
         }
 
-        // 4. Intermittent ratchet (M §13.5, FR-L-5 groundwork): ratchets are
-        //    cleared every mutation — they last exactly one legitimization
-        //    cycle — then one note MAY get a 2–3× retrigger.
+        // 4. Intermittent ratchet (M §13.5, FR-L-5): ratchets are cleared
+        //    every mutation — they last exactly one legitimization cycle —
+        //    then one note MAY get a 2–3× retrigger (policy-configurable).
         for idx in p.notes.indices { p.notes[idx].ratchet = 1 }
-        if Double.random(in: 0..<1, using: &rng) < 0.15,
+        if Double.random(in: 0..<1, using: &rng) < (config.ratchetProbability ?? 0.15),
            let idx = p.notes.indices.randomElement(using: &rng) {
             p.notes[idx].ratchet = Int.random(in: 2...3, using: &rng)
         }

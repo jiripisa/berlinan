@@ -13,6 +13,8 @@ public enum NoteEventConverter {
     /// window — they are scheduled ahead with timestamps, which is exactly
     /// what the lookahead design wants (spec §8.2). Muted voices are dropped
     /// here: the runtime post-render gate (spec §8.2, ≤ 20 ms mute latency).
+    /// Ratchets expand into retriggers with the SAME math as the SMF writer
+    /// (phase-18 fix — live and export must sound identical).
     public static func events(for notes: [RenderedNote],
                               channelMap: [String: UInt8],
                               muted: Set<String>) -> [TimedEvent] {
@@ -21,13 +23,28 @@ public enum NoteEventConverter {
         for note in notes {
             guard !muted.contains(note.voiceID),
                   let channel = channelMap[note.voiceID] else { continue }
-            result.append(TimedEvent(tick: note.at,
-                                     event: .noteOn(channel: channel,
-                                                    note: note.midiNote,
-                                                    velocity: note.velocity)))
-            result.append(TimedEvent(tick: note.at + note.gate,
-                                     event: .noteOff(channel: channel,
-                                                     note: note.midiNote)))
+            if note.ratchet > 1 {
+                let slice = max(1, note.gate / Tick(note.ratchet))
+                for k in 0..<Tick(note.ratchet) {
+                    let at = note.at + k * slice
+                    let gate = max(1, slice * 9 / 10)
+                    result.append(TimedEvent(tick: at,
+                                             event: .noteOn(channel: channel,
+                                                            note: note.midiNote,
+                                                            velocity: note.velocity)))
+                    result.append(TimedEvent(tick: at + gate,
+                                             event: .noteOff(channel: channel,
+                                                             note: note.midiNote)))
+                }
+            } else {
+                result.append(TimedEvent(tick: note.at,
+                                         event: .noteOn(channel: channel,
+                                                        note: note.midiNote,
+                                                        velocity: note.velocity)))
+                result.append(TimedEvent(tick: note.at + note.gate,
+                                         event: .noteOff(channel: channel,
+                                                         note: note.midiNote)))
+            }
         }
         return result
     }

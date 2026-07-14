@@ -1,6 +1,7 @@
 import Foundation
 import CoreMIDI
 import Testing
+import BerlinanEngine
 @testable import BerlinanRuntime
 
 // MARK: - UMP encoding (MIDI 1.0 channel voice in Universal MIDI Packets)
@@ -154,5 +155,25 @@ struct MIDIServiceTests {
         #expect(service.activeNoteCount == 1)
         service.flush()
         #expect(service.activeNoteCount == 0)
+    }
+}
+
+// MARK: - Ratchet expansion in the live converter (phase 18 fix)
+
+@Suite("Live ratchet expansion")
+struct LiveRatchetTests {
+
+    @Test("Ratchet 2 expands into retriggers matching the SMF writer's math")
+    func expansion() {
+        let note = RenderedNote(voiceID: "a", at: 0, midiNote: 60, velocity: 100,
+                                gate: 120, accent: false, ratchet: 2)
+        let events = NoteEventConverter.events(for: [note],
+                                               channelMap: ["a": 0], muted: [])
+        // Two on/off pairs: slices of 60 ticks, sub-gates 54.
+        #expect(events.count == 4)
+        #expect(events.contains { $0.tick == 0 && $0.event == MIDI1Event.noteOn(channel: 0, note: 60, velocity: 100) })
+        #expect(events.contains { $0.tick == 54 && $0.event == MIDI1Event.noteOff(channel: 0, note: 60) })
+        #expect(events.contains { $0.tick == 60 && $0.event == MIDI1Event.noteOn(channel: 0, note: 60, velocity: 100) })
+        #expect(events.contains { $0.tick == 114 && $0.event == MIDI1Event.noteOff(channel: 0, note: 60) })
     }
 }
