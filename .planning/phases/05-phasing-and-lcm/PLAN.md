@@ -15,11 +15,11 @@ The style's variation engine (M §6): voices with unequal loop lengths rendered 
 
 ## Acceptance criteria
 
-- [ ] `withLength`: truncation drops notes at/after the new end, extension preserves all; rotation normalizes into 0..<length
-- [ ] 16-step vs 15-step pair: onsets of the short copy traverse **all 16 relative offsets** (unison + 15 variations [M §6.1]) before re-sync; 14-step copy yields 8 offsets (unison + 7)
-- [ ] Convergence: 16v15 steps → 15 bars in 4/4; 16/24/19 chord-tone polymeter → 57 bars; overflow → nil
-- [ ] `PhasingEngine.events`: merged stream is time-sorted, respects half-open windows, tags events with voice ids
-- [ ] TDD red → green; `swift test` green
+- [x] `withLength`: truncation drops notes at/after the new end, extension preserves all; rotation normalizes into 0..<length
+- [x] 16-step vs 15-step pair: onsets of the short copy traverse **all 16 relative offsets** (unison + 15 variations [M §6.1]) before re-sync; 14-step copy yields 8 offsets (unison + 7)
+- [x] Convergence: 16v15 steps → 15 bars in 4/4; 16/24/19 chord-tone polymeter → 57 bars; overflow → nil
+- [x] `PhasingEngine.events`: merged stream is time-sorted, respects half-open windows, tags events with voice ids
+- [x] TDD red → green; `swift test` green
 
 ## Out of scope
 
