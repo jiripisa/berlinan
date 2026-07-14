@@ -200,3 +200,37 @@ struct SnapshotRecallTests {
         #expect(back == snap)
     }
 }
+
+// MARK: - Cross-seed recall (phase 20b — the 🎲 New Seed mechanism)
+
+@Suite("Cross-seed recall")
+struct CrossSeedRecallTests {
+
+    @Test("Recalling a fresh engine's state swaps patterns and schedule to the new universe")
+    func universeSwap() {
+        var projectA = Project.demo
+        projectA.masterSeed = 111
+        var projectB = Project.demo
+        projectB.masterSeed = 222
+
+        var engine = LiveEngine(project: projectA)
+        _ = engine.render(range: 0..<(2 * bar))
+
+        let freshB = LiveEngine(project: projectB)
+        engine.enqueue(.recallSnapshot(freshB.captureState()), atTick: 2 * bar)
+        _ = engine.render(range: (2 * bar)..<(3 * bar))
+
+        let after = engine.snapshot()
+        let target = freshB.snapshot()
+        for (got, expected) in zip(after.voices, target.voices) {
+            #expect(got.pattern.notes == expected.pattern.notes,
+                    "voice \(got.id) must carry seed-222 material")
+            #expect(got.pattern.provenance.seed == expected.pattern.provenance.seed)
+        }
+        #expect(after.scheduleEvents == target.scheduleEvents)
+
+        // And it genuinely differs from the seed-111 material.
+        let original = LiveEngine(project: projectA).snapshot()
+        #expect(after.voices[0].pattern.notes != original.voices[0].pattern.notes)
+    }
+}

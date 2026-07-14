@@ -196,6 +196,13 @@ final class UIState {
         services.transport?.enqueue(.transpose(degreeOffset: degree - 1))
     }
 
+    /// 🎲 New Seed (FR-UX-6): fresh universe, undoable.
+    func newSeed() {
+        pushUndo()
+        services.reseed()
+        refresh()
+    }
+
     /// "Re-roll all unlocked" (FR-UX-2): regenerate every voice whose pattern
     /// is not locked.
     func rerollAllUnlocked() {

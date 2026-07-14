@@ -194,6 +194,7 @@ Requirements are numbered `FR-<group>-<n>`. Priority: **P1** = MVP (Milestone M1
 - **FR-UX-3 (P2)** — **Performance macro panel**: 7 degree buttons (global transposition), density knob, active-step-count knob (2→8, Metropolix model [M §13.5]), per-voice regenerate buttons, blank-cycle buttons, snapshot slots (≥8). All MIDI-learnable.
 - **FR-UX-4 (P1)** — All state changes are audition-while-running; no operation requires stopping the transport [basic_concept].
 - **FR-UX-5 (P2)** — Undo/redo across generative actions (regenerate, mutate, harmony edits) — implemented on the engine's value-type state (§5.3).
+- **FR-UX-6 (P1, added 2026-07-14 from user feedback)** — **Seed freshness**: determinism (FR-UX-1) is an engine property and must never make the app feel repetitive across sessions. (a) Unsaved/built-in projects get a random master seed per app session; saved documents keep their stored seed. (b) A one-action **New Seed** control produces a whole new musical universe — while playing it binds at the next bar (fresh engine state recalled via FR-L-6 machinery) and is undoable.
 
 ---
 
