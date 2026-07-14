@@ -3,8 +3,9 @@
 ## Current position
 
 - **Milestone**: M1 — headless engine
-- **Active phase**: 01-package-skeleton (branch `feat/m1-01-package-skeleton`)
-- **Next entry point**: complete phase 01 verification, then phase 02 (musical state & scale)
+- **Active phase**: none (phases 01 + 02 merged to main, all green)
+- **Next entry point**: phase 03 — pattern model (Pattern/PatternNote/GateStep,
+  Voice, loop cursors, degree-space invariants; FR-V-1/5, FR-P-2/3)
 
 ## Decisions log
 
