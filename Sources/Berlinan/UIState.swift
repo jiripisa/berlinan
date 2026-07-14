@@ -106,11 +106,44 @@ final class UIState {
     }
 
     func regenerate(_ voiceID: String) {
+        pushUndo()
         services.transport?.enqueue(.regenerate(voiceID: voiceID))
     }
 
     func blankCycle(_ voiceID: String) {
         services.transport?.enqueue(.blankCycle(voiceID: voiceID))
+    }
+
+    // MARK: - Snapshots & undo (FR-L-6, FR-UX-5)
+
+    private(set) var snapshotSlots: [LiveEngine.StateSnapshot?] =
+        Array(repeating: nil, count: 6)
+    private var undoStack: [LiveEngine.StateSnapshot] = []
+
+    var canUndo: Bool { !undoStack.isEmpty }
+
+    func saveSnapshot(slot: Int) {
+        guard snapshotSlots.indices.contains(slot) else { return }
+        snapshotSlots[slot] = services.transport?.captureState()
+    }
+
+    func recallSnapshot(slot: Int) {
+        guard snapshotSlots.indices.contains(slot),
+              let snapshot = snapshotSlots[slot] else { return }
+        pushUndo()
+        services.transport?.enqueue(.recallSnapshot(snapshot))
+    }
+
+    /// Automatic undo point before every destructive action.
+    private func pushUndo() {
+        guard let state = services.transport?.captureState() else { return }
+        undoStack.append(state)
+        if undoStack.count > 20 { undoStack.removeFirst() }
+    }
+
+    func undo() {
+        guard let state = undoStack.popLast() else { return }
+        services.transport?.enqueue(.recallSnapshot(state))
     }
 
     // MARK: - Performance macros (FR-UX-3 partial)
@@ -126,6 +159,7 @@ final class UIState {
     /// is not locked.
     func rerollAllUnlocked() {
         guard let transport = services.transport else { return }
+        pushUndo()
         for voice in voices where !voice.pattern.locked {
             transport.enqueue(.regenerate(voiceID: voice.id))
         }

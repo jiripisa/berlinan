@@ -23,6 +23,7 @@ public final class Transport: @unchecked Sendable {
     private var pendingActions: [LiveEngine.Action] = []
     private var mutedVoices: Set<String> = []
     private var latestSnapshot: LiveEngine.Snapshot?
+    private var latestFullState: LiveEngine.StateSnapshot?
     private var latestOffset: Int = 0
     private var activeClock: TickClock?
     private var capture: CaptureBuffer
@@ -34,7 +35,9 @@ public final class Transport: @unchecked Sendable {
         self.channelMap = Dictionary(uniqueKeysWithValues:
             project.voices.map { ($0.id, $0.channel) })
         // Preview snapshot so the UI shows the initial patterns before play.
-        self.latestSnapshot = LiveEngine(project: project).snapshot()
+        let preview = LiveEngine(project: project)
+        self.latestSnapshot = preview.snapshot()
+        self.latestFullState = preview.captureState()
         // Rolling capture ≈ 60 minutes at the project tempo (FR-IO-7).
         self.capture = CaptureBuffer(
             capacityTicks: Tick(project.bpm * 60.0 * Double(Time.ppqn)))
@@ -72,6 +75,13 @@ public final class Transport: @unchecked Sendable {
     public func isMuted(_ voiceID: String) -> Bool {
         lock.lock(); defer { lock.unlock() }
         return mutedVoices.contains(voiceID)
+    }
+
+    /// The full recallable engine state as of the last wake (FR-L-6);
+    /// available pre-play (the preview engine's state).
+    public func captureState() -> LiveEngine.StateSnapshot? {
+        lock.lock(); defer { lock.unlock() }
+        return latestFullState
     }
 
     // MARK: - Capture export (FR-IO-7 + FR-IO-6a)
@@ -206,10 +216,12 @@ public final class Transport: @unchecked Sendable {
 
             // Publish the UI mirror (spec §5.4).
             let snap = engine.snapshot()
+            let fullState = engine.captureState()
             let bar = Int(renderHead / project.meter.ticksPerBar)
             let offset = engine.transpositionOffset(atBar: bar)
             lock.lock()
             latestSnapshot = snap
+            latestFullState = fullState
             latestOffset = offset
             lock.unlock()
 

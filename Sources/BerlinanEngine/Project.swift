@@ -21,13 +21,16 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
     public var ccMap: [String: UInt8]?
     /// Gate-length arc (FR-MOD-2).
     public var gateRamp: GateRampProgram?
+    /// Metropolix-style per-cycle drift (FR-L-4).
+    public var accumulator: AccumulatorConfig?
 
     public init(id: String, role: VoiceRole, register: RegisterWindow,
                 referenceC: Int, generator: GeneratorConfig, channel: UInt8,
                 phaseSteps: Int? = nil, anchorPolicy: AnchorPolicy? = nil,
                 participatesInTransposition: Bool? = nil,
                 ccLanes: [CCLane]? = nil, ccMap: [String: UInt8]? = nil,
-                gateRamp: GateRampProgram? = nil) {
+                gateRamp: GateRampProgram? = nil,
+                accumulator: AccumulatorConfig? = nil) {
         self.id = id
         self.role = role
         self.register = register
@@ -40,6 +43,23 @@ public struct VoiceConfig: Codable, Equatable, Sendable {
         self.ccLanes = ccLanes
         self.ccMap = ccMap
         self.gateRamp = gateRamp
+        self.accumulator = accumulator
+    }
+}
+
+/// Metropolix-style accumulator (FR-L-4, M §13.5): at every loop boundary the
+/// LAST sounding note drifts by `degreeStep` degrees, wrapping to the base
+/// after `wrap` cycles. Deterministic drift — the manual's endorsed
+/// "persistent variation" — and therefore exempt from the verbatim rule.
+public struct AccumulatorConfig: Codable, Equatable, Sendable {
+    public var degreeStep: Int
+    public var wrap: Int
+
+    public init(degreeStep: Int, wrap: Int) {
+        precondition((-2...2).contains(degreeStep) && degreeStep != 0)
+        precondition((2...16).contains(wrap))
+        self.degreeStep = degreeStep
+        self.wrap = wrap
     }
 }
 

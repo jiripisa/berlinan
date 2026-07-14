@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import BerlinanEngine
 
 /// Performance panel (spec §11.4, M2 subset): degree buttons 1–7 for global
@@ -15,6 +16,20 @@ struct PerformancePanelView: View {
                     .foregroundStyle(AppColor.ink4)
                 ForEach(1...7, id: \.self) { degree in
                     degreeButton(degree)
+                }
+            }
+
+            Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
+
+            // Snapshot slots (FR-L-6): click = recall (next bar),
+            // ⌥-click = save.
+            HStack(spacing: 4) {
+                Text("SNAP")
+                    .font(AppFont.fieldLabel)
+                    .tracking(AppTracking.field)
+                    .foregroundStyle(AppColor.ink4)
+                ForEach(0..<6, id: \.self) { slot in
+                    snapshotButton(slot)
                 }
             }
 
@@ -68,6 +83,30 @@ struct PerformancePanelView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(AppColor.bgPanel)
+    }
+
+    private func snapshotButton(_ slot: Int) -> some View {
+        let filled = ui.snapshotSlots[slot] != nil
+        return Button {
+            if NSEvent.modifierFlags.contains(.option) {
+                ui.saveSnapshot(slot: slot)
+            } else {
+                ui.recallSnapshot(slot: slot)
+            }
+        } label: {
+            Text("\(slot + 1)")
+                .font(AppFont.monoMedium(11))
+                .foregroundStyle(filled ? AppColor.cyan : AppColor.ink4)
+                .frame(width: 24, height: 26)
+                .background(filled ? AppColor.cyanGlow : AppColor.bgPanel2)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4)
+                    .stroke(filled ? AppColor.cyanLine : AppColor.line,
+                            style: StrokeStyle(lineWidth: 1,
+                                               dash: filled ? [] : [3, 2])))
+        }
+        .buttonStyle(.plain)
+        .help("Click = recall at next bar · ⌥-click = save snapshot")
     }
 
     private func degreeButton(_ degree: Int) -> some View {

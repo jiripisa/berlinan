@@ -50,6 +50,8 @@ public enum OfflineRenderer {
         // Bass-reharm participation mask (FR-H-6): uppers frozen, bass follows.
         let stretchBassGates = resolved.bassOnly && voice.role == .bass
         var generation = 1
+        var accumBase: Int? = nil
+        var accumCycle = 0
         var notes: [RenderedNote] = []
         var t: Tick = 0
 
@@ -94,6 +96,18 @@ public enum OfflineRenderer {
                                            meter: project.meter, seed: seed,
                                            config: legit)
                 generation += 1
+                // Mutation replaces the material — the drift restarts.
+                accumBase = nil
+                accumCycle = 0
+            }
+            if let accumulator = config.accumulator {
+                if accumBase == nil {
+                    accumBase = Legitimizer.accumulatorBase(of: voice.pattern)
+                    accumCycle = 0
+                }
+                accumCycle += 1
+                Legitimizer.applyAccumulatorDrift(&voice.pattern, base: accumBase!,
+                                                  cycle: accumCycle, config: accumulator)
             }
         }
         return notes
