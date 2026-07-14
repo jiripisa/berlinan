@@ -4,10 +4,10 @@
 
 - **Milestone**: M1 — headless engine
 - **Milestone**: M2 — it plays (first usable jam tool)
-- **Active phase**: none (phase 10 merged — 114 tests)
-- **Next entry point**: phase 11 — MIDIService (CoreMIDI virtual source,
-  timestamped sends, active-note registry + flush; first Runtime-layer code,
-  lives in the app target, NOT in BerlinanEngine)
+- **Active phase**: none (phases 10+11 merged — 122 tests)
+- **Next entry point**: phase 12 — transport & scheduler (Clock hostTime↔tick
+  mapping, lookahead loop on a dedicated thread, MIDI clock master 24 PPQ,
+  start/stop; NFR-1 jitter test via loopback timestamps)
 - M1 CLOSED 2026-07-14 (tag v0.1.0), 107 tests. Listening protocol passed
   PROVISIONALLY (user could not confidently judge; re-verify musically during
   M2 live jamming — carried as a watch-list item).
