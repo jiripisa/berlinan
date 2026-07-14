@@ -50,6 +50,31 @@ public struct LiveEngine: Sendable {
         states.first { $0.voice.id == id }
     }
 
+    // MARK: - UI snapshot (spec §5.4 — read-only mirror for the app layer)
+
+    public struct Snapshot: Sendable {
+        public struct VoiceSnapshot: Sendable {
+            public let id: String
+            public let role: VoiceRole
+            public let pattern: Pattern
+            public let blankActive: Bool
+        }
+        public let voices: [VoiceSnapshot]
+    }
+
+    public func snapshot() -> Snapshot {
+        Snapshot(voices: states.map {
+            Snapshot.VoiceSnapshot(id: $0.voice.id, role: $0.voice.role,
+                                   pattern: $0.voice.pattern,
+                                   blankActive: $0.blankActive)
+        })
+    }
+
+    /// Current transposition offset for a bar — includes live-enqueued events.
+    public func transpositionOffset(atBar bar: Int) -> Int {
+        schedule.offset(atBar: bar)
+    }
+
     // MARK: - Actions
 
     public mutating func enqueue(_ action: Action, atTick requestTick: Tick) {
