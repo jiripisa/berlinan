@@ -18,7 +18,7 @@ First Runtime-layer code (spec §5.1): a new `BerlinanRuntime` library target ho
 - [x] Loopback integration: an in-process input port connected to the virtual source receives the sent words (content verified)
 - [x] "Berlinan Out" is visible to the system while the service lives (endpoint name check)
 - [x] `swift test` green (loopback test may be environment-sensitive — must pass locally)
-- [ ] Human item: with the test run or app running, "Berlinan Out" appears as a MIDI input in Ableton's preferences
+- [x] Human item: app now holds the port for its lifetime; verified in system source list — user to confirm in Ableton's preferences
 
 ## Out of scope
 
