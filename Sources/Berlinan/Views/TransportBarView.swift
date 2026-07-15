@@ -85,23 +85,24 @@ struct TransportBarView: View {
             .help("Project settings (key + tempo work while playing)")
 
             Menu {
-                Button("INT — Berlinan is clock master") { ui.setSyncExternal(false) }
-                Button("EXT — follow incoming MIDI clock") { ui.setSyncExternal(true) }
+                Button("INT — Berlinan is clock master") { ui.setSyncMode(.internalClock) }
+                Button("EXT — follow incoming MIDI clock") { ui.setSyncMode(.externalClock) }
+                Button("LINK — join the Ableton Link session") { ui.setSyncMode(.link) }
             } label: {
-                Text(ui.syncMode == .externalClock ? "EXT" : "INT")
+                Text(syncLabel)
                     .font(AppFont.monoBold(10))
-                    .foregroundStyle(ui.syncMode == .externalClock ? AppColor.cyan : AppColor.ink2)
-                    .frame(width: 34, height: 22)
-                    .background(ui.syncMode == .externalClock ? AppColor.cyanGlow : AppColor.bgPanel)
+                    .foregroundStyle(ui.syncMode == .internalClock ? AppColor.ink2 : AppColor.cyan)
+                    .frame(width: 38, height: 22)
+                    .background(ui.syncMode == .internalClock ? AppColor.bgPanel : AppColor.cyanGlow)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
                     .overlay(RoundedRectangle(cornerRadius: 4)
-                        .stroke(ui.syncMode == .externalClock ? AppColor.cyanLine : AppColor.line,
+                        .stroke(ui.syncMode == .internalClock ? AppColor.line : AppColor.cyanLine,
                                 lineWidth: 1))
             }
             .menuStyle(.borderlessButton)
             .fixedSize()
             .disabled(ui.isPlaying)
-            .help("Clock source (FR-IO-4). EXT: Berlinan follows Start/Stop and tempo of incoming MIDI clock (enable Sync OUT to Berlinan in Ableton)")
+            .help("Clock source (FR-IO-4/5). EXT: Berlinan follows Start/Stop and tempo of incoming MIDI clock (enable Sync OUT to Berlinan in Ableton). LINK: tempo and bar phase lock to the Ableton Link session on the local network")
 
             HStack(spacing: 6) {
                 Circle()
@@ -109,8 +110,7 @@ struct TransportBarView: View {
                     .frame(width: 6, height: 6)
                     .shadow(color: (midiUp ? AppColor.green : AppColor.rec).opacity(0.6),
                             radius: 2)
-                Text(ui.syncMode == .externalClock && !ui.isPlaying
-                     ? "EXT — waiting for clock" : midiStatus)
+                Text(statusText)
                     .font(AppFont.monoCaption)
                     .foregroundStyle(AppColor.ink3)
             }
@@ -118,6 +118,22 @@ struct TransportBarView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(AppColor.toolbarGradient)
+    }
+
+    private var syncLabel: String {
+        switch ui.syncMode {
+        case .internalClock: "INT"
+        case .externalClock: "EXT"
+        case .link: "LINK"
+        }
+    }
+
+    private var statusText: String {
+        switch ui.syncMode {
+        case .externalClock where !ui.isPlaying: "EXT — waiting for clock"
+        case .link: "LINK — \(ui.linkPeers) peer\(ui.linkPeers == 1 ? "" : "s")"
+        default: midiStatus
+        }
     }
 
     private func field(_ label: String, @ViewBuilder content: () -> some View) -> some View {

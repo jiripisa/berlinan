@@ -306,10 +306,17 @@ final class UIState {
         services.transport?.currentSyncMode ?? .internalClock
     }
 
-    /// INT ↔ EXT (stopped only — the transport guards it too).
-    func setSyncExternal(_ external: Bool) {
-        services.transport?.setSyncMode(external ? .externalClock : .internalClock)
+    /// INT / EXT / LINK (stopped only — the transport guards it too). Link's
+    /// network session is joined exactly while LINK is selected.
+    func setSyncMode(_ mode: Transport.SyncMode) {
+        guard let transport = services.transport else { return }
+        transport.setSyncMode(mode)
+        transport.linkService?.enable(mode == .link)
         refresh()
+    }
+
+    var linkPeers: UInt64 {
+        services.transport?.linkService?.numPeers ?? 0
     }
 
     /// 🎲 New Seed (FR-UX-6): fresh universe, undoable.

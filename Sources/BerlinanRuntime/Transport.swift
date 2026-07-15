@@ -31,15 +31,21 @@ public final class Transport: @unchecked Sendable {
     private var liveBPM: Double
     public private(set) var sendsClock = true
 
-    // MARK: - Sync mode (FR-IO-4)
+    // MARK: - Sync mode (FR-IO-4/5)
 
-    public enum SyncMode: Equatable, Sendable { case internalClock, externalClock }
+    public enum SyncMode: Equatable, Sendable { case internalClock, externalClock, link }
 
     private var syncMode: SyncMode = .internalClock
     private var estimator = ClockEstimator()
     private var latestPulse: (index: Int, mach: UInt64)? = nil
     private var externalStartMach: UInt64? = nil
     private var clockInputConnected = false
+
+    /// The Link peer (FR-IO-5), created on the first switch to `.link` and
+    /// kept for the transport's lifetime. Creation does NOT join the network
+    /// session — the app calls `linkService?.enable(true)` when the user
+    /// picks LINK, so tests (and headless use) stay socket-free.
+    public private(set) var linkService: LinkService? = nil
 
     public var currentSyncMode: SyncMode {
         lock.lock(); defer { lock.unlock() }
@@ -48,13 +54,17 @@ public final class Transport: @unchecked Sendable {
 
     /// Switch clock source (stopped only). External mode listens to the
     /// named source (nil = all external sources), follows Start/Stop and
-    /// locks tempo/phase to the pulse stream.
+    /// locks tempo/phase to the pulse stream. Link mode locks tempo/phase to
+    /// the Link session's beat grid.
     public func setSyncMode(_ mode: SyncMode, sourceName: String? = nil) {
         lock.lock()
         guard !running else { lock.unlock(); return }
         syncMode = mode
         let needsConnect = mode == .externalClock && !clockInputConnected
         if needsConnect { clockInputConnected = true }
+        if mode == .link && linkService == nil {
+            linkService = LinkService(bpm: liveBPM)
+        }
         lock.unlock()
         if needsConnect {
             midi.connectClockInput(sourceName: sourceName) { [weak self] message, mach in
@@ -100,15 +110,22 @@ public final class Transport: @unchecked Sendable {
     }
 
     /// Runtime tempo change — binds at the next bar boundary (clock segments
-    /// stay continuous at the swap tick).
+    /// stay continuous at the swap tick). In Link mode the change goes to the
+    /// whole Link session instead (the loop follows it back).
     public func setTempo(_ bpm: Double) {
         let clamped = max(40, min(220, bpm))
-        lock.lock(); defer { lock.unlock() }
+        lock.lock()
+        if syncMode == .link, let link = linkService {
+            lock.unlock()
+            link.setTempo(clamped)
+            return
+        }
         if running {
             pendingBPM = clamped
         } else {
             liveBPM = clamped
         }
+        lock.unlock()
     }
 
     public init(project: Project, midi: MIDIService) {
@@ -255,14 +272,30 @@ public final class Transport: @unchecked Sendable {
         var engine = LiveEngine(project: project)
         lock.lock()
         let external = syncMode == .externalClock
+        let link = syncMode == .link ? linkService : nil
         let startAnchor = externalStartMach
         externalStartMach = nil
         lock.unlock()
 
-        var clock = TickClock.current(
-            bpm: currentBPM,
-            anchorMach: external ? (startAnchor ?? mach_absolute_time())
-                                 : machAfter(nanos: prerollNanos))
+        // Link (FR-IO-5): quantum = one bar; tick 0 lands on the session's
+        // next quantum boundary (granted verbatim when there are no peers).
+        let quantum = Double(project.meter.ticksPerBar) / Double(Time.ppqn)
+        var clock: TickClock
+        if let link {
+            let anchorMach = machAfter(nanos: prerollNanos)
+            let anchorMicros = link.clockMicros() + Int64(prerollNanos / 1_000)
+            link.requestBeat(0, atMicros: anchorMicros, quantum: quantum)
+            let tempo = link.tempo()
+            clock = TickClock.current(bpm: tempo, anchorMach: anchorMach)
+            lock.lock()
+            liveBPM = tempo
+            lock.unlock()
+        } else {
+            clock = TickClock.current(
+                bpm: currentBPM,
+                anchorMach: external ? (startAnchor ?? mach_absolute_time())
+                                     : machAfter(nanos: prerollNanos))
+        }
         lock.lock()
         activeClock = clock
         lock.unlock()
@@ -279,7 +312,7 @@ public final class Transport: @unchecked Sendable {
             let actions = pendingActions
             pendingActions.removeAll()
             let muted = mutedVoices
-            let requestedBPM = external ? nil : pendingBPM
+            let requestedBPM = (external || link != nil) ? nil : pendingBPM
             let estimate = external ? estimator.bpm : nil
             let pulse = latestPulse
             lock.unlock()
@@ -304,6 +337,25 @@ public final class Transport: @unchecked Sendable {
                 }
                 // Freewheel: no pulse for > 500 ms → hold the last segment
                 // (nothing to do — the segment simply keeps running).
+            }
+
+            // Link sync (FR-IO-5): when the session tempo moved, re-anchor
+            // to the session's CURRENT beat position (both clocks count mach
+            // time, so between tempo changes the segment tracks the grid).
+            if let link {
+                let tempo = link.tempo()
+                if abs(tempo - clock.bpm) > 0.25 {
+                    let anchorMach = mach_absolute_time()
+                    let beat = link.beat(atMicros: link.clockMicros(),
+                                         quantum: quantum)
+                    clock = TickClock.current(
+                        bpm: tempo, anchorMach: anchorMach,
+                        anchorTick: Tick((beat * Double(Time.ppqn)).rounded()))
+                    lock.lock()
+                    activeClock = clock
+                    liveBPM = tempo
+                    lock.unlock()
+                }
             }
 
             // Runtime tempo (FR-GS-5, internal mode): bind at the next bar
