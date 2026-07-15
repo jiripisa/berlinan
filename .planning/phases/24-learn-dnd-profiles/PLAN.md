@@ -16,11 +16,11 @@ Hands off the laptop (FR-IO-10), patterns into Ableton by mouse (FR-IO-9 subset)
 
 ## Acceptance criteria
 
-- [ ] ControlMap: bind/lookup/persist round-trip; duplicate binding replaces
-- [ ] Control input loopback: a CC sent to "Berlinan Control" fires the mapped macro handler
-- [ ] CCProfileStore: built-ins present; user file loads; apply rewrites voice ccMap
-- [ ] Lane drag exports a valid bar-aligned .mid (manual: lands in Ableton Session View)
-- [ ] `swift test` green; build clean; smoke launch
+- [x] ControlMap: bind/lookup/persist round-trip; duplicate binding replaces
+- [x] Control input loopback: a CC sent to "Berlinan Control" fires the mapped macro handler
+- [x] CCProfileStore: built-ins present; user file loads; apply rewrites voice ccMap
+- [x] Lane drag exports a valid bar-aligned .mid (manual: lands in Ableton Session View)
+- [x] `swift test` green; build clean; smoke launch
 - [ ] Human: map a hardware knob/button to degree buttons via LEARN; drag a lane into Ableton
 
 ## Out of scope

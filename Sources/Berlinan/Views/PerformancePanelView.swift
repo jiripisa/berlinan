@@ -36,7 +36,7 @@ struct PerformancePanelView: View {
             Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
 
             Button {
-                ui.rerollAllUnlocked()
+                ui.perform(.rerollUnlocked)
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "dice")
@@ -56,6 +56,24 @@ struct PerformancePanelView: View {
             .help("Regenerate every unlocked voice at its next loop")
 
             Spacer()
+
+            Button {
+                ui.toggleLearnMode()
+            } label: {
+                Text(ui.learnMode ? (ui.armedMacro != nil ? "MOVE A KNOB…" : "LEARN: PICK A CONTROL") : "LEARN")
+                    .font(AppFont.sansBold(9.5))
+                    .tracking(AppTracking.label)
+                    .foregroundStyle(ui.learnMode ? AppColor.amber : AppColor.ink2)
+                    .padding(.horizontal, 10)
+                    .frame(height: 26)
+                    .background(ui.learnMode ? AppColor.amber.opacity(0.18) : AppColor.bgPanel)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4)
+                        .stroke(ui.learnMode ? AppColor.amber.opacity(0.45) : AppColor.line,
+                                lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .help("MIDI learn: enable, click a control (degree/re-roll/dice/slot/play), then move a knob or press a pad on your controller (input: 'Berlinan Control')")
 
             Menu {
                 ForEach([8, 16, 32, 64], id: \.self) { bars in
@@ -91,7 +109,7 @@ struct PerformancePanelView: View {
             if NSEvent.modifierFlags.contains(.option) {
                 ui.saveSnapshot(slot: slot)
             } else {
-                ui.recallSnapshot(slot: slot)
+                ui.perform(.recallSlot(slot))
             }
         } label: {
             Text("\(slot + 1)")
@@ -112,7 +130,7 @@ struct PerformancePanelView: View {
     private func degreeButton(_ degree: Int) -> some View {
         let active = ui.degreeOffset == degree - 1
         return Button {
-            ui.pressDegree(degree)
+            ui.perform(.degree(degree))
         } label: {
             Text("\(degree)")
                 .font(AppFont.monoBold(13))

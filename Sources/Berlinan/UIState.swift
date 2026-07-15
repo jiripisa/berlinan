@@ -28,7 +28,102 @@ final class UIState {
 
     init(services: AppServices) {
         self.services = services
+        self.controlMap = ControlMap.load()
         refresh()
+        services.onControlTrigger = { [weak self] trigger in
+            self?.handleTrigger(trigger)
+        }
+    }
+
+    // MARK: - MIDI learn (FR-IO-10)
+
+    private(set) var controlMap: ControlMap
+    private(set) var learnMode = false
+    private(set) var armedMacro: ControlMacro? = nil
+    let profileStore = CCProfileStore(directory: nil)
+
+    func toggleLearnMode() {
+        learnMode.toggle()
+        armedMacro = nil
+    }
+
+    /// Single entry point for every macro control: LEARN mode arms the macro
+    /// for the next incoming trigger; otherwise it executes.
+    func perform(_ macro: ControlMacro) {
+        if learnMode {
+            armedMacro = macro
+            return
+        }
+        execute(macro)
+    }
+
+    private func handleTrigger(_ trigger: ControlTrigger) {
+        if learnMode, let macro = armedMacro {
+            controlMap.bind(macro, to: trigger)
+            controlMap.save()
+            armedMacro = nil
+            return
+        }
+        if let macro = controlMap.macro(for: trigger) {
+            execute(macro)
+        }
+    }
+
+    private func execute(_ macro: ControlMacro) {
+        switch macro {
+        case .playStop:          togglePlayback()
+        case .degree(let k):     pressDegree(k)
+        case .rerollUnlocked:    rerollAllUnlocked()
+        case .newSeed:           newSeed()
+        case .recallSlot(let s): recallSnapshot(slot: s)
+        }
+    }
+
+    /// CC profile application (FR-MOD-5).
+    func applyProfile(_ profile: CCProfile, to voiceID: String) {
+        services.updateVoiceCCMap(voiceID, map: profile.map)
+        refresh()
+    }
+
+    // MARK: - Drag & drop (FR-IO-9 subset)
+
+    /// A bar-aligned single-track .mid of the voice's CURRENT pattern —
+    /// looped to the pattern/bar LCM (≤ 16 bars) so it cycles seamlessly
+    /// under Ableton's launch quantization.
+    func dragItem(for voiceID: String) -> NSItemProvider? {
+        guard let voice = voices.first(where: { $0.id == voiceID }),
+              let config = project.voices.first(where: { $0.id == voiceID })
+        else { return nil }
+        let pattern = voice.pattern
+        let barTicks = project.meter.ticksPerBar
+        let period = Convergence.period(lengths: [pattern.length, barTicks])
+            ?? barTicks
+        let length = min(period, 16 * barTicks)
+        let key = liveKey ?? project.key
+        let notes = pattern.occurrences(in: 0..<length).map { occ -> RenderedNote in
+            let resolved = key.resolve(occ.note.pitch, referenceC: config.referenceC)
+            let velocity = min(127, Int(occ.note.velocity) + (occ.note.accent ? 20 : 0))
+            return RenderedNote(voiceID: voiceID, at: occ.at,
+                                midiNote: config.register.fold(resolved),
+                                velocity: UInt8(velocity), gate: occ.note.gate,
+                                accent: occ.note.accent, ratchet: occ.note.ratchet)
+        }
+        guard !notes.isEmpty else { return nil }
+        let hint = DelayHint.compute(role: config.role, bpm: liveBPM ?? project.bpm)
+        let track = SMFTrack(
+            name: "\(voiceID) | \(config.role.rawValue) | delay: \(hint.division.label)",
+            channel: config.channel, notes: notes)
+        let bytes = SMFWriter.encode(bpm: liveBPM ?? project.bpm,
+                                     meter: project.meter,
+                                     tracks: [track], length: length)
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("berlinan-\(voiceID).mid")
+        do {
+            try Data(bytes).write(to: url)
+        } catch {
+            return nil
+        }
+        return NSItemProvider(contentsOf: url)
     }
 
     // MARK: - Mirror
