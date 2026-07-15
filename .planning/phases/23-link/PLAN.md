@@ -21,9 +21,12 @@ would obligate open-sourcing the app upon distribution.
 
 ## Status
 
-**DEFERRED** pending the user's licensing decision. No code in this phase.
-Clock-slave is the shipping sync path for v1.0; Link integration (LinkKit/
-C++ wrapper, quantum-aligned start, session tempo) becomes a post-v1 phase
-once unblocked.
+**UNBLOCKED 2026-07-15**: user decision — Berlinan is OPEN SOURCE. Project
+licensed GPL-2.0-or-later (LICENSE added), mirroring Link's license exactly.
+Integration plan: vendor Ableton/link (with its asio submodule) under
+Vendor/, compile the repo's official `abl_link` C wrapper in a C++ SPM
+target, wrap it in a Swift `LinkService`, and add a `.link` sync mode to the
+Transport (per-wake beat/tempo query → clock segment re-anchor, same
+machinery as the clock slave).
 
 Sources: github.com/Ableton/link (LICENSE.md), ableton.github.io
