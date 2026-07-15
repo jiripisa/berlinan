@@ -53,6 +53,16 @@ struct VoiceLaneView: View {
             .frame(width: 108, alignment: .leading)
 
             PatternStripView(ui: ui, voice: voice, identity: identity, dimmed: isMuted)
+                .onDrag { ui.dragItem(for: voice.id) ?? NSItemProvider() }
+                .contextMenu {
+                    Menu("CC Profile") {
+                        ForEach(ui.profileStore.profiles, id: \.name) { profile in
+                            Button(profile.name) {
+                                ui.applyProfile(profile, to: voice.id)
+                            }
+                        }
+                    }
+                }
 
             VStack(spacing: 6) {
                 HStack(spacing: 6) {

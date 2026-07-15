@@ -12,7 +12,7 @@ struct TransportBarView: View {
     var body: some View {
         HStack(spacing: 16) {
             Button {
-                ui.togglePlayback()
+                ui.perform(.playStop)
             } label: {
                 Image(systemName: ui.isPlaying ? "stop.fill" : "play.fill")
                     .font(.system(size: 13, weight: .bold))
@@ -56,7 +56,7 @@ struct TransportBarView: View {
             Spacer()
 
             Button {
-                ui.newSeed()
+                ui.perform(.newSeed)
             } label: {
                 Image(systemName: "dice")
                     .font(.system(size: 12, weight: .medium))

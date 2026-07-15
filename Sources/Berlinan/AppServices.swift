@@ -24,6 +24,10 @@ final class AppServices {
     /// keeps its materialized state; rebuilt on the next stop.
     private var transportStale = false
 
+    /// Controller triggers land here on the main actor (FR-IO-10);
+    /// UIState registers itself.
+    var onControlTrigger: ((ControlTrigger) -> Void)?
+
     init() {
         // Seed freshness (FR-UX-6, phase 20b): every app session starts the
         // built-in project in a NEW musical universe. Saved documents keep
@@ -37,10 +41,25 @@ final class AppServices {
             self.midi = midi
             self.midiStatus = "Berlinan Out"
             self.transport = Transport(project: fresh, midi: midi)
+            // MIDI learn input (FR-IO-10): controllers target this port.
+            midi.createControlInput(named: "Berlinan Control") { [weak self] trigger in
+                Task { @MainActor in self?.onControlTrigger?(trigger) }
+            }
         } catch {
             self.midi = nil
             self.midiStatus = "MIDI unavailable: \(error)"
             self.transport = nil
+        }
+    }
+
+    /// Apply a CC profile to a voice (FR-MOD-5).
+    func updateVoiceCCMap(_ voiceID: String, map: [String: UInt8]) {
+        guard let idx = project.voices.firstIndex(where: { $0.id == voiceID }) else { return }
+        project.voices[idx].ccMap = map
+        if transport?.isPlaying == true {
+            transportStale = true
+        } else {
+            rebuildTransport()
         }
     }
 

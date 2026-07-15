@@ -108,6 +108,38 @@ public final class MIDIService {
         }
     }
 
+    // MARK: - Control input (FR-IO-10)
+
+    private var controlEndpoint = MIDIEndpointRef()
+
+    /// Publish a virtual DESTINATION for controllers ("Berlinan Control" in
+    /// the app) and deliver CC/note-on triggers to the handler. Only the
+    /// "press" edge fires: note-ons with velocity 0, note-offs, and CC values
+    /// below 64 are ignored (pads on CC send value 0 on release — without the
+    /// threshold every pad press would fire its macro twice).
+    public func createControlInput(named name: String,
+                                   handler: @escaping @Sendable (ControlTrigger) -> Void) {
+        guard controlEndpoint == 0 else { return }
+        MIDIDestinationCreateWithProtocol(client, name as CFString, ._1_0,
+                                          &controlEndpoint) { list, _ in
+            for packet in list.unsafeSequence() {
+                for word in packet.words() {
+                    let status = UInt8((word >> 16) & 0xFF)
+                    let data1 = UInt8((word >> 8) & 0x7F)
+                    let data2 = UInt8(word & 0x7F)
+                    switch status & 0xF0 {
+                    case 0xB0 where data2 >= 64:
+                        handler(.cc(channel: status & 0x0F, number: data1))
+                    case 0x90 where data2 > 0:
+                        handler(.note(channel: status & 0x0F, number: data1))
+                    default:
+                        break
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: - Note-off safety net (FR-IO-8)
 
     /// Immediately silence everything sounding (optionally one channel):
