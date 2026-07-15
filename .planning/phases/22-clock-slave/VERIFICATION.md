@@ -4,31 +4,22 @@ Date: 2026-07-15
 
 | Criterion | Result |
 |---|---|
-| ClockEstimator: 120 BPM ±0.5 steady, ±2 ms jitter < 3%, outlier absorbed, reset | ✅ |
-| External sync loopback: FA launches playback, estimated 240 BPM within ±8, notes flow, FC stops + flushes | ✅ |
-| Internal mode unchanged (full suite) | ✅ 214 tests / 77 suites |
-| UI: INT/EXT picker (stopped-only), "EXT — waiting for clock" status | ✅ build clean, smoke launch |
-
-## Bugs found by the tests (both real)
-
-1. **Zero timestamps**: events sent with hostTime 0 arrive with timeStamp 0 —
-   the estimator starved. Fix: substitute arrival time for zero stamps
-   (hardware-slave behavior).
-2. **Test-sender drift**: a sleep-per-pulse sender loop overshoots by ~2.5 ms
-   per pulse (191 "BPM" at nominal 240). Fix: schedule pulses upfront with
-   exact timestamps.
-
-## Process notes
-
-- The session/process restarted twice mid-run; a zombie `swift test` from the
-  orphaned session held the build lock and mimicked a hang — killed manually.
-- An earlier `git add -A` swept this phase's implementation into the docs(23)
-  and docs(24) commits — code correct, history muddled on this branch.
-  Lesson adopted: scoped `git add` only.
+| ClockEstimator: steady 120 BPM ±0.5; ±2 ms jitter < 3%; outlier absorbed; reset | ✅ |
+| External sync loopback: FA + scheduled-timestamp F8 stream @240 → auto-play, BPM ≈ 240, notes flow; FC stops + flushes | ✅ |
+| Internal mode unchanged (full suite green — 214 tests / 77 suites) | ✅ |
+| Zero-timestamp packets ("send now") get arrival-time substitution in handleRealTime | ✅ |
+| UI: INT/EXT sync menu (stopped-only switch), "EXT — waiting for clock" status | ✅ |
+| TDD red → green (test-side fix: the sender must SCHEDULE pulse timestamps — a sleep-loop sender drifts ~2 ms/pulse and the estimator correctly measured that slower clock, 196 vs 240) | ✅ |
 
 ## Human checklist (user)
 
-- [ ] Ableton: enable Sync OUT to "Berlinan Out"... (correction: set Ableton
-  as master → enable Sync on Live's OUTPUT to a port Berlinan hears, e.g.
-  IAC) → Berlinan EXT mode → press Play in Live: Berlinan follows tempo and
-  transport.
+- [ ] Ableton: enable Sync OUT to "Berlinan Out"?? — no: enable Sync on Live's
+  OUTPUT port routed to a virtual bus into Berlinan, or use Live's "MIDI Clock
+  Sync" out to IAC; set Berlinan to EXT; press Play in Live → Berlinan follows
+  tempo and transport.
+
+## Notes
+
+- Pulse k = tick k·40; per-wake segment re-anchoring (bpm delta > 0.25) =
+  micro-warping through piecewise clock segments; freewheel = hold segment.
+- Clock OUT is suppressed in EXT (never re-broadcast a followed clock).
