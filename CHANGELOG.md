@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.0.0 — 2026-07-15 (M4 — sync & integration)
+
+First release. Berlinan is open source under GPL-2.0-or-later.
+
+- MIDI delay: engine-side echo notes per voice (toggle live, next-bar bound),
+  with the Delay Cheat Sheet warning when both digital echoes and an audio
+  delay would stack
+- Seed freshness: every session opens a new musical universe; the dice
+  button (new seed) swaps universes at the next bar, undoable
+- Runtime tempo and key changes while playing, bar-quantized (piecewise
+  clock segments; degree-space re-rooting keeps every voice in scale)
+- MIDI clock slave (EXT): follows Start/Stop and tempo of incoming MIDI
+  clock — median-of-9 + EMA tempo estimator, per-wake segment re-anchor
+- Ableton Link (LINK): tempo and bar-phase lock to the local-network
+  session via the vendored GPLv2+ abl_link wrapper; peer count in the
+  transport bar; joins the network only while LINK is selected
+- MIDI learn: "Berlinan Control" virtual destination; LEARN mode binds a
+  controller CC/note to play/stop, degrees 1-7, re-roll, new seed, and
+  snapshot slots; bindings persist in Application Support
+- Drag & drop: a voice lane's pattern strip drags into Ableton (or Finder)
+  as a bar-aligned, LCM-looped .mid clip
+- Synth CC profiles: built-in Generic and Microfreak maps plus user JSON
+  profiles; applied per voice from the lane context menu
+- App icon, README, GPL licensing (mirrors Ableton Link's dual license)
+
 ## 0.3.0 — 2026-07-14 (M3 — musical depth)
 
 The full manual toolkit lands in the engine and the UI.
