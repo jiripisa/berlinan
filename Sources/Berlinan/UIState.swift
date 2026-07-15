@@ -205,6 +205,18 @@ final class UIState {
         services.transport?.enqueue(.transpose(degreeOffset: degree - 1))
     }
 
+    // MARK: - Sync mode (FR-IO-4)
+
+    var syncMode: Transport.SyncMode {
+        services.transport?.currentSyncMode ?? .internalClock
+    }
+
+    /// INT ↔ EXT (stopped only — the transport guards it too).
+    func setSyncExternal(_ external: Bool) {
+        services.transport?.setSyncMode(external ? .externalClock : .internalClock)
+        refresh()
+    }
+
     /// 🎲 New Seed (FR-UX-6): fresh universe, undoable.
     func newSeed() {
         pushUndo()

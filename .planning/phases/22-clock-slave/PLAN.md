@@ -16,9 +16,9 @@ Berlinan follows an external MIDI clock (FR-IO-4): tempo/phase locked to incomin
 
 ## Acceptance criteria
 
-- [ ] ClockEstimator: 120 BPM synthetic pulses → 120 ±0.5; ±2 ms jitter smoothed within 3%; single outlier absorbed by the median
-- [ ] Integration (loopback): a test sender's FA + F8 stream at 240 BPM → transport auto-plays, currentBPM ≈ 240 ±5, notes flow; FC stops it and flushes
-- [ ] Internal mode behavior unchanged (suite green)
+- [x] ClockEstimator: 120 BPM synthetic pulses → 120 ±0.5; ±2 ms jitter smoothed within 3%; single outlier absorbed by the median
+- [x] Integration (loopback): a test sender's FA + F8 stream at 240 BPM → transport auto-plays, currentBPM ≈ 240 ±5, notes flow; FC stops it and flushes
+- [x] Internal mode behavior unchanged (suite green)
 - [ ] Human: Ableton set as clock master (Sync OUT to Berlinan) → Berlinan follows Live's tempo and transport
 
 ## Out of scope
