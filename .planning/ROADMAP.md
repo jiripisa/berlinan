@@ -47,7 +47,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 | 21-runtime-changes | Tempo + key changes while playing, bar-quantized (clock re-anchoring; degree-space re-rooting). Runtime METER descoped to backlog (needs a piecewise meter map for bar-indexed harmony; stopped-only stays) | FR-GS-5 (+4 partial) | ✅ |
 | 22-clock-slave | MIDI clock in with PLL smoothing; transport follows Start/Stop | FR-IO-4 | ✅ |
 | 23-link | Ableton Link (UNBLOCKED: project is GPL-2.0-or-later per user decision) — implement after 24 | FR-IO-5 | ◐ |
-| 24-learn-dnd-profiles | MIDI learn for macros, drag & drop clips (pattern pool + capture), global synth CC profiles | FR-IO-9/10, FR-MOD-5 | ☐ |
+| 24-learn-dnd-profiles | MIDI learn for macros, drag & drop clips (pattern pool + capture), global synth CC profiles | FR-IO-9/10, FR-MOD-5 | ✅ |
 | 25-v1-release | AppIcon, dist smoke (Developer ID + notarized DMG), README, release checklist | NFR-7, workflow §4.5 | ☐ |
 
 ## M5 — Arranger & polish
