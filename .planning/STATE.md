@@ -2,11 +2,11 @@
 
 ## Current position
 
-- **Milestone**: M1 — headless engine
-- **Milestone**: M3 CLOSED 2026-07-14 (tag v0.3.0, 191 tests).
-- **Next entry point**: phase 22 — clock slave (MIDI clock in, PLL
-  smoothing, transport follows Start/Stop). Then 23 Link (licensing gate!),
-  24 learn/dnd/profiles, 25 v1 release.
+- **Milestone**: M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and
+  notarized DMG built (Developer ID present on this machine).
+- **Next entry point**: M5 — arranger & polish (arrangement state machine,
+  ambient mode, melody engine, tension budget, chord layer). No phase
+  plans written yet.
 - Backlog: runtime METER changes (piecewise meter map design sketch in
   phases/21 PLAN).
 - Pending human checks (19): hand edit audible + survives save/reopen;
@@ -44,7 +44,10 @@
 
 ## Deferred / watch list
 
-- LinkKit licensing check before M4 (spec OQ-3)
-- AppIcon.png not yet created — build.sh warns, app has no icon (needed before first dist build)
+- ~~LinkKit licensing check before M4 (spec OQ-3)~~ RESOLVED 2026-07-15:
+  open source (GPL-2.0-or-later), official abl_link vendored in phase 23
+- ~~AppIcon.png not yet created~~ RESOLVED 2026-07-15 (phase 25)
+- Pending human checks (22-25): EXT sync from Live, LINK session with Live,
+  LEARN with a hardware controller, lane drag into Live, DMG on another Mac
 - ~~Musical sign-off of the M1 demo render deferred~~ RESOLVED 2026-07-14:
   user confirmed the live M2 jam plays and sounds good
