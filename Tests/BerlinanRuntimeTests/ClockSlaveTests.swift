@@ -79,13 +79,20 @@ struct ExternalSyncTests {
         let transport = Transport(project: project, midi: midi)
         transport.setSyncMode(.externalClock, sourceName: "Berlinan Test Clock Master")
 
-        // Drive: Start + ~1.2 s of 240 BPM pulses (interval ≈ 10.42 ms).
+        // Drive: Start + ~1.2 s of 240 BPM pulses. The pulses are scheduled
+        // upfront with EXACT timestamps (a sleep-per-pulse sender loop drifts
+        // by milliseconds and skews the estimate — the estimator reads the
+        // stamps, like a hardware slave).
         senderMIDI.send([(hostTime: 0, event: .start)])
-        let interval = 60.0 / (240.0 * 24.0)
-        for _ in 0..<115 {
-            senderMIDI.send([(hostTime: 0, event: .clock)])
-            Thread.sleep(forTimeInterval: interval)
-        }
+        var info = mach_timebase_info_data_t()
+        mach_timebase_info(&info)
+        let machPerSecond = 1e9 * Double(info.denom) / Double(info.numer)
+        let intervalMach = UInt64(60.0 / (240.0 * 24.0) * machPerSecond)
+        let base = mach_absolute_time() + intervalMach
+        senderMIDI.send((0..<115).map { index in
+            (hostTime: base + UInt64(index) * intervalMach, event: MIDI1Event.clock)
+        })
+        Thread.sleep(forTimeInterval: 1.4)
         #expect(transport.isPlaying, "Start + clock must launch playback")
         let bpm = transport.currentBPM
         #expect(abs(bpm - 240) < 8, "estimated \(bpm)")

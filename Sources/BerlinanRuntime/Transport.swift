@@ -64,17 +64,21 @@ public final class Transport: @unchecked Sendable {
     }
 
     private func handleRealTime(_ message: MIDIService.RealTimeMessage, mach: UInt64) {
+        // hostTime 0 = "deliver now": such packets arrive with a ZERO
+        // timestamp — substitute the arrival time (exactly what hardware
+        // slaves do; sub-ms loopback error, absorbed by the estimator).
+        let effectiveMach = mach == 0 ? mach_absolute_time() : mach
         lock.lock()
         guard syncMode == .externalClock else { lock.unlock(); return }
         switch message {
         case .clock:
-            estimator.pulse(atNanos: Self.nanos(fromMach: mach))
-            latestPulse = (index: estimator.pulseCount - 1, mach: mach)
+            estimator.pulse(atNanos: Self.nanos(fromMach: effectiveMach))
+            latestPulse = (index: estimator.pulseCount - 1, mach: effectiveMach)
             lock.unlock()
         case .start, .continuePlayback:
             estimator.reset()
             latestPulse = nil
-            externalStartMach = mach
+            externalStartMach = effectiveMach
             lock.unlock()
             play()
         case .stop:

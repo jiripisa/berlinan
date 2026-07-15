@@ -84,13 +84,33 @@ struct TransportBarView: View {
             .buttonStyle(.plain)
             .help("Project settings (key + tempo work while playing)")
 
+            Menu {
+                Button("INT — Berlinan is clock master") { ui.setSyncExternal(false) }
+                Button("EXT — follow incoming MIDI clock") { ui.setSyncExternal(true) }
+            } label: {
+                Text(ui.syncMode == .externalClock ? "EXT" : "INT")
+                    .font(AppFont.monoBold(10))
+                    .foregroundStyle(ui.syncMode == .externalClock ? AppColor.cyan : AppColor.ink2)
+                    .frame(width: 34, height: 22)
+                    .background(ui.syncMode == .externalClock ? AppColor.cyanGlow : AppColor.bgPanel)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4)
+                        .stroke(ui.syncMode == .externalClock ? AppColor.cyanLine : AppColor.line,
+                                lineWidth: 1))
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .disabled(ui.isPlaying)
+            .help("Clock source (FR-IO-4). EXT: Berlinan follows Start/Stop and tempo of incoming MIDI clock (enable Sync OUT to Berlinan in Ableton)")
+
             HStack(spacing: 6) {
                 Circle()
                     .fill(midiUp ? AppColor.green : AppColor.rec)
                     .frame(width: 6, height: 6)
                     .shadow(color: (midiUp ? AppColor.green : AppColor.rec).opacity(0.6),
                             radius: 2)
-                Text(midiStatus)
+                Text(ui.syncMode == .externalClock && !ui.isPlaying
+                     ? "EXT — waiting for clock" : midiStatus)
                     .font(AppFont.monoCaption)
                     .foregroundStyle(AppColor.ink3)
             }
