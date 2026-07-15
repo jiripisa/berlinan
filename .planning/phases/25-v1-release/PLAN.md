@@ -14,10 +14,10 @@ Close M4 → v1.0.0: app icon, README, CHANGELOG, dist pipeline smoke, tag. Link
 
 ## Acceptance criteria
 
-- [ ] Icon renders in the Dock/Finder (build.sh picks it up; no more missing-icon warning)
-- [ ] README present and accurate
-- [ ] `swift test` green; `./build.sh release` clean; dist smoke behaves as documented
-- [ ] Tag v1.0.0 on main
+- [x] Icon renders in the Dock/Finder (build.sh picks it up; no more missing-icon warning)
+- [x] README present and accurate
+- [x] `swift test` green; `./build.sh release` clean; dist smoke behaves as documented
+- [x] Tag v1.0.0 on main
 - [ ] Human: final jam pass on 1.0 — sync both directions, learn, dnd, delay, seed dice
 
 ## Out of scope
