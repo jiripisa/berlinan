@@ -21,6 +21,8 @@ would obligate open-sourcing the app upon distribution.
 
 ## Status
 
+**DONE 2026-07-15** (see VERIFICATION.md).
+
 **UNBLOCKED 2026-07-15**: user decision — Berlinan is OPEN SOURCE. Project
 licensed GPL-2.0-or-later (LICENSE added), mirroring Link's license exactly.
 Integration plan: vendor Ableton/link (with its asio submodule) under

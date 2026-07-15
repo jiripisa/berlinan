@@ -21,10 +21,24 @@ let package = Package(
             name: "BerlinanEngine",
             path: "Sources/BerlinanEngine"
         ),
+        // Ableton Link (FR-IO-5): the official abl_link C wrapper compiled
+        // from the vendored GPLv2+ sources (Vendor/link, git submodule with
+        // its asio-standalone submodule). C++ stays behind the C header.
+        .target(
+            name: "CAblLink",
+            path: "Vendor/link/extensions/abl_link",
+            sources: ["src/abl_link.cpp"],
+            publicHeadersPath: "include",
+            cxxSettings: [
+                .headerSearchPath("../../include"),
+                .headerSearchPath("../../modules/asio-standalone/asio/include"),
+                .define("LINK_PLATFORM_MACOSX", to: "1"),
+            ]
+        ),
         // Runtime layer (spec §5.1): owns CoreMIDI and real time. No UI.
         .target(
             name: "BerlinanRuntime",
-            dependencies: ["BerlinanEngine"],
+            dependencies: ["BerlinanEngine", "CAblLink"],
             path: "Sources/BerlinanRuntime"
         ),
         .executableTarget(
@@ -50,5 +64,6 @@ let package = Package(
             dependencies: ["BerlinanRuntime"],
             path: "Tests/BerlinanRuntimeTests"
         ),
-    ]
+    ],
+    cxxLanguageStandard: .cxx17
 )
