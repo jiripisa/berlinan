@@ -6,9 +6,9 @@
   full scope P2+P3, target v1.1.0. Phase plan: 26 arranger core →
   27 density/ambient/B-part → 28 melody extraction → 29 melody scheduler →
   30 harmony color → 31 release.
-- **Current phase**: 28-melody-extraction DONE 2026-07-18 (271 tests;
-  human checklists for 26-28 pending in their VERIFICATIONs). Next:
-  29-melody-scheduler.
+- **Current phase**: 29-melody-scheduler DONE 2026-07-18 (279 tests;
+  human checklists for 26-29 pending in their VERIFICATIONs). Next:
+  30-harmony-color.
 - 2026-07-18 — deviation: ambient mode is stopped-only in the UI (live
   switch would need mid-flight re-materialization of lifecycles; descoped).
 - M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and notarized DMG
