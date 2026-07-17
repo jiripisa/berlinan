@@ -42,6 +42,13 @@ public struct LiveEngine: Sendable {
         /// Engine-level voice on/off (FR-A-6 manual override of the
         /// arranger's activation); binds at the next bar.
         case setVoiceActive(voiceID: String, on: Bool)
+        /// Melody extraction toggle (FR-MEL-1); binds at the voice's next
+        /// loop boundary. On: mute-all + 3–4 curated accents, evolving on
+        /// the manual's clock. Off: the source pattern returns verbatim.
+        case extractMelody(voiceID: String)
+        /// Copy the voice's current melody to the lead voice as a locked
+        /// legato line (FR-MEL-2); binds at the next bar. No lead → no-op.
+        case promoteToLead(voiceID: String)
     }
 
     /// Bar-quantized global changes that split the render window.
@@ -51,6 +58,7 @@ public struct LiveEngine: Sendable {
         case density(Double)
         case bPart
         case voiceActive(String, Bool)
+        case promoteToLead(String)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -80,6 +88,18 @@ public struct LiveEngine: Sendable {
         /// boundary after their bar — like every user action.
         var nudgeRequestTick: Tick? = nil
         var accentMoveRequestTick: Tick? = nil
+        /// Melody extraction (FR-MEL-1): the running technique's state.
+        struct MelodyState: Sendable {
+            var source: Pattern
+            var picks: Set<Int>
+            var startTick: Tick
+            /// 0 = initial pick · 1 = inverted · 2+ = growth count + 1.
+            var stage: Int
+        }
+        var melody: MelodyState? = nil
+        var melodyToggleRequestTick: Tick? = nil
+
+        public var melodyActive: Bool { melody != nil }
 
         public var pattern: Pattern { voice.pattern }
     }
@@ -169,6 +189,8 @@ public struct LiveEngine: Sendable {
             public let pattern: Pattern
             public let blankActive: Bool
             public let midiDelayEnabled: Bool
+            /// Melody extraction running on this voice (FR-MEL-1).
+            public let melodyActive: Bool
         }
         public let voices: [VoiceSnapshot]
         /// The effective transposition timeline (incl. live-enqueued events)
@@ -193,7 +215,8 @@ public struct LiveEngine: Sendable {
             Snapshot.VoiceSnapshot(id: $0.voice.id, role: $0.voice.role,
                                    pattern: $0.voice.pattern,
                                    blankActive: $0.blankActive,
-                                   midiDelayEnabled: delayConfigs[$0.voice.id]?.enabled ?? false)
+                                   midiDelayEnabled: delayConfigs[$0.voice.id]?.enabled ?? false,
+                                   melodyActive: $0.melodyActive)
         }, scheduleEvents: schedule.events, key: project.key,
            arrangement: arrangement.map {
                ArrangementStatus(phase: $0.phase, barsInPhase: $0.barsInPhase,
@@ -249,6 +272,10 @@ public struct LiveEngine: Sendable {
             enqueueGlobalChange(.bPart, requestTick: requestTick)
         case .setVoiceActive(let voiceID, let on):
             enqueueGlobalChange(.voiceActive(voiceID, on), requestTick: requestTick)
+        case .extractMelody(let voiceID):
+            withState(voiceID) { $0.melodyToggleRequestTick = requestTick }
+        case .promoteToLead(let voiceID):
+            enqueueGlobalChange(.promoteToLead(voiceID), requestTick: requestTick)
         case .setArrangementEnabled(let on):
             let tick = barBindTick(requestTick)
             let index = pendingArrangementEnables.firstIndex { $0.tick > tick }
@@ -307,6 +334,8 @@ public struct LiveEngine: Sendable {
             states[idx].regenerateRequestTick = nil
             states[idx].accumBase = nil
             states[idx].accumCycle = 0
+            states[idx].melody = nil               // recall exits the technique
+            states[idx].melodyToggleRequestTick = nil
         }
     }
 
@@ -368,6 +397,8 @@ public struct LiveEngine: Sendable {
                     $0.active = on
                     if on { $0.segmentStart = next.tick; $0.blankActive = false }
                 }
+            case .promoteToLead(let id):
+                applyPromotion(from: id, at: next.tick)
             }
             notes += renderResolvingChanges(
                 max(next.tick, range.lowerBound)..<range.upperBound)
@@ -441,6 +472,19 @@ public struct LiveEngine: Sendable {
                 states[idx].active = false
             }
         }
+    }
+
+    /// Lead promotion (FR-MEL-2): the source voice's current melody becomes
+    /// the lead's pattern via the replace path (locked + established at the
+    /// lead's next loop boundary).
+    private mutating func applyPromotion(from voiceID: String, at tick: Tick) {
+        guard let source = states.first(where: { $0.voice.id == voiceID }),
+              let melody = source.melody,
+              let leadIdx = states.firstIndex(where: { $0.voice.role == .lead })
+        else { return }
+        let lead = Melody.leadPattern(from: melody.source, picks: melody.picks,
+                                      meter: project.meter)
+        states[leadIdx].replaceRequest = (tick: tick, pattern: lead)
     }
 
     private mutating func applyDirectives(_ directives: [ArrangementDirective],
@@ -583,6 +627,61 @@ public struct LiveEngine: Sendable {
             state.accumBase = nil
             state.accumCycle = 0
             return
+        }
+
+        // 2c'. Melody extraction toggle (FR-MEL-1): on = curated accents
+        //      only (locked; the melody engine owns evolution); off = the
+        //      stored source returns verbatim.
+        if let request = state.melodyToggleRequestTick, tick >= request {
+            state.melodyToggleRequestTick = nil
+            if let melody = state.melody {
+                state.voice.pattern = melody.source
+                state.melody = nil
+            } else {
+                let seed = SeedStream.derive(master: project.masterSeed,
+                                             "voice", state.voice.id,
+                                             "melody", String(state.generation))
+                let picks = Melody.selectAccents(pattern: state.voice.pattern,
+                                                 key: project.key,
+                                                 meter: project.meter, seed: seed)
+                state.melody = VoiceState.MelodyState(
+                    source: state.voice.pattern, picks: picks,
+                    startTick: tick, stage: 0)
+                state.voice.pattern = Melody.extraction(
+                    from: state.voice.pattern, picks: picks, stage: 0)
+            }
+            return
+        }
+
+        // 2c''. Melody evolution (M §8.1): 2-bar inversion, then one growth
+        //       note every 4 bars — the manual's clock, exempt from Law 1.
+        if var melody = state.melody {
+            let barsSince = Int((tick - melody.startTick) / project.meter.ticksPerBar)
+            if melody.stage == 0 && barsSince >= 2 {
+                let seed = SeedStream.derive(master: project.masterSeed,
+                                             "voice", state.voice.id,
+                                             "melody-invert")
+                melody.picks = Melody.invertAccents(pattern: melody.source,
+                                                    previous: melody.picks,
+                                                    meter: project.meter, seed: seed)
+                melody.stage = 1
+                state.voice.pattern = Melody.extraction(from: melody.source,
+                                                        picks: melody.picks, stage: 1)
+                state.melody = melody
+                return
+            }
+            if melody.stage >= 1, barsSince >= 4 * melody.stage,
+               let addition = Melody.growthPick(pattern: melody.source,
+                                                current: melody.picks,
+                                                meter: project.meter) {
+                melody.picks.insert(addition)
+                melody.stage += 1
+                state.voice.pattern = Melody.extraction(from: melody.source,
+                                                        picks: melody.picks,
+                                                        stage: melody.stage)
+                state.melody = melody
+                return
+            }
         }
 
         // 2c. Arrangement accent move (FR-A-1 variation): counts as the
