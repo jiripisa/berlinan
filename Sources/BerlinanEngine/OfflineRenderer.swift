@@ -128,12 +128,24 @@ public enum OfflineRenderer {
     /// Generate a fresh pattern for a voice config (shared with LiveEngine —
     /// regeneration uses different seed labels but the identical build path).
     static func makePattern(_ config: VoiceConfig, project: Project,
-                            seedLabels: [String], idSuffix: String) -> Pattern {
+                            seedLabels: [String], idSuffix: String,
+                            schedule: TranspositionSchedule? = nil) -> Pattern {
         let seed = SeedStream.derive(master: project.masterSeed, labels: seedLabels)
-        var pattern = PatternFactory.make(id: "\(config.id)/\(idSuffix)",
+        var pattern: Pattern
+        if case let .bassMelody(bars) = config.generator {
+            // FR-MEL-5: the walk needs the harmony — live regeneration
+            // passes the current schedule (incl. B-part events).
+            let resolved = schedule
+                ?? HarmonyScheduler.resolve(project: project).schedule
+            pattern = PatternFactory.makeBassMelody(
+                id: "\(config.id)/\(idSuffix)", bars: bars,
+                schedule: resolved, meter: project.meter, seed: seed)
+        } else {
+            pattern = PatternFactory.make(id: "\(config.id)/\(idSuffix)",
                                           config: config.generator,
                                           role: config.role, key: project.key,
                                           meter: project.meter, seed: seed)
+        }
         if let steps = config.phaseSteps, steps != 0 {
             let delta = Tick(steps) * (project.meter.ticksPerBeat / 4)
             pattern = PhasingOps.phasedCopy(of: pattern,

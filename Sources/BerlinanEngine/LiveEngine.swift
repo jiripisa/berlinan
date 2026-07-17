@@ -49,6 +49,9 @@ public struct LiveEngine: Sendable {
         /// Copy the voice's current melody to the lead voice as a locked
         /// legato line (FR-MEL-2); binds at the next bar. No lead → no-op.
         case promoteToLead(voiceID: String)
+        /// Alternating phrase scheduler on/off (FR-MEL-3); binds at the
+        /// next bar. nil = both voices sound everywhere again.
+        case setAlternating(AlternatingConfig?)
     }
 
     /// Bar-quantized global changes that split the render window.
@@ -59,6 +62,7 @@ public struct LiveEngine: Sendable {
         case bPart
         case voiceActive(String, Bool)
         case promoteToLead(String)
+        case alternating(AlternatingConfig?)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -110,6 +114,8 @@ public struct LiveEngine: Sendable {
     private let legit: Legitimizer.Config
     /// Density macro (FR-A-3): a deterministic per-loop note cap, 0–1.
     private var density: Double
+    /// Alternating phrase scheduler (FR-MEL-3); nil = off.
+    private var alternating: AlternatingConfig?
     private let velocity: VelocityPolicy
     private var schedule: TranspositionSchedule
     private var states: [VoiceState]           // stable order = project order
@@ -151,6 +157,7 @@ public struct LiveEngine: Sendable {
         self.project = project
         self.legit = project.legitimization ?? .default
         self.density = max(0, min(1, project.density ?? 1))
+        self.alternating = project.alternating
         self.velocity = project.velocity ?? VelocityPolicy()
         let resolved = HarmonyScheduler.resolve(project: project)
         self.schedule = resolved.schedule
@@ -276,6 +283,8 @@ public struct LiveEngine: Sendable {
             withState(voiceID) { $0.melodyToggleRequestTick = requestTick }
         case .promoteToLead(let voiceID):
             enqueueGlobalChange(.promoteToLead(voiceID), requestTick: requestTick)
+        case .setAlternating(let config):
+            enqueueGlobalChange(.alternating(config), requestTick: requestTick)
         case .setArrangementEnabled(let on):
             let tick = barBindTick(requestTick)
             let index = pendingArrangementEnables.firstIndex { $0.tick > tick }
@@ -399,6 +408,8 @@ public struct LiveEngine: Sendable {
                 }
             case .promoteToLead(let id):
                 applyPromotion(from: id, at: next.tick)
+            case .alternating(let config):
+                alternating = config
             }
             notes += renderResolvingChanges(
                 max(next.tick, range.lowerBound)..<range.upperBound)
@@ -594,6 +605,21 @@ public struct LiveEngine: Sendable {
         if let delay = delayConfigs[state.voice.id], delay.enabled {
             notes = MIDIDelay.process(notes, config: delay)
         }
+        // Alternating phrase slots (FR-MEL-3): applied after echoes so the
+        // guarantee covers everything the voice emits — onsets filter by
+        // slot, gates clamp at the slot edge.
+        if let alt = alternating,
+           state.voice.id == alt.voiceA || state.voice.id == alt.voiceB {
+            let slotTicks = Tick(alt.phraseBars) * project.meter.ticksPerBar
+            let mySlot = state.voice.id == alt.voiceA ? 0 : 1
+            notes = notes.filter { Int($0.at / slotTicks) % 2 == mySlot }
+                .map { note in
+                    var out = note
+                    let slotEnd = (note.at / slotTicks + 1) * slotTicks
+                    out.gate = min(out.gate, slotEnd - note.at)
+                    return out
+                }
+        }
         return notes
     }
 
@@ -670,10 +696,15 @@ public struct LiveEngine: Sendable {
                 state.melody = melody
                 return
             }
+            let referenceC = project.voices
+                .first { $0.id == state.voice.id }?.referenceC ?? 60
             if melody.stage >= 1, barsSince >= 4 * melody.stage,
                let addition = Melody.growthPick(pattern: melody.source,
                                                 current: melody.picks,
-                                                meter: project.meter) {
+                                                meter: project.meter,
+                                                key: project.key,
+                                                referenceC: referenceC,
+                                                walkPosition: melody.stage - 1) {
                 melody.picks.insert(addition)
                 melody.stage += 1
                 state.voice.pattern = Melody.extraction(from: melody.source,
@@ -718,7 +749,8 @@ public struct LiveEngine: Sendable {
                 state.voice.pattern = OfflineRenderer.makePattern(
                     config, project: project,
                     seedLabels: ["voice", config.id, "regen", String(state.generation)],
-                    idSuffix: "regen\(state.generation)")
+                    idSuffix: "regen\(state.generation)",
+                    schedule: schedule)
                 state.generation += 1
                 return
             }

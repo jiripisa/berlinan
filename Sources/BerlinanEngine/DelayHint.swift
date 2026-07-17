@@ -32,8 +32,15 @@ public struct DelayHint: Equatable, Sendable {
     public let filterRepeats: Bool = true
 
     /// Division per role (M §9.1): dotted 8th on the bed, plain 8th on the
-    /// bass ("don't over-duck"), quarter on sustained voices.
-    public static func compute(role: VoiceRole, bpm: Double) -> DelayHint {
+    /// bass ("don't over-duck"), quarter on sustained voices. Alternating
+    /// voices (FR-MEL-3): slot A keeps the role's color, slot B answers on
+    /// quarters so call and answer echo differently (M §8.3).
+    public static func compute(role: VoiceRole, bpm: Double,
+                               alternationSlot: Int? = nil) -> DelayHint {
+        if alternationSlot == 1 {
+            return DelayHint(division: .quarter,
+                             milliseconds: 60000 / bpm * DelayDivision.quarter.beats)
+        }
         let division: DelayDivision
         switch role {
         case .bedPluck1, .bedPluck2, .rhythm, .aux: division = .dotted8th

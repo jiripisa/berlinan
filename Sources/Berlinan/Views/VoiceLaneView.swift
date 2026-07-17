@@ -67,6 +67,18 @@ struct VoiceLaneView: View {
                             ui.promoteToLead(voice.id)
                         }
                     }
+                    Menu("Alternate With") {
+                        ForEach(ui.voices.filter { $0.id != voice.id },
+                                id: \.id) { other in
+                            Button(other.id) {
+                                ui.setAlternating(AlternatingConfig(
+                                    voiceA: voice.id, voiceB: other.id))
+                            }
+                        }
+                    }
+                    if ui.alternating != nil {
+                        Button("Stop Alternation") { ui.setAlternating(nil) }
+                    }
                 }
 
             VStack(spacing: 6) {
