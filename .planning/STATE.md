@@ -6,7 +6,8 @@
   full scope P2+P3, target v1.1.0. Phase plan: 26 arranger core →
   27 density/ambient/B-part → 28 melody extraction → 29 melody scheduler →
   30 harmony color → 31 release.
-- **Current phase**: 26-arranger-core (PLAN written; implementation starting).
+- **Current phase**: 26-arranger-core DONE 2026-07-17 (247 tests; human
+  checklist pending in its VERIFICATION). Next: 27-density-ambient-bpart.
 - M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and notarized DMG
   built (Developer ID present on this machine).
 - Backlog: runtime METER changes (piecewise meter map design sketch in
