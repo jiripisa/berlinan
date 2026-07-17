@@ -17,6 +17,8 @@ public enum ControlMacro: Codable, Hashable, Sendable {
     case rerollUnlocked
     case newSeed
     case recallSlot(Int)      // 0–5
+    /// Arranger "advance now" (FR-A-6); no-op while the autopilot is off.
+    case advancePhase
 }
 
 public struct ControlMap: Codable, Equatable, Sendable {

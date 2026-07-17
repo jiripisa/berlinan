@@ -55,6 +55,62 @@ struct PerformancePanelView: View {
             .buttonStyle(.plain)
             .help("Regenerate every unlocked voice at its next loop")
 
+            Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
+
+            // Arranger autopilot (FR-A-1/6): advisory — AUTO toggles it,
+            // ">>" fires the next change at the next bar.
+            HStack(spacing: 4) {
+                Text("ARR")
+                    .font(AppFont.fieldLabel)
+                    .tracking(AppTracking.field)
+                    .foregroundStyle(AppColor.ink4)
+
+                Button {
+                    ui.setArrangerEnabled(ui.arrangement == nil)
+                } label: {
+                    Text("AUTO")
+                        .font(AppFont.sansBold(9.5))
+                        .tracking(AppTracking.label)
+                        .foregroundStyle(ui.arrangement != nil ? AppColor.tangerine : AppColor.ink2)
+                        .padding(.horizontal, 10)
+                        .frame(height: 26)
+                        .background(ui.arrangement != nil ? AppColor.tangerineGlow : AppColor.bgPanel2)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .overlay(RoundedRectangle(cornerRadius: 4)
+                            .stroke(ui.arrangement != nil ? AppColor.tangerineLine : AppColor.line,
+                                    lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .help("Arranger autopilot: builds, varies, subtracts and ends the piece by itself — you stay in charge (every move is also a manual control)")
+
+                if let status = ui.arrangement {
+                    Text("\(phaseLabel(status.phase)) · \(status.barsInPhase)")
+                        .font(AppFont.monoMedium(10))
+                        .foregroundStyle(AppColor.ink3)
+                        .frame(height: 26)
+                        .padding(.horizontal, 6)
+                        .background(AppColor.bgPanel2)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .help("Arranger phase · bars in phase")
+
+                    Button {
+                        ui.perform(.advancePhase)
+                    } label: {
+                        Image(systemName: "forward.frame")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(AppColor.ink2)
+                            .frame(width: 26, height: 26)
+                            .background(AppColor.bgPanel2)
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .overlay(RoundedRectangle(cornerRadius: 4)
+                                .stroke(AppColor.line, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!ui.isPlaying)
+                    .help("Advance now: fire the arranger's next change at the next bar (MIDI-learnable)")
+                }
+            }
+
             Spacer()
 
             Button {
@@ -101,6 +157,18 @@ struct PerformancePanelView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(AppColor.bgPanel)
+    }
+
+    private func phaseLabel(_ phase: ArrangementPhase) -> String {
+        switch phase {
+        case .build: "BUILD"
+        case .bed: "BED"
+        case .variation: "VAR"
+        case .bPart: "B-PART"
+        case .payoff: "PAYOFF"
+        case .subtract: "SUBTR"
+        case .ending: "END"
+        }
     }
 
     private func snapshotButton(_ slot: Int) -> some View {

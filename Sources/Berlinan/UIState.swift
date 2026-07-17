@@ -23,6 +23,8 @@ final class UIState {
     private(set) var scheduleEvents: [TranspositionEvent] = []
     private(set) var liveKey: Key? = nil
     private(set) var liveBPM: Double? = nil
+    /// Arranger mirror (FR-A-1/6); nil = performance mode.
+    private(set) var arrangement: LiveEngine.ArrangementStatus? = nil
 
     var project: Project { services.project }
 
@@ -76,7 +78,20 @@ final class UIState {
         case .rerollUnlocked:    rerollAllUnlocked()
         case .newSeed:           newSeed()
         case .recallSlot(let s): recallSnapshot(slot: s)
+        case .advancePhase:      advancePhase()
         }
+    }
+
+    // MARK: - Arranger (FR-A-1/6)
+
+    func setArrangerEnabled(_ on: Bool) {
+        services.setArrangerEnabled(on)
+        refresh()
+    }
+
+    /// "Advance now": fire the arranger's next change at the next bar.
+    func advancePhase() {
+        services.transport?.enqueue(.advancePhase)
     }
 
     /// CC profile application (FR-MOD-5).
@@ -151,6 +166,7 @@ final class UIState {
             voices = snapshot.voices
             scheduleEvents = snapshot.scheduleEvents
             liveKey = snapshot.key
+            arrangement = snapshot.arrangement
         }
         liveBPM = transport.currentBPM
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
