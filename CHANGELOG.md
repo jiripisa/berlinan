@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.1.0 — 2026-07-18 (M5 — arranger & polish)
+
+The app learns to arrange a whole piece by itself — and to grow melodies.
+
+- Arranger autopilot (ARR · AUTO): a state machine walks Build → Bed →
+  Variation → B-Part → Payoff → Subtract → End, orchestrating voice entries
+  (additive build order), mutations, blank cycles, the closing roots-only
+  bar, and a clean self-stop. Advisory by design: OFF by default, every move
+  is also a button, ">>" advances by hand (MIDI-learnable), and it adopts a
+  running jam without restarting it
+- Density macro (DENS): a deterministic per-loop note cap — accents survive
+  first, then on-beat notes; the arranger raises it at the payoff and thins
+  on the way out
+- Ambient mode: ~1 change per minute and 16-play legitimization — the
+  patient, generative-radio variant (set while stopped)
+- B-part (B): the manual's S4 move as one trigger — a progression walk
+  lands in the schedule, the bass regenerates, the bed optionally drops
+- Melody extraction (♪ on a lane): mute all, raise 3–4 curated accents
+  (on-beat preferred, never adjacent, never root+fifth-only), then the
+  manual's clock — 2-bar accent inversion, one-note growth every 4 bars
+  scored by the interval tension table (tense → release → release);
+  toggle off restores the groove verbatim. "Promote Melody to Lead" copies
+  the line to a lead voice, legato and locked
+- Alternating scheduler: two voices in complementary 4-bar phrase slots,
+  guaranteed never simultaneous (echoes included); call and answer get
+  different delay-hint divisions
+- New generators: bassMelody (progression roots + stepwise passing tones),
+  chordLayer (§13.3 — one sustained in-key chord per ~7 bars), heartbeat
+  (quarter-note kick)
+- Tension budget (T·n): 2 out-of-key allowances per piece — a sustained
+  minor 2nd against the root through the engine's only quantizer bypass
+
 ## 1.0.0 — 2026-07-15 (M4 — sync & integration)
 
 First release. Berlinan is open source under GPL-2.0-or-later.

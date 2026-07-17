@@ -32,14 +32,24 @@ from ~225 hours of synthesist interviews and breakdowns:
 1. `./run.sh` (or open the built app). Press **space / ▶**. Berlinan plays
    its demo ensemble immediately — every session in a fresh musical universe.
 2. In Ableton Live: create MIDI tracks, set input to **Berlinan Out**,
-   channels 1–4 (bed pluck, bass, pad, lead), arm + monitor In.
+   channels 1–3 (two bed plucks, bass — the built-in ensemble; your own
+   projects can add pad, lead, rhythm voices), arm + monitor In.
 3. Jam surface:
    - **Degrees 1–7** — diatonic transposition at the next bar.
    - **Dice** — new seed, new universe (undoable, ⌘Z).
    - **Re-roll** — regenerate every unlocked voice.
+   - **B** — the B-part move: progression + new bass (+ bed drop), one press.
+   - **T·n** — spend a tension allowance: one sustained out-of-key stab.
    - **Slots 1–6** — snapshots (⌥-click saves, click recalls at next bar).
+   - **ARR · AUTO** — the arranger autopilot: builds the piece voice by
+     voice, varies it, fires the B-part, subtracts, and ends on a
+     roots-only bar — advisory, so every move stays yours (">>" advances by
+     hand). **DENS** thins or fills the whole mix; the moon toggles ambient
+     mode (~1 change/min).
    - Per lane: mute, lock, regenerate, blank cycle, pencil (hand edit),
-     echo (MIDI delay).
+     echo (MIDI delay), **♪ melody extraction** (3–4 curated accents that
+     evolve; right-click promotes the line to a lead voice, or sets two
+     voices alternating in 4-bar call-and-answer).
 4. **Delay is the genre's reverb**: open the **Delay Cheat Sheet** (Window
    menu) and set your audio delays to the printed times, or toggle the lane's
    echo button for engine-side MIDI echoes — the sheet warns when both stack.
@@ -63,7 +73,7 @@ macOS 14+.
 ./run.sh              # build + launch
 ./build.sh release    # optimized bundle
 ./build.sh dist       # release + codesign + notarized DMG (needs Developer ID)
-swift test            # 224 tests
+swift test            # 285 tests
 swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 ```
 

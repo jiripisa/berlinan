@@ -2,13 +2,20 @@
 
 ## Current position
 
-- **Milestone**: M5 IN PROGRESS (opened 2026-07-17) — arranger & polish,
-  full scope P2+P3, target v1.1.0. Phase plan: 26 arranger core →
-  27 density/ambient/B-part → 28 melody extraction → 29 melody scheduler →
-  30 harmony color → 31 release.
-- **Current phase**: 30-harmony-color DONE 2026-07-18 (285 tests;
-  human checklists for 26-30 pending in their VERIFICATIONs). Next:
-  31-v1.1-release.
+- **Milestone**: M5 CLOSED 2026-07-18 (tag v1.1.0, 285 tests / 99 suites).
+  Full P2+P3 scope shipped: arranger autopilot, density, ambient, B-part,
+  melody engine (extraction/promotion/alternation/tension), bassMelody +
+  chordLayer + heartbeat generators, tension budget.
+- **Next entry point**: no milestone open. Candidates: GitHub publication
+  (open source; NEEDS explicit push confirmation), backlog runtime METER
+  changes, M6 ideas (arrangement presets, chord-layer voicings, more kick
+  patterns).
+- Pending human checks (26-31): see the phase VERIFICATIONs — AUTO arc,
+  DENS/B/T moves, melody extraction + promotion, alternation, ambient jam,
+  and the 1.1 dist re-run below.
+- ⚠️ v1.1.0 DMG is SIGNED but NOT notarized: the `notary` keychain profile
+  was inaccessible this session. Fix: `xcrun notarytool store-credentials
+  notary`, then `./build.sh dist` (v1.0 notarized fine on this machine).
 - 2026-07-18 — deviation: ambient mode is stopped-only in the UI (live
   switch would need mid-flight re-materialization of lifecycles; descoped).
 - M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and notarized DMG
