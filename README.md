@@ -31,6 +31,9 @@ from ~225 hours of synthesist interviews and breakdowns:
 
 1. `./run.sh` (or open the built app). Press **space / ▶**. Berlinan plays
    its demo ensemble immediately — every session in a fresh musical universe.
+   For the full palette, File ▸ Open → `examples/full_ensemble.berlinan`:
+   six voices incl. a chord-layer pad, a bass-melody walk, a heartbeat kick
+   and a lead ready for melody promotion (channels 1–5 + 10).
 2. In Ableton Live: create MIDI tracks, set input to **Berlinan Out**,
    channels 1–3 (two bed plucks, bass — the built-in ensemble; your own
    projects can add pad, lead, rhythm voices), arm + monitor In.
