@@ -35,6 +35,13 @@ public enum OfflineRenderer {
     /// Note-level render across all voices (test/inspection surface).
     public static func renderNotes(project: Project, bars: Int) -> [RenderedNote] {
         let total = Tick(bars) * project.meter.ticksPerBar
+        // Arrangement (FR-A-1) is inherently sequential — one SM drives all
+        // voices — so the arranged offline render IS a live render: a single
+        // implementation keeps the parity guarantee for free.
+        if project.arrangement?.enabled == true {
+            var live = LiveEngine(project: project)
+            return live.render(range: 0..<total)
+        }
         return project.voices.flatMap { renderVoice($0, project: project, total: total) }
             .sorted { $0.at < $1.at || ($0.at == $1.at && $0.voiceID < $1.voiceID) }
     }

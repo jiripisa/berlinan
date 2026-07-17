@@ -54,10 +54,11 @@ struct ArrangementLiveTests {
         }
         let join2 = try! #require(firstOnset("bedPluck2"))
         let join3 = try! #require(firstOnset("bass"))
-        #expect(join2 % bar == 0, "joins must land on bar boundaries")
-        #expect(join3 % bar == 0)
+        // Activation is bar-aligned; the first onset lands inside the
+        // activation bar (patterns need not start on the downbeat).
         #expect((8...16).contains(Int(join2 / bar)))
-        #expect((8...16).contains(Int((join3 - join2) / bar)))
+        #expect((8...16).contains(Int(join3 / bar) - Int(join2 / bar)))
+        #expect(join3 > join2, "bass must join after the second bed pluck")
     }
 
     @Test("Chunked render is window-size independent with arrangement on",
