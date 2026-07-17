@@ -60,6 +60,30 @@ public enum PatternOps {
 
     /// "Keep the notes, move the accents" (M §5.8): relocate one accent to a
     /// different note; pitches, times, velocities and gates stay untouched.
+    /// Density cap (FR-A-3, M §13.1): keep `ceil(count·density)` notes,
+    /// ranked accents first, then beat-aligned onsets, then loop order. A
+    /// deterministic filter — no dice, Law 1 intact; density 1 is identity.
+    public static func densityCap(_ pattern: Pattern, density: Double,
+                                  meter: Meter) -> Pattern {
+        let clamped = max(0, min(1, density))
+        guard clamped < 1, !pattern.notes.isEmpty else { return pattern }
+        var out = pattern
+        let keep = Int((Double(pattern.notes.count) * clamped).rounded(.up))
+        guard keep > 0 else { out.notes = []; return out }
+        let ranked = pattern.notes.enumerated().sorted { a, b in
+            let beatTicks = meter.ticksPerBeat
+            func rank(_ n: PatternNote) -> (Int, Int, Tick) {
+                (n.accent ? 0 : 1, n.position % beatTicks == 0 ? 0 : 1, n.position)
+            }
+            return rank(a.element) < rank(b.element)
+        }
+        let keptIndices = Set(ranked.prefix(keep).map(\.offset))
+        out.notes = pattern.notes.enumerated()
+            .filter { keptIndices.contains($0.offset) }
+            .map(\.element)
+        return out
+    }
+
     /// Ending move (M §12.4, FR-A-1): keep only root-degree notes; a pattern
     /// with no root retunes its first note instead. Arrives locked and
     /// established — the piece is over, nothing may mutate it further.

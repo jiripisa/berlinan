@@ -91,6 +91,10 @@ public struct Project: Codable, Equatable, Sendable {
     /// Arrangement autopilot (FR-A-1/2/6). nil = disabled (performance
     /// mode); 1.0 documents stay valid.
     public var arrangement: ArrangementConfig?
+    /// Density macro seed value (FR-A-3); nil = 1.0 (full density).
+    public var density: Double?
+    /// B-part bundle configuration (FR-A-5); nil = the default S4 move.
+    public var bPart: BPartConfig?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],
