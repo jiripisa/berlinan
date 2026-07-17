@@ -27,6 +27,8 @@ final class UIState {
     private(set) var arrangement: LiveEngine.ArrangementStatus? = nil
     /// Density macro in force (FR-A-3).
     private(set) var density: Double = 1
+    /// Remaining tension-budget spends (FR-H-7).
+    private(set) var tensionRemaining: Int = 2
 
     var project: Project { services.project }
 
@@ -100,6 +102,15 @@ final class UIState {
     /// The S4 move (FR-A-5) — works in performance mode too.
     func fireBPart() {
         services.transport?.enqueue(.fireBPart)
+    }
+
+    /// Spend one out-of-key allowance (FR-H-7) — lands on the pad voice
+    /// when there is one, else the first voice.
+    func spendTension() {
+        let target = project.voices.first { $0.role == .pad }
+            ?? project.voices.first
+        guard let target else { return }
+        services.transport?.enqueue(.spendTension(voiceID: target.id))
     }
 
     /// Density macro (FR-A-3), binds at the next bar while playing.
@@ -213,6 +224,7 @@ final class UIState {
             liveKey = snapshot.key
             arrangement = snapshot.arrangement
             density = snapshot.density
+            tensionRemaining = snapshot.tensionRemaining
         }
         liveBPM = transport.currentBPM
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })

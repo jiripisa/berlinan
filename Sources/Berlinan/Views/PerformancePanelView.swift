@@ -70,6 +70,21 @@ struct PerformancePanelView: View {
             .disabled(!ui.isPlaying)
             .help("B-part: start a progression, swap the bass, drop the bed — one move at the next bar (MIDI-learnable)")
 
+            Button {
+                ui.spendTension()
+            } label: {
+                Text("T·\(ui.tensionRemaining)")
+                    .font(AppFont.monoBold(11))
+                    .foregroundStyle(ui.tensionRemaining > 0 ? AppColor.ink2 : AppColor.ink4)
+                    .frame(width: 34, height: 26)
+                    .background(AppColor.bgPanel2)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.line, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .disabled(!ui.isPlaying || ui.tensionRemaining == 0)
+            .help("Tension budget (M §4.4): spend one of \(ui.tensionRemaining) out-of-key allowances — a sustained minor 2nd against the root at the next bar")
+
             Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
 
             // Arranger autopilot (FR-A-1/6): advisory — AUTO toggles it,

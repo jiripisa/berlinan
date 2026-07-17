@@ -52,6 +52,10 @@ public struct LiveEngine: Sendable {
         /// Alternating phrase scheduler on/off (FR-MEL-3); binds at the
         /// next bar. nil = both voices sound everywhere again.
         case setAlternating(AlternatingConfig?)
+        /// Spend one unit of the tension budget (FR-H-7): a single
+        /// sustained minor-2nd-against-the-root note on the voice at the
+        /// next bar — the only quantizer bypass. Exhausted budget → no-op.
+        case spendTension(voiceID: String)
     }
 
     /// Bar-quantized global changes that split the render window.
@@ -63,6 +67,7 @@ public struct LiveEngine: Sendable {
         case voiceActive(String, Bool)
         case promoteToLead(String)
         case alternating(AlternatingConfig?)
+        case tension(String)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -116,6 +121,10 @@ public struct LiveEngine: Sendable {
     private var density: Double
     /// Alternating phrase scheduler (FR-MEL-3); nil = off.
     private var alternating: AlternatingConfig?
+    /// Tension budget (FR-H-7): remaining out-of-key allowances.
+    private var tensionRemaining: Int
+    /// Spent-but-not-yet-rendered tension notes (bar-bound one-shots).
+    private var pendingTensionNotes: [(tick: Tick, voiceID: String)] = []
     private let velocity: VelocityPolicy
     private var schedule: TranspositionSchedule
     private var states: [VoiceState]           // stable order = project order
@@ -158,6 +167,7 @@ public struct LiveEngine: Sendable {
         self.legit = project.legitimization ?? .default
         self.density = max(0, min(1, project.density ?? 1))
         self.alternating = project.alternating
+        self.tensionRemaining = max(0, project.tensionBudget ?? 2)
         self.velocity = project.velocity ?? VelocityPolicy()
         let resolved = HarmonyScheduler.resolve(project: project)
         self.schedule = resolved.schedule
@@ -209,6 +219,8 @@ public struct LiveEngine: Sendable {
         public let arrangement: ArrangementStatus?
         /// Density macro in force (FR-A-3), 0–1.
         public let density: Double
+        /// Remaining tension-budget spends (FR-H-7).
+        public let tensionRemaining: Int
     }
 
     public struct ArrangementStatus: Equatable, Sendable {
@@ -229,7 +241,7 @@ public struct LiveEngine: Sendable {
                ArrangementStatus(phase: $0.phase, barsInPhase: $0.barsInPhase,
                                  activeVoices: $0.activeVoices)
            },
-           density: density)
+           density: density, tensionRemaining: tensionRemaining)
     }
 
     /// Current transposition offset for a bar — includes live-enqueued events.
@@ -285,6 +297,8 @@ public struct LiveEngine: Sendable {
             enqueueGlobalChange(.promoteToLead(voiceID), requestTick: requestTick)
         case .setAlternating(let config):
             enqueueGlobalChange(.alternating(config), requestTick: requestTick)
+        case .spendTension(let voiceID):
+            enqueueGlobalChange(.tension(voiceID), requestTick: requestTick)
         case .setArrangementEnabled(let on):
             let tick = barBindTick(requestTick)
             let index = pendingArrangementEnables.firstIndex { $0.tick > tick }
@@ -410,6 +424,11 @@ public struct LiveEngine: Sendable {
                 applyPromotion(from: id, at: next.tick)
             case .alternating(let config):
                 alternating = config
+            case .tension(let voiceID):
+                if tensionRemaining > 0 {
+                    tensionRemaining -= 1
+                    pendingTensionNotes.append((tick: next.tick, voiceID: voiceID))
+                }
             }
             notes += renderResolvingChanges(
                 max(next.tick, range.lowerBound)..<range.upperBound)
@@ -540,6 +559,22 @@ public struct LiveEngine: Sendable {
             var state = states[idx]
             notes += renderVoice(&state, range: range)
             states[idx] = state
+        }
+        // Tension budget one-shots (FR-H-7): the only quantizer bypass —
+        // a sustained m2 against the root, consumed exactly once.
+        for index in pendingTensionNotes.indices.reversed()
+        where range.contains(pendingTensionNotes[index].tick) {
+            let event = pendingTensionNotes.remove(at: index)
+            if let config = project.voices.first(where: { $0.id == event.voiceID }) {
+                let pitch = DegreePitch(degree: 0, accidental: 1)
+                let midi = config.register.fold(
+                    project.key.resolve(pitch, referenceC: config.referenceC))
+                notes.append(RenderedNote(voiceID: event.voiceID,
+                                          at: event.tick,
+                                          midiNote: UInt8(midi), velocity: 110,
+                                          gate: project.meter.ticksPerBar,
+                                          accent: true, ratchet: 1))
+            }
         }
         renderedUpTo = max(renderedUpTo, range.upperBound)
         notes.sort {

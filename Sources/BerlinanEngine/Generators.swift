@@ -29,6 +29,12 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
     /// passing tones walking toward the next bar's root. Deterministic:
     /// the walk IS the harmony, no dice.
     case bassMelody(bars: Int)
+    /// M §13.3 (FR-H-8) — one sustained pad chord per loop: 20% home root /
+    /// 80% +1..12 semitones, quantized, stacked +4/+7/+12, re-quantized.
+    /// The Legitimizer's lifecycle re-rolls it — "one chord per ~7 bars".
+    case chordLayer(periodBars: Int)
+    /// M §9.2 (FR-V-7) — the quarter-note heartbeat kick.
+    case heartbeat
 
     var generatorID: GeneratorID {
         switch self {
@@ -39,14 +45,19 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
         case .stagedPluck:    return .stagedPluck
         case .arpeggiator:    return .arpeggiator
         case .bassMelody:     return .bassMelody
+        case .chordLayer:     return .chordLayer
+        case .heartbeat:      return .heartbeat
         }
     }
 
-    /// All generators except the bass melody draw from the seed stream
-    /// (used by tests to assert the seed is not ignored).
+    /// Most generators draw from the seed stream (used by tests to assert
+    /// the seed is not ignored); the bass melody and heartbeat are the
+    /// deterministic exceptions.
     var usesRandomness: Bool {
-        if case .bassMelody = self { return false }
-        return true
+        switch self {
+        case .bassMelody, .heartbeat: return false
+        default:                      return true
+        }
     }
 }
 
@@ -88,12 +99,46 @@ public enum PatternFactory {
             // resolved transposition schedule).
             return makeBassMelody(id: id, bars: bars, schedule: .pedal,
                                   meter: meter, seed: seed)
+        case let .chordLayer(periodBars):
+            length = Tick(periodBars) * meter.ticksPerBar
+            notes = chordLayer(gate: length, key: key, rng: &rng)
+        case .heartbeat:
+            length = meter.ticksPerBar
+            notes = (0..<meter.beatsPerBar).map {
+                PatternNote(position: Tick($0) * meter.ticksPerBeat,
+                            pitch: DegreePitch(degree: 0), velocity: 92,
+                            gate: meter.ticksPerBeat / 2)
+            }
         }
 
         return Pattern(
             id: id, length: length, notes: notes,
             provenance: Provenance(generator: config.generatorID, version: 1, seed: seed)
         )
+    }
+
+    /// The §13.3 chord recipe (FR-H-8): 20% home / 80% +1..12 semitones →
+    /// quantize → stack +4/+7/+12 → re-quantize. Every tone lands in scale
+    /// (`accidental == 0` by quantizer contract) — no bypass here.
+    private static func chordLayer(gate: Tick, key: Key,
+                                   rng: inout SplitMix64) -> [PatternNote] {
+        let referenceC = 60
+        let rootMidi = Double.random(in: 0..<1, using: &rng) < 0.2
+            ? referenceC
+            : referenceC + Int.random(in: 1...12, using: &rng)
+        let root = key.quantize(midi: rootMidi, referenceC: referenceC)
+        let rootResolved = key.resolve(root, referenceC: referenceC)
+        var seen: Set<Int> = []
+        var notes: [PatternNote] = []
+        for offset in [0, 4, 7, 12] {
+            let tone = key.quantize(midi: rootResolved + offset,
+                                    referenceC: referenceC)
+            let resolved = key.resolve(tone, referenceC: referenceC)
+            guard seen.insert(resolved).inserted else { continue }
+            notes.append(PatternNote(position: 0, pitch: tone, velocity: 84,
+                                     gate: gate))
+        }
+        return notes
     }
 
     /// Bass melody (FR-MEL-5, M §8.4): beat 1 states the bar's progression

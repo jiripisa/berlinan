@@ -97,6 +97,8 @@ public struct Project: Codable, Equatable, Sendable {
     public var bPart: BPartConfig?
     /// Alternating phrase scheduler (FR-MEL-3); nil = off.
     public var alternating: AlternatingConfig?
+    /// Tension budget (FR-H-7): out-of-key allowances per piece; nil = 2.
+    public var tensionBudget: Int?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],

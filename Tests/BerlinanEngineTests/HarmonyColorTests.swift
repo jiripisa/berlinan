@@ -39,7 +39,7 @@ struct TensionBudgetTests {
         #expect(extras.count == 1, "exactly one tension note")
         let tension = try! #require(extras.first)
         #expect(tension.at == bar, "binds at the next bar")
-        #expect(!inScale(tension.midiNote), "must be out of key")
+        #expect(!inScale(Int(tension.midiNote)), "must be out of key")
         #expect(tension.gate >= bar, "sustained — a whole bar at least")
     }
 
