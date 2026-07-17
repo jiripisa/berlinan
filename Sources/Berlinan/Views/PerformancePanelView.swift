@@ -55,6 +55,21 @@ struct PerformancePanelView: View {
             .buttonStyle(.plain)
             .help("Regenerate every unlocked voice at its next loop")
 
+            Button {
+                ui.perform(.fireBPart)
+            } label: {
+                Text("B")
+                    .font(AppFont.monoBold(13))
+                    .foregroundStyle(AppColor.ink2)
+                    .frame(width: 30, height: 26)
+                    .background(AppColor.bgPanel2)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.line, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .disabled(!ui.isPlaying)
+            .help("B-part: start a progression, swap the bass, drop the bed — one move at the next bar (MIDI-learnable)")
+
             Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
 
             // Arranger autopilot (FR-A-1/6): advisory — AUTO toggles it,
@@ -109,6 +124,42 @@ struct PerformancePanelView: View {
                     .disabled(!ui.isPlaying)
                     .help("Advance now: fire the arranger's next change at the next bar (MIDI-learnable)")
                 }
+
+                Button {
+                    ui.setAmbientMode(!ui.ambientMode)
+                } label: {
+                    Image(systemName: "moon.stars")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(ui.ambientMode ? AppColor.cyan : AppColor.ink3)
+                        .frame(width: 26, height: 26)
+                        .background(ui.ambientMode ? AppColor.cyanGlow : AppColor.bgPanel2)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .overlay(RoundedRectangle(cornerRadius: 4)
+                            .stroke(ui.ambientMode ? AppColor.cyanLine : AppColor.line,
+                                    lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .disabled(ui.isPlaying)
+                .help("Ambient mode: ~1 change per minute, patterns legitimize over 16 plays (set while stopped)")
+
+                // Density macro (FR-A-3): 0–1, binds at the next bar.
+                HStack(spacing: 4) {
+                    Text("DENS")
+                        .font(AppFont.fieldLabel)
+                        .tracking(AppTracking.field)
+                        .foregroundStyle(AppColor.ink4)
+                    Slider(value: Binding(get: { ui.density },
+                                          set: { ui.setDensity($0) }),
+                           in: 0...1)
+                        .controlSize(.mini)
+                        .tint(AppColor.tangerine)
+                        .frame(width: 70)
+                    Text(String(format: "%.0f%%", ui.density * 100))
+                        .font(AppFont.monoMedium(9))
+                        .foregroundStyle(AppColor.ink3)
+                        .frame(width: 30, alignment: .trailing)
+                }
+                .help("Density: caps notes per loop (accents survive first); the arranger raises it at payoff and thins on the way out")
             }
 
             Spacer()

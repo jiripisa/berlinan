@@ -34,12 +34,23 @@ public struct LiveEngine: Sendable {
         /// Fire the arranger's next change at the next bar ("advance now",
         /// FR-A-6). No-op while the autopilot is off.
         case advancePhase
+        /// Density macro 0–1 (FR-A-3); binds at the next bar.
+        case setDensity(Double)
+        /// The S4 move (FR-A-5): progression + bass swap (+ bed drop) as one
+        /// event; binds at the next bar. Uses `Project.bPart` (or defaults).
+        case fireBPart
+        /// Engine-level voice on/off (FR-A-6 manual override of the
+        /// arranger's activation); binds at the next bar.
+        case setVoiceActive(voiceID: String, on: Bool)
     }
 
     /// Bar-quantized global changes that split the render window.
     private enum GlobalChange: Sendable {
         case recall(StateSnapshot)
         case key(Key)
+        case density(Double)
+        case bPart
+        case voiceActive(String, Bool)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -77,6 +88,8 @@ public struct LiveEngine: Sendable {
     /// downstream consumer (resolution, mutation, regeneration) follows.
     private var project: Project
     private let legit: Legitimizer.Config
+    /// Density macro (FR-A-3): a deterministic per-loop note cap, 0–1.
+    private var density: Double
     private let velocity: VelocityPolicy
     private var schedule: TranspositionSchedule
     private var states: [VoiceState]           // stable order = project order
@@ -104,8 +117,20 @@ public struct LiveEngine: Sendable {
     private let bassOnly: Bool
 
     public init(project: Project) {
+        var project = project
+        if let arrangement = project.arrangement, arrangement.enabled,
+           arrangement.ambientMode {
+            // Ambient (FR-A-4): the slow world — patterns earn much longer.
+            // Scaled at the PROJECT level so materialization (initial
+            // lifecycle) and every mutate reset see the same 16/32 counts.
+            let base = project.legitimization ?? .default
+            project.legitimization = Legitimizer.Config(
+                repeats: min(32, base.repeats * 4),
+                ratchetProbability: base.ratchetProbability)
+        }
         self.project = project
         self.legit = project.legitimization ?? .default
+        self.density = max(0, min(1, project.density ?? 1))
         self.velocity = project.velocity ?? VelocityPolicy()
         let resolved = HarmonyScheduler.resolve(project: project)
         self.schedule = resolved.schedule
@@ -121,7 +146,8 @@ public struct LiveEngine: Sendable {
         if let config = project.arrangement, config.enabled {
             let sm = ArrangementSM(
                 config: config, voices: project.voices,
-                seed: SeedStream.derive(master: project.masterSeed, "arrangement"))
+                seed: SeedStream.derive(master: project.masterSeed, "arrangement"),
+                ambientPeriodBars: Self.ambientPeriodBars(project: project))
             arrangement = sm
             let active = Set(sm.activeVoices)
             for idx in states.indices where !active.contains(states[idx].voice.id) {
@@ -152,6 +178,8 @@ public struct LiveEngine: Sendable {
         public let key: Key
         /// Arrangement autopilot mirror (FR-A-1); nil = performance mode.
         public let arrangement: ArrangementStatus?
+        /// Density macro in force (FR-A-3), 0–1.
+        public let density: Double
     }
 
     public struct ArrangementStatus: Equatable, Sendable {
@@ -170,7 +198,8 @@ public struct LiveEngine: Sendable {
            arrangement: arrangement.map {
                ArrangementStatus(phase: $0.phase, barsInPhase: $0.barsInPhase,
                                  activeVoices: $0.activeVoices)
-           })
+           },
+           density: density)
     }
 
     /// Current transposition offset for a bar — includes live-enqueued events.
@@ -214,6 +243,12 @@ public struct LiveEngine: Sendable {
             enqueueGlobalChange(.key(key), requestTick: requestTick)
         case .replacePattern(let voiceID, let pattern):
             withState(voiceID) { $0.replaceRequest = (tick: requestTick, pattern: pattern) }
+        case .setDensity(let value):
+            enqueueGlobalChange(.density(value), requestTick: requestTick)
+        case .fireBPart:
+            enqueueGlobalChange(.bPart, requestTick: requestTick)
+        case .setVoiceActive(let voiceID, let on):
+            enqueueGlobalChange(.voiceActive(voiceID, on), requestTick: requestTick)
         case .setArrangementEnabled(let on):
             let tick = barBindTick(requestTick)
             let index = pendingArrangementEnables.firstIndex { $0.tick > tick }
@@ -324,6 +359,15 @@ public struct LiveEngine: Sendable {
                 applyRecall(snapshot, at: next.tick)
             case .key(let key):
                 project.key = key       // everything downstream follows
+            case .density(let value):
+                density = max(0, min(1, value))
+            case .bPart:
+                applyBPart(at: next.tick)
+            case .voiceActive(let id, let on):
+                withState(id) {
+                    $0.active = on
+                    if on { $0.segmentStart = next.tick; $0.blankActive = false }
+                }
             }
             notes += renderResolvingChanges(
                 max(next.tick, range.lowerBound)..<range.upperBound)
@@ -349,7 +393,8 @@ public struct LiveEngine: Sendable {
                 arrangement = ArrangementSM(
                     config: config, voices: project.voices,
                     seed: SeedStream.derive(master: project.masterSeed, "arrangement"),
-                    adoptingActive: Set(states.filter(\.active).map(\.voice.id)))
+                    adoptingActive: Set(states.filter(\.active).map(\.voice.id)),
+                    ambientPeriodBars: Self.ambientPeriodBars(project: project))
                 createdHere = true
             } else if !first.on {
                 arrangement = nil       // voices keep their current activity
@@ -365,6 +410,37 @@ public struct LiveEngine: Sendable {
             applyDirectives(sm.tickBar(locked: locked), at: tick)
         }
         arrangement = sm
+    }
+
+    /// ≈ bars per minute at the project tempo (FR-A-4), floored at 8.
+    private static func ambientPeriodBars(project: Project) -> Int {
+        let barsPerMinute = project.bpm / Double(project.meter.beatsPerBar)
+        return max(8, Int(barsPerMinute.rounded()))
+    }
+
+    /// The S4 move (FR-A-5): append the progression walk from the fire bar,
+    /// regenerate the bass at its next loop boundary, optionally drop the
+    /// second bed (manual reactivation via `setVoiceActive`, or the
+    /// arranger's payoff re-add).
+    private mutating func applyBPart(at tick: Tick) {
+        let config = project.bPart ?? .default
+        let fireBar = Int(tick / project.meter.ticksPerBar)
+        var events = schedule.events
+        for (index, step) in config.progressionSteps.enumerated() {
+            events.append(TranspositionEvent(bar: fireBar + index * config.barsPerStep,
+                                             degreeOffset: step))
+        }
+        schedule = TranspositionSchedule(events: events)
+        if config.swapBass {
+            for idx in states.indices where states[idx].voice.role == .bass {
+                states[idx].regenerateRequestTick = tick
+            }
+        }
+        if config.dropBed {
+            for idx in states.indices where states[idx].voice.role == .bedPluck2 {
+                states[idx].active = false
+            }
+        }
     }
 
     private mutating func applyDirectives(_ directives: [ArrangementDirective],
@@ -385,6 +461,10 @@ public struct LiveEngine: Sendable {
                 withState(id) { $0.accentMoveRequestTick = tick }
             case .blankCycle(let id):
                 withState(id) { $0.blankRequestTick = tick }
+            case .setDensity(let value):
+                density = max(0, min(1, value))
+            case .fireBPart:
+                applyBPart(at: tick)
             case .thinToRoots(let id):
                 // Immediate: the directive already fires exactly on the bar
                 // the ending begins — roots sound from this tick on.
@@ -428,7 +508,13 @@ public struct LiveEngine: Sendable {
                 if lower < upper {
                     let humanSeed = state.voice.pattern.provenance.seed
                     let startOffset = state.voice.pattern.startOffset
-                    let segment = HarmonyEngine.render(voices: [state.voice],
+                    var renderSource = state.voice
+                    if density < 1 {                       // FR-A-3 note cap
+                        renderSource.pattern = PatternOps.densityCap(
+                            renderSource.pattern, density: density,
+                            meter: project.meter)
+                    }
+                    let segment = HarmonyEngine.render(voices: [renderSource],
                                                        schedule: schedule,
                                                        key: project.key,
                                                        meter: project.meter,

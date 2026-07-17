@@ -25,6 +25,8 @@ final class UIState {
     private(set) var liveBPM: Double? = nil
     /// Arranger mirror (FR-A-1/6); nil = performance mode.
     private(set) var arrangement: LiveEngine.ArrangementStatus? = nil
+    /// Density macro in force (FR-A-3).
+    private(set) var density: Double = 1
 
     var project: Project { services.project }
 
@@ -79,10 +81,11 @@ final class UIState {
         case .newSeed:           newSeed()
         case .recallSlot(let s): recallSnapshot(slot: s)
         case .advancePhase:      advancePhase()
+        case .fireBPart:         fireBPart()
         }
     }
 
-    // MARK: - Arranger (FR-A-1/6)
+    // MARK: - Arranger & dynamics (FR-A-1/3/4/5/6)
 
     func setArrangerEnabled(_ on: Bool) {
         services.setArrangerEnabled(on)
@@ -92,6 +95,26 @@ final class UIState {
     /// "Advance now": fire the arranger's next change at the next bar.
     func advancePhase() {
         services.transport?.enqueue(.advancePhase)
+    }
+
+    /// The S4 move (FR-A-5) — works in performance mode too.
+    func fireBPart() {
+        services.transport?.enqueue(.fireBPart)
+    }
+
+    /// Density macro (FR-A-3), binds at the next bar while playing.
+    func setDensity(_ value: Double) {
+        services.setDensity(value)
+        refresh()
+    }
+
+    var ambientMode: Bool { project.arrangement?.ambientMode ?? false }
+
+    /// Ambient mode (FR-A-4). Stopped-only (it rescales legitimization at
+    /// materialize time); the toggle is disabled while playing.
+    func setAmbientMode(_ on: Bool) {
+        services.setAmbientMode(on)
+        refresh()
     }
 
     /// CC profile application (FR-MOD-5).
@@ -167,6 +190,7 @@ final class UIState {
             scheduleEvents = snapshot.scheduleEvents
             liveKey = snapshot.key
             arrangement = snapshot.arrangement
+            density = snapshot.density
         }
         liveBPM = transport.currentBPM
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })

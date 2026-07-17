@@ -34,6 +34,27 @@ public struct ArrangementConfig: Codable, Equatable, Sendable {
     }
 }
 
+/// The manual's S4 move (FR-A-5): one trigger = progression start + bass
+/// swap + optional bed drop. Also usable manually in performance mode.
+public struct BPartConfig: Codable, Equatable, Sendable {
+    /// Degree offsets of the walk, one per step (default VI → iv → home).
+    public var progressionSteps: [Int]
+    public var barsPerStep: Int
+    public var swapBass: Bool
+    public var dropBed: Bool
+
+    public init(progressionSteps: [Int] = [5, 3, 0], barsPerStep: Int = 4,
+                swapBass: Bool = true, dropBed: Bool = false) {
+        precondition(barsPerStep >= 1)
+        self.progressionSteps = progressionSteps
+        self.barsPerStep = barsPerStep
+        self.swapBass = swapBass
+        self.dropBed = dropBed
+    }
+
+    public static let `default` = BPartConfig()
+}
+
 /// One bar-quantized instruction to the engine. The SM never touches
 /// patterns itself — it only asks for things the engine can already do.
 public enum ArrangementDirective: Equatable, Sendable {
@@ -43,6 +64,10 @@ public enum ArrangementDirective: Equatable, Sendable {
     case nudgeMutation(voiceID: String)
     case accentMove(voiceID: String)
     case blankCycle(voiceID: String)
+    /// Density macro move (FR-A-3), 0–1.
+    case setDensity(Double)
+    /// The S4 bundle (FR-A-5) — the engine applies `Project.bPart`.
+    case fireBPart
     /// Ending: strip the survivor to root notes only (M §12.4).
     case thinToRoots(voiceID: String)
     /// Ending: stop the transport at the next bar boundary.
@@ -59,6 +84,10 @@ public struct ArrangementSM: Sendable {
 
     private let config: ArrangementConfig
     private let buildOrder: [String]
+    /// Fixed change period while ambient (FR-A-4): ≈ bars per minute.
+    private let ambientPeriodBars: Int
+    /// The SM's density trajectory (FR-A-3): payoff raises, subtract lowers.
+    private var density: Double = 1.0
     private var rng: SplitMix64
     private var barsUntilChange: Int = 0
     /// Change events consumed inside the current phase (dwell bookkeeping).
@@ -81,10 +110,12 @@ public struct ArrangementSM: Sendable {
     }
 
     public init(config: ArrangementConfig, voices: [VoiceConfig], seed: UInt64,
-                adoptingActive: Set<String>? = nil) {
+                adoptingActive: Set<String>? = nil,
+                ambientPeriodBars: Int = 22) {
         self.config = config
         self.buildOrder = config.buildOrder
             ?? ArrangementSM.deriveBuildOrder(from: voices)
+        self.ambientPeriodBars = max(8, ambientPeriodBars)
         self.rng = SplitMix64(seed: seed)
         if let adopted = adoptingActive {
             // Enabling mid-play adopts the running state (FR-A-6): nothing
@@ -121,7 +152,9 @@ public struct ArrangementSM: Sendable {
     }
 
     private mutating func nextPeriod() -> Int {
-        Int.random(in: config.minPeriodBars...config.maxPeriodBars, using: &rng)
+        if config.ambientMode { return ambientPeriodBars }   // FR-A-4
+        return Int.random(in: config.minPeriodBars...config.maxPeriodBars,
+                          using: &rng)
     }
 
     // MARK: - Change events (spec §7.8 advance())
@@ -148,40 +181,51 @@ public struct ArrangementSM: Sendable {
             guard let target = nextTarget(locked: locked) else { return [] }
             return [.nudgeMutation(voiceID: target)]
 
-        case .variation, .bPart:
-            // bPart acts like variation until the B-bundle lands (phase 27).
-            if eventsInPhase >= Self.dwell[phase]! {
-                return enter(phase == .variation ? .bPart : .payoff, locked: locked)
+        case .variation:
+            if eventsInPhase >= Self.dwell[.variation]! {
+                return enter(.bPart, locked: locked)
             }
             eventsInPhase += 1
             guard let target = nextTarget(locked: locked) else { return [] }
+            // Op choice follows density (FR-A-3): a sparse mix rests more,
+            // a dense one changes more.
+            if density < 0.4 { return [.blankCycle(voiceID: target)] }
             switch eventsInPhase % 3 {
             case 1: return [.nudgeMutation(voiceID: target)]
             case 2: return [.accentMove(voiceID: target)]
             default: return [.blankCycle(voiceID: target)]
             }
 
+        case .bPart:
+            if eventsInPhase >= Self.dwell[.bPart]! {
+                return enter(.payoff, locked: locked)
+            }
+            eventsInPhase += 1
+            return [.fireBPart]                        // the S4 move (FR-A-5)
+
         case .payoff:
             if eventsInPhase >= Self.dwell[.payoff]! {
                 return enter(.subtract, locked: locked)
             }
             eventsInPhase += 1
-            // Re-add everything (additive repetition, M §12.3 S6–S8); the
-            // density raise arrives with FR-A-3 in phase 27. With nothing to
-            // re-add, still make an audible change — M §12.1 promises one
-            // every period.
+            // Re-add everything and raise density to full (additive
+            // repetition, M §12.3 S6–S8; FR-A-3).
+            density = 1.0
             let missing = buildOrder.filter { !activeVoices.contains($0) }
             activeVoices = buildOrder
             if missing.isEmpty {
-                guard let target = nextTarget(locked: locked) else { return [] }
-                return [.nudgeMutation(voiceID: target)]
+                guard let target = nextTarget(locked: locked) else {
+                    return [.setDensity(density)]
+                }
+                return [.nudgeMutation(voiceID: target), .setDensity(density)]
             }
-            return missing.map { .activate(voiceID: $0) }
+            return missing.map { .activate(voiceID: $0) } + [.setDensity(density)]
 
         case .subtract:
             if activeVoices.count > 1 {
                 let last = activeVoices.removeLast()
-                return [.deactivate(voiceID: last)]
+                density = max(0.3, density * 0.85)     // thin out on the way down
+                return [.deactivate(voiceID: last), .setDensity(density)]
             }
             return enter(.ending, locked: locked)
 

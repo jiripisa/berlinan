@@ -165,6 +165,50 @@ struct ArrangementSMTests {
         #expect(stopped, "ending must eventually request a transport stop")
     }
 
+    @Test("Ambient mode: fixed change periods at the given bars-per-minute")
+    func ambientPeriods() {
+        var sm = ArrangementSM(
+            config: ArrangementConfig(enabled: true, ambientMode: true),
+            voices: Project.demo.voices, seed: 3, ambientPeriodBars: 22)
+        var gaps: [Int] = []
+        var sinceEvent = 0
+        for _ in 0..<100 {
+            sinceEvent += 1
+            if !sm.tickBar().isEmpty { gaps.append(sinceEvent); sinceEvent = 0 }
+        }
+        #expect(!gaps.isEmpty)
+        #expect(gaps.allSatisfy { $0 == 22 }, "ambient gaps: \(gaps)")
+    }
+
+    @Test("Payoff raises density to 1.0; each subtract step lowers it")
+    func densityDirectives() {
+        var sm = makeSM()
+        let payoffDirectives = advanceUntil(&sm, phase: .payoff)
+        let raised = payoffDirectives.compactMap { d -> Double? in
+            if case .setDensity(let v) = d { return v } else { return nil }
+        }
+        #expect(raised.contains(1.0), "payoff must raise density to 1.0")
+
+        _ = advanceUntil(&sm, phase: .subtract)
+        var lowered: [Double] = []
+        var directives = advanceUntil(&sm, phase: .ending)
+        directives += []
+        for d in directives {
+            if case .setDensity(let v) = d { lowered.append(v) }
+        }
+        #expect(!lowered.isEmpty, "subtract must lower density")
+        #expect(lowered == lowered.sorted(by: >), "each step lowers further")
+        #expect(lowered.allSatisfy { $0 < 1.0 })
+    }
+
+    @Test("Entering bPart fires the bundle directive exactly once")
+    func bPartDirective() {
+        var sm = makeSM()
+        let directives = advanceUntil(&sm, phase: .payoff)
+        let fires = directives.filter { $0 == .fireBPart }.count
+        #expect(fires == 1)
+    }
+
     @Test("Enabling mid-play with every voice already active enters bed")
     func adoptRunningState() {
         var sm = ArrangementSM(config: ArrangementConfig(enabled: true),

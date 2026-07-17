@@ -130,12 +130,13 @@ struct ArrangementLiveTests {
         #expect(stop % bar == 0, "stop must land on a bar boundary")
         #expect(notes.allSatisfy { $0.at < stop },
                 "nothing may sound at or after the stop tick")
-        // The final audible bar belongs to the thinned survivor: roots only
-        // (pedal C → pitch class 0).
+        // The final audible bar belongs to the thinned survivor: roots only —
+        // a single pitch class (the B-part walk may still hold a
+        // transposition in the fast-forwarded arc).
         let lastBarStart = ((notes.map(\.at).max()! / bar)) * bar
         let closing = notes.filter { $0.at >= lastBarStart }
         #expect(closing.allSatisfy { $0.voiceID == "bedPluck1" })
-        #expect(closing.allSatisfy { $0.midiNote % 12 == 0 },
+        #expect(Set(closing.map { $0.midiNote % 12 }).count == 1,
                 "closing bar must be roots only, got \(closing.map(\.midiNote))")
     }
 }
