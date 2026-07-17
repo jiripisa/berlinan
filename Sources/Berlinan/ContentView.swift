@@ -21,6 +21,7 @@ struct ContentView: View {
                     Rectangle().fill(AppColor.line).frame(height: 1)
                     HarmonyStripView(ui: ui, services: services)
                     Rectangle().fill(AppColor.lineSoft).frame(height: 1)
+                    HorizonStripView(ui: ui)
 
                     ScrollView {
                         VStack(spacing: 8) {

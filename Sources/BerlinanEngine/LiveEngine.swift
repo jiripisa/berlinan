@@ -208,6 +208,11 @@ public struct LiveEngine: Sendable {
             public let midiDelayEnabled: Bool
             /// Melody extraction running on this voice (FR-MEL-1).
             public let melodyActive: Bool
+            /// Engine-level activation (FR-A-1): false = the arranger (or a
+            /// manual override) holds this voice back.
+            public let active: Bool
+            /// The voice's next loop-boundary change, if one is queued.
+            public let pendingRequest: PendingRequest?
         }
         public let voices: [VoiceSnapshot]
         /// The effective transposition timeline (incl. live-enqueued events)
@@ -221,27 +226,100 @@ public struct LiveEngine: Sendable {
         public let density: Double
         /// Remaining tension-budget spends (FR-H-7).
         public let tensionRemaining: Int
+        /// Bar-bound changes not yet landed, sorted by bind tick (phase 32).
+        public let upcomingEvents: [UpcomingEvent]
     }
 
     public struct ArrangementStatus: Equatable, Sendable {
         public let phase: ArrangementPhase
         public let barsInPhase: Int
         public let activeVoices: [String]
+        /// Bars until the next timed change (horizon countdown, phase 32).
+        public let barsUntilChange: Int
+    }
+
+    /// A bar-bound change that has not landed yet — the horizon strip's
+    /// narration (phase 32). Read-only mirror of the pending queues.
+    public struct UpcomingEvent: Equatable, Sendable {
+        public enum Kind: String, Sendable {
+            case key, recall, density, bPart, voiceActive, alternating,
+                 tension, promoteToLead, arranger, advance
+        }
+        public let tick: Tick
+        public let kind: Kind
+        /// Short, UI-formattable payload (voice id, value, on/off).
+        public let detail: String
+    }
+
+    /// A voice-level request waiting for its loop boundary (phase 32).
+    public enum PendingRequest: Equatable, Sendable {
+        case blank(Tick)
+        case regenerate(Tick)
+        case replace(Tick)
+        case melodyToggle(Tick)
     }
 
     public func snapshot() -> Snapshot {
-        Snapshot(voices: states.map {
-            Snapshot.VoiceSnapshot(id: $0.voice.id, role: $0.voice.role,
-                                   pattern: $0.voice.pattern,
-                                   blankActive: $0.blankActive,
-                                   midiDelayEnabled: delayConfigs[$0.voice.id]?.enabled ?? false,
-                                   melodyActive: $0.melodyActive)
+        Snapshot(voices: states.map { state in
+            Snapshot.VoiceSnapshot(id: state.voice.id, role: state.voice.role,
+                                   pattern: state.voice.pattern,
+                                   blankActive: state.blankActive,
+                                   midiDelayEnabled: delayConfigs[state.voice.id]?.enabled ?? false,
+                                   melodyActive: state.melodyActive,
+                                   active: state.active,
+                                   pendingRequest: Self.pendingRequest(of: state))
         }, scheduleEvents: schedule.events, key: project.key,
            arrangement: arrangement.map {
                ArrangementStatus(phase: $0.phase, barsInPhase: $0.barsInPhase,
-                                 activeVoices: $0.activeVoices)
+                                 activeVoices: $0.activeVoices,
+                                 barsUntilChange: $0.barsUntilChange)
            },
-           density: density, tensionRemaining: tensionRemaining)
+           density: density, tensionRemaining: tensionRemaining,
+           upcomingEvents: upcomingEvents())
+    }
+
+    private static func pendingRequest(of state: VoiceState) -> PendingRequest? {
+        if let tick = state.blankRequestTick { return .blank(tick) }
+        if let request = state.replaceRequest { return .replace(request.tick) }
+        if let tick = state.regenerateRequestTick { return .regenerate(tick) }
+        if let tick = state.melodyToggleRequestTick { return .melodyToggle(tick) }
+        return nil
+    }
+
+    private func upcomingEvents() -> [UpcomingEvent] {
+        var events: [UpcomingEvent] = pendingChanges.map { entry in
+            switch entry.change {
+            case .key(let key):
+                return UpcomingEvent(tick: entry.tick, kind: .key,
+                                     detail: "\(key.root)")
+            case .recall:
+                return UpcomingEvent(tick: entry.tick, kind: .recall, detail: "")
+            case .density(let value):
+                return UpcomingEvent(tick: entry.tick, kind: .density,
+                                     detail: "\((value * 100).rounded() / 100)")
+            case .bPart:
+                return UpcomingEvent(tick: entry.tick, kind: .bPart, detail: "")
+            case .voiceActive(let id, let on):
+                return UpcomingEvent(tick: entry.tick, kind: .voiceActive,
+                                     detail: "\(id) \(on ? "on" : "off")")
+            case .promoteToLead(let id):
+                return UpcomingEvent(tick: entry.tick, kind: .promoteToLead,
+                                     detail: id)
+            case .alternating(let config):
+                return UpcomingEvent(tick: entry.tick, kind: .alternating,
+                                     detail: config == nil ? "off" : "on")
+            case .tension(let id):
+                return UpcomingEvent(tick: entry.tick, kind: .tension, detail: id)
+            }
+        }
+        events += pendingArrangementEnables.map {
+            UpcomingEvent(tick: $0.tick, kind: .arranger,
+                          detail: $0.on ? "on" : "off")
+        }
+        events += pendingAdvances.map {
+            UpcomingEvent(tick: $0, kind: .advance, detail: "")
+        }
+        return events.sorted { $0.tick < $1.tick }
     }
 
     /// Current transposition offset for a bar — includes live-enqueued events.

@@ -52,7 +52,24 @@ struct VoiceLaneView: View {
             }
             .frame(width: 108, alignment: .leading)
 
-            PatternStripView(ui: ui, voice: voice, identity: identity, dimmed: isMuted)
+            PatternStripView(ui: ui, voice: voice, identity: identity,
+                             dimmed: isMuted || !voice.active)
+                .overlay(alignment: .topTrailing) {
+                    if !voice.active {
+                        Text("WAITS")
+                            .font(AppFont.sansBold(8))
+                            .tracking(AppTracking.label)
+                            .foregroundStyle(AppColor.tangerine)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(AppColor.tangerineGlow)
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(AppColor.tangerineLine,
+                                                      lineWidth: 1))
+                            .padding(4)
+                            .help("The arranger holds this voice back — it joins on a later bar (or right-click ▸ voice on)")
+                    }
+                }
                 .onDrag { ui.dragItem(for: voice.id) ?? NSItemProvider() }
                 .contextMenu {
                     Menu("CC Profile") {
@@ -78,6 +95,9 @@ struct VoiceLaneView: View {
                     }
                     if ui.alternating != nil {
                         Button("Stop Alternation") { ui.setAlternating(nil) }
+                    }
+                    Button(voice.active ? "Voice Off (engine)" : "Voice On (engine)") {
+                        ui.setVoiceActive(voice.id, !voice.active)
                     }
                 }
 

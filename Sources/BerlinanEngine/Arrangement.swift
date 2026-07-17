@@ -89,7 +89,8 @@ public struct ArrangementSM: Sendable {
     /// The SM's density trajectory (FR-A-3): payoff raises, subtract lowers.
     private var density: Double = 1.0
     private var rng: SplitMix64
-    private var barsUntilChange: Int = 0
+    /// Bars left until the next timed change (UI countdown, phase 32).
+    public private(set) var barsUntilChange: Int = 0
     /// Change events consumed inside the current phase (dwell bookkeeping).
     private var eventsInPhase = 0
     private var roundRobin = 0
