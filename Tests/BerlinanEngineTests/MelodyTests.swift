@@ -90,7 +90,7 @@ struct MelodyLiveTests {
         #expect((3...4).contains(Set(bar1.map(\.at)).count)
                 || bar1.count <= 4, "melody bar must carry 3–4 notes")
         #expect(bar1.count < full, "extraction must be sparser than the source")
-        #expect(bar1.allSatisfy(\.accent), "melody notes are the accents")
+        #expect(bar1.allSatisfy { $0.accent }, "melody notes are the accents")
     }
 
     @Test("Toggling extraction off restores the source verbatim")
@@ -98,12 +98,13 @@ struct MelodyLiveTests {
         var engine = LiveEngine(project: soloProject())
         var reference = LiveEngine(project: soloProject())
         engine.enqueue(.extractMelody(voiceID: "bedPluck1"), atTick: 0)
-        engine.enqueue(.extractMelody(voiceID: "bedPluck1"), atTick: bar + 1)
-        let notes = engine.render(range: 0..<(3 * bar))
-        let restored = notes.filter { $0.at >= 2 * bar }
+        _ = engine.render(range: 0..<(2 * bar))            // extraction runs
+        engine.enqueue(.extractMelody(voiceID: "bedPluck1"), atTick: 2 * bar)
+        let notes = engine.render(range: (2 * bar)..<(4 * bar))
+        let restored = notes.filter { $0.at >= 3 * bar }
             .map { "\($0.at % bar)/\($0.midiNote)" }
-        let baseline = reference.render(range: 0..<(3 * bar))
-            .filter { $0.at >= 2 * bar }
+        let baseline = reference.render(range: 0..<(4 * bar))
+            .filter { $0.at >= 3 * bar }
             .map { "\($0.at % bar)/\($0.midiNote)" }
         #expect(restored == baseline)
     }
