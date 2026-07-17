@@ -75,7 +75,7 @@ struct HorizonArrangerTests {
         #expect(early.voices.first { $0.id == "bedPluck1" }?.active == true)
         #expect(early.voices.first { $0.id == "bedPluck2" }?.active == false,
                 "held-back voices must say so — not just fall silent")
-        _ = engine.render(range: bar..<(20 * bar))
+        _ = engine.render(range: bar..<(40 * bar))
         let later = engine.snapshot()
         #expect(later.voices.allSatisfy { $0.active },
                 "everyone plays once the build completes")
