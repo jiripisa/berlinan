@@ -19,6 +19,8 @@ public enum ControlMacro: Codable, Hashable, Sendable {
     case recallSlot(Int)      // 0–5
     /// Arranger "advance now" (FR-A-6); no-op while the autopilot is off.
     case advancePhase
+    /// The S4 move (FR-A-5): progression + bass swap (+ bed drop).
+    case fireBPart
 }
 
 public struct ControlMap: Codable, Equatable, Sendable {

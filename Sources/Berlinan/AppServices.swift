@@ -78,6 +78,29 @@ final class AppServices {
         }
     }
 
+    /// Density macro (FR-A-3): live → bar-quantized action; stopped →
+    /// project value + rebuild.
+    func setDensity(_ value: Double) {
+        let clamped = max(0, min(1, value))
+        project.density = clamped
+        if transport?.isPlaying == true {
+            transport?.enqueue(.setDensity(clamped))
+            transportStale = true
+        } else {
+            rebuildTransport()
+        }
+    }
+
+    /// Ambient mode (FR-A-4). Stopped only — it rescales legitimization at
+    /// materialize time.
+    func setAmbientMode(_ on: Bool) {
+        guard transport?.isPlaying != true else { return }
+        var config = project.arrangement ?? ArrangementConfig()
+        config.ambientMode = on
+        project.arrangement = config
+        rebuildTransport()
+    }
+
     // MARK: - Project mutations
 
     private func rebuildTransport() {
