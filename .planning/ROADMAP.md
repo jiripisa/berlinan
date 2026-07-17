@@ -50,7 +50,7 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 | 24-learn-dnd-profiles | MIDI learn for macros, drag & drop clips (pattern pool + capture), global synth CC profiles | FR-IO-9/10, FR-MOD-5 | ✅ |
 | 25-v1-release | AppIcon, dist smoke (Developer ID + notarized DMG), README, release checklist | NFR-7, workflow §4.5 | ✅ |
 
-## M5 — Arranger & polish → v1.1.0
+## M5 — Arranger & polish → v1.1.0 ✅ (tagged 2026-07-18)
 
 Goal: the app can arrange a whole piece by itself (advisory autopilot, OFF by
 default — performance mode stays the first-run experience) and grow melodies.
@@ -63,4 +63,4 @@ Full scope (P2 + P3) per user decision 2026-07-17; vertical feature slices.
 | 28-melody-extraction | Velocity-accent melody extraction (curation rules, 2-bar inversion, 4-bar growth), lead promotion | FR-MEL-1/2 | ✅ |
 | 29-melody-scheduler | Alternating 4-bar phrase scheduler (never simultaneous), interval tension table + tension-walk scoring, bass-melody mode | FR-MEL-3/4/5 | ✅ |
 | 30-harmony-color | Tension budget (flagged quantizer bypass), stochastic chord layer (pad-voice mode), heartbeat kick voice | FR-H-7/8, FR-V-7 | ✅ |
-| 31-v1.1-release | CHANGELOG, README refresh, version 1.1.0, tag | — | ☐ |
+| 31-v1.1-release | CHANGELOG, README refresh, version 1.1.0, tag | — | ✅ |
