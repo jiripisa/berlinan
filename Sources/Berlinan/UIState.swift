@@ -29,6 +29,8 @@ final class UIState {
     private(set) var density: Double = 1
     /// Remaining tension-budget spends (FR-H-7).
     private(set) var tensionRemaining: Int = 2
+    /// Pending bar-bound changes (horizon strip, phase 32).
+    private(set) var upcomingEvents: [LiveEngine.UpcomingEvent] = []
 
     var project: Project { services.project }
 
@@ -138,6 +140,11 @@ final class UIState {
         services.transport?.enqueue(.extractMelody(voiceID: voiceID))
     }
 
+    /// Engine-level voice on/off (FR-A-6 manual override); next bar.
+    func setVoiceActive(_ voiceID: String, _ on: Bool) {
+        services.transport?.enqueue(.setVoiceActive(voiceID: voiceID, on: on))
+    }
+
     /// Copy the extracted melody to the lead voice (locked legato line).
     func promoteToLead(_ voiceID: String) {
         services.transport?.enqueue(.promoteToLead(voiceID: voiceID))
@@ -225,6 +232,7 @@ final class UIState {
             arrangement = snapshot.arrangement
             density = snapshot.density
             tensionRemaining = snapshot.tensionRemaining
+            upcomingEvents = snapshot.upcomingEvents
         }
         liveBPM = transport.currentBPM
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
