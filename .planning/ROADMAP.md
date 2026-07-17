@@ -58,7 +58,7 @@ Full scope (P2 + P3) per user decision 2026-07-17; vertical feature slices.
 
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
-| 26-arranger-core | Arrangement state machine (Build→Bed→Variation→B-Part→Payoff→Subtract→End), additive build order, engine-level voice activation, manual override (AUTO toggle + advance-now, MIDI-learnable), arranger UI | FR-A-1/2/6 | ☐ |
+| 26-arranger-core | Arrangement state machine (Build→Bed→Variation→B-Part→Payoff→Subtract→End), additive build order, engine-level voice activation, manual override (AUTO toggle + advance-now, MIDI-learnable), arranger UI | FR-A-1/2/6 | ✅ |
 | 27-density-ambient-bpart | Density macro 0–1 (voices, note caps, mutation rate), ambient mode (~1 change/min, legitimization 16/32), B-part event bundle | FR-A-3/4/5 | ☐ |
 | 28-melody-extraction | Velocity-accent melody extraction (curation rules, 2-bar inversion, 4-bar growth), lead promotion | FR-MEL-1/2 | ☐ |
 | 29-melody-scheduler | Alternating 4-bar phrase scheduler (never simultaneous), interval tension table + tension-walk scoring, bass-melody mode | FR-MEL-3/4/5 | ☐ |

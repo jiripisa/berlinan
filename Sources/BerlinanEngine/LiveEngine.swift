@@ -28,6 +28,12 @@ public struct LiveEngine: Sendable {
         /// Runtime key change (FR-GS-5); binds at the next bar. Degree-space
         /// patterns re-root instantly; sounding notes keep their offs.
         case setKey(Key)
+        /// Arrangement autopilot on/off (FR-A-6); binds at the next bar.
+        /// Enabling mid-play adopts the running ensemble.
+        case setArrangementEnabled(Bool)
+        /// Fire the arranger's next change at the next bar ("advance now",
+        /// FR-A-6). No-op while the autopilot is off.
+        case advancePhase
     }
 
     /// Bar-quantized global changes that split the render window.
@@ -55,6 +61,14 @@ public struct LiveEngine: Sendable {
         var replaceRequest: (tick: Tick, pattern: Pattern)? = nil
         var accumBase: Int? = nil
         var accumCycle = 0
+        /// Arrangement activation (FR-A-1/2): inactive voices render nothing
+        /// and their loop position freezes; activation restarts the loop at
+        /// the activation bar.
+        var active = true
+        /// Arrangement pattern requests (FR-A-1) bind at the next loop
+        /// boundary after their bar — like every user action.
+        var nudgeRequestTick: Tick? = nil
+        var accentMoveRequestTick: Tick? = nil
 
         public var pattern: Pattern { voice.pattern }
     }
@@ -72,6 +86,20 @@ public struct LiveEngine: Sendable {
     /// Live-toggleable MIDI-delay state (FR-MOD-7), seeded from the project.
     private var delayConfigs: [String: MIDIDelayConfig] = [:]
 
+    // MARK: Arrangement (FR-A-1/2/6, phase 26)
+
+    /// The autopilot; nil = performance mode (the default).
+    private var arrangement: ArrangementSM? = nil
+    /// First bar-boundary tick not yet processed (chunk-safety cursor).
+    private var arrangementCursor: Tick = 0
+    /// Bar-quantized "advance now" bind ticks, sorted.
+    private var pendingAdvances: [Tick] = []
+    /// Bar-quantized enable/disable requests, sorted by bind tick.
+    private var pendingArrangementEnables: [(tick: Tick, on: Bool)] = []
+    /// Set when the arranger's ending fires: nothing renders at/after this
+    /// bar-aligned tick — the Runtime stops the transport there.
+    public private(set) var pendingStopTick: Tick? = nil
+
     /// True when only the bass participates in transposition (bass reharm).
     private let bassOnly: Bool
 
@@ -88,6 +116,16 @@ public struct LiveEngine: Sendable {
         for config in project.voices {
             if let delay = config.midiDelay {
                 delayConfigs[config.id] = delay
+            }
+        }
+        if let config = project.arrangement, config.enabled {
+            let sm = ArrangementSM(
+                config: config, voices: project.voices,
+                seed: SeedStream.derive(master: project.masterSeed, "arrangement"))
+            arrangement = sm
+            let active = Set(sm.activeVoices)
+            for idx in states.indices where !active.contains(states[idx].voice.id) {
+                states[idx].active = false
             }
         }
     }
@@ -112,6 +150,14 @@ public struct LiveEngine: Sendable {
         public let scheduleEvents: [TranspositionEvent]
         /// The effective key (tracks runtime key changes, FR-GS-5).
         public let key: Key
+        /// Arrangement autopilot mirror (FR-A-1); nil = performance mode.
+        public let arrangement: ArrangementStatus?
+    }
+
+    public struct ArrangementStatus: Equatable, Sendable {
+        public let phase: ArrangementPhase
+        public let barsInPhase: Int
+        public let activeVoices: [String]
     }
 
     public func snapshot() -> Snapshot {
@@ -120,7 +166,11 @@ public struct LiveEngine: Sendable {
                                    pattern: $0.voice.pattern,
                                    blankActive: $0.blankActive,
                                    midiDelayEnabled: delayConfigs[$0.voice.id]?.enabled ?? false)
-        }, scheduleEvents: schedule.events, key: project.key)
+        }, scheduleEvents: schedule.events, key: project.key,
+           arrangement: arrangement.map {
+               ArrangementStatus(phase: $0.phase, barsInPhase: $0.barsInPhase,
+                                 activeVoices: $0.activeVoices)
+           })
     }
 
     /// Current transposition offset for a bar — includes live-enqueued events.
@@ -164,6 +214,15 @@ public struct LiveEngine: Sendable {
             enqueueGlobalChange(.key(key), requestTick: requestTick)
         case .replacePattern(let voiceID, let pattern):
             withState(voiceID) { $0.replaceRequest = (tick: requestTick, pattern: pattern) }
+        case .setArrangementEnabled(let on):
+            let tick = barBindTick(requestTick)
+            let index = pendingArrangementEnables.firstIndex { $0.tick > tick }
+                ?? pendingArrangementEnables.count
+            pendingArrangementEnables.insert((tick: tick, on: on), at: index)
+        case .advancePhase:
+            let tick = barBindTick(requestTick)
+            let index = pendingAdvances.firstIndex { $0 > tick } ?? pendingAdvances.count
+            pendingAdvances.insert(tick, at: index)
         case .setMIDIDelay(let voiceID, let enabled):
             guard let role = states.first(where: { $0.voice.id == voiceID })?.voice.role
             else { return }
@@ -174,12 +233,17 @@ public struct LiveEngine: Sendable {
         }
     }
 
-    private mutating func enqueueGlobalChange(_ change: GlobalChange,
-                                              requestTick: Tick) {
+    /// Next-bar bind tick, never rewriting bars that already rendered.
+    private func barBindTick(_ requestTick: Tick) -> Tick {
         let tick = max(requestTick, renderedUpTo)
         let bar = HarmonyEngine.quantizedEventBar(requestTick: tick,
                                                   meter: project.meter)
-        let bindTick = Tick(bar) * project.meter.ticksPerBar
+        return Tick(bar) * project.meter.ticksPerBar
+    }
+
+    private mutating func enqueueGlobalChange(_ change: GlobalChange,
+                                              requestTick: Tick) {
+        let bindTick = barBindTick(requestTick)
         let index = pendingChanges.firstIndex { $0.tick > bindTick }
             ?? pendingChanges.count
         pendingChanges.insert((tick: bindTick, change: change), at: index)
@@ -220,9 +284,35 @@ public struct LiveEngine: Sendable {
 
     /// Produce all events in the half-open window. Windows must be
     /// consecutive and non-overlapping; any sizes are fine (seam-safe).
+    /// With the arrangement autopilot on (or pending), the window splits at
+    /// every bar boundary so the SM ticks exactly once per bar — and nothing
+    /// renders at/after a requested stop (FR-A-1 ending).
+    public mutating func render(range: Range<Tick>) -> [RenderedNote] {
+        var range = range
+        if let stop = pendingStopTick {
+            guard range.lowerBound < stop else { return [] }
+            range = range.lowerBound..<min(range.upperBound, stop)
+        }
+        guard arrangement != nil || !pendingArrangementEnables.isEmpty else {
+            return renderResolvingChanges(range)
+        }
+        let barTicks = project.meter.ticksPerBar
+        var notes: [RenderedNote] = []
+        var t = range.lowerBound
+        while t < range.upperBound {
+            if t % barTicks == 0 { processArrangementBoundary(at: t) }
+            if let stop = pendingStopTick, t >= stop { break }
+            var end = min(range.upperBound, (t / barTicks + 1) * barTicks)
+            if let stop = pendingStopTick { end = min(end, stop) }
+            notes += renderResolvingChanges(t..<end)
+            t = end
+        }
+        return notes
+    }
+
     /// Pending global changes (recall, key) split the window at their
     /// bar-quantized bind ticks, in queue order.
-    public mutating func render(range: Range<Tick>) -> [RenderedNote] {
+    private mutating func renderResolvingChanges(_ range: Range<Tick>) -> [RenderedNote] {
         if let next = pendingChanges.first, next.tick < range.upperBound {
             var notes: [RenderedNote] = []
             if next.tick > range.lowerBound {
@@ -235,16 +325,83 @@ public struct LiveEngine: Sendable {
             case .key(let key):
                 project.key = key       // everything downstream follows
             }
-            notes += render(range: max(next.tick, range.lowerBound)..<range.upperBound)
+            notes += renderResolvingChanges(
+                max(next.tick, range.lowerBound)..<range.upperBound)
             return notes
         }
         return renderWindow(range)
+    }
+
+    // MARK: - Arrangement boundary (FR-A-1/2/6)
+
+    /// Runs once per bar-boundary tick (the cursor guards against chunked
+    /// windows revisiting a boundary): consume due enable/disable requests,
+    /// then due manual advances, then the SM's own bar clock.
+    private mutating func processArrangementBoundary(at tick: Tick) {
+        guard tick >= arrangementCursor else { return }
+        arrangementCursor = tick + 1
+        var createdHere = false
+        while let first = pendingArrangementEnables.first, first.tick <= tick {
+            pendingArrangementEnables.removeFirst()
+            if first.on && arrangement == nil {
+                var config = project.arrangement ?? ArrangementConfig()
+                config.enabled = true
+                arrangement = ArrangementSM(
+                    config: config, voices: project.voices,
+                    seed: SeedStream.derive(master: project.masterSeed, "arrangement"),
+                    adoptingActive: Set(states.filter(\.active).map(\.voice.id)))
+                createdHere = true
+            } else if !first.on {
+                arrangement = nil       // voices keep their current activity
+            }
+        }
+        guard var sm = arrangement else { return }
+        let locked = Set(states.filter { $0.voice.pattern.locked }.map(\.voice.id))
+        while let first = pendingAdvances.first, first <= tick {
+            pendingAdvances.removeFirst()
+            applyDirectives(sm.advance(locked: locked), at: tick)
+        }
+        if tick > 0 && !createdHere {
+            applyDirectives(sm.tickBar(locked: locked), at: tick)
+        }
+        arrangement = sm
+    }
+
+    private mutating func applyDirectives(_ directives: [ArrangementDirective],
+                                          at tick: Tick) {
+        for directive in directives {
+            switch directive {
+            case .activate(let id):
+                withState(id) {
+                    $0.active = true
+                    $0.segmentStart = tick     // the loop restarts on the bar
+                    $0.blankActive = false
+                }
+            case .deactivate(let id):
+                withState(id) { $0.active = false }
+            case .nudgeMutation(let id):
+                withState(id) { $0.nudgeRequestTick = tick }
+            case .accentMove(let id):
+                withState(id) { $0.accentMoveRequestTick = tick }
+            case .blankCycle(let id):
+                withState(id) { $0.blankRequestTick = tick }
+            case .thinToRoots(let id):
+                // Immediate: the directive already fires exactly on the bar
+                // the ending begins — roots sound from this tick on.
+                withState(id) {
+                    $0.voice.pattern = PatternOps.thinToRoots($0.voice.pattern)
+                }
+            case .requestStop:
+                pendingStopTick = tick
+            }
+        }
     }
 
     private mutating func renderWindow(_ range: Range<Tick>) -> [RenderedNote] {
         guard range.lowerBound < range.upperBound else { return [] }
         var notes: [RenderedNote] = []
         for idx in states.indices {
+            guard states[idx].active else { continue }   // arrangement (FR-A-1)
             var state = states[idx]
             notes += renderVoice(&state, range: range)
             states[idx] = state
@@ -340,6 +497,32 @@ public struct LiveEngine: Sendable {
             state.accumBase = nil
             state.accumCycle = 0
             return
+        }
+
+        // 2c. Arrangement accent move (FR-A-1 variation): counts as the
+        //     cycle's one change — lifecycle restarts like any mutation.
+        if let request = state.accentMoveRequestTick, tick >= request {
+            state.accentMoveRequestTick = nil
+            if !state.voice.pattern.locked {
+                let seed = SeedStream.derive(master: project.masterSeed,
+                                             "voice", state.voice.id,
+                                             "accentMove", String(state.generation))
+                var pattern = PatternOps.moveAccents(state.voice.pattern, seed: seed)
+                pattern.lifecycle = .repeating(remaining: legit.repeats - 1)
+                state.voice.pattern = pattern
+                state.generation += 1
+                return
+            }
+        }
+
+        // 2d. Arrangement mutation nudge (FR-A-1 bed): fast-forward the
+        //     remaining verbatim plays so step 4 mutates at this boundary.
+        //     The arranger waited 8–16 bars — legitimization is served.
+        if let request = state.nudgeRequestTick, tick >= request {
+            state.nudgeRequestTick = nil
+            if !state.voice.pattern.locked {
+                state.voice.pattern.lifecycle = .established
+            }
         }
 
         // 3. Regenerate (user action) beats auto-mutation; ignored while locked.

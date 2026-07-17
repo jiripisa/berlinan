@@ -88,6 +88,9 @@ public struct Project: Codable, Equatable, Sendable {
     public var velocity: VelocityPolicy?
     /// Persisted snapshot slots (FR-L-6, spec §6.6).
     public var snapshots: [LiveEngine.StateSnapshot?]?
+    /// Arrangement autopilot (FR-A-1/2/6). nil = disabled (performance
+    /// mode); 1.0 documents stay valid.
+    public var arrangement: ArrangementConfig?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],
@@ -95,7 +98,8 @@ public struct Project: Codable, Equatable, Sendable {
                 harmony: HarmonyModeConfig? = nil,
                 legitimization: Legitimizer.Config? = nil,
                 velocity: VelocityPolicy? = nil,
-                snapshots: [LiveEngine.StateSnapshot?]? = nil) {
+                snapshots: [LiveEngine.StateSnapshot?]? = nil,
+                arrangement: ArrangementConfig? = nil) {
         self.formatVersion = formatVersion
         self.masterSeed = masterSeed
         self.bpm = bpm
@@ -107,6 +111,7 @@ public struct Project: Codable, Equatable, Sendable {
         self.legitimization = legitimization
         self.velocity = velocity
         self.snapshots = snapshots
+        self.arrangement = arrangement
     }
 }
 

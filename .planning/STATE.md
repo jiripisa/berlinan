@@ -6,7 +6,8 @@
   full scope P2+P3, target v1.1.0. Phase plan: 26 arranger core →
   27 density/ambient/B-part → 28 melody extraction → 29 melody scheduler →
   30 harmony color → 31 release.
-- **Current phase**: 26-arranger-core (PLAN written; implementation starting).
+- **Current phase**: 26-arranger-core DONE 2026-07-17 (247 tests; human
+  checklist pending in its VERIFICATION). Next: 27-density-ambient-bpart.
 - M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and notarized DMG
   built (Developer ID present on this machine).
 - Backlog: runtime METER changes (piecewise meter map design sketch in
@@ -50,6 +51,15 @@
 - none
 
 ## Deferred / watch list
+
+- 2026-07-17 — RESOLVED (root cause found later the same day): the Link
+  test "flake" and a subsequent SIGSEGV (`outlined destroy of
+  LiveEngine.Snapshot`) were both stale SwiftPM incremental artifacts after
+  cross-module struct layout changes (fields added to `Project`, then to
+  `LiveEngine.Snapshot`) — dependents were not rebuilt. Fix: `swift package
+  clean` + full rebuild. RULE: after changing the layout of a public
+  BerlinanEngine struct, run `swift package clean` before trusting test
+  results. (The Link test keeps its condition-based wait — strictly better.)
 
 - ~~LinkKit licensing check before M4 (spec OQ-3)~~ RESOLVED 2026-07-15:
   open source (GPL-2.0-or-later), official abl_link vendored in phase 23

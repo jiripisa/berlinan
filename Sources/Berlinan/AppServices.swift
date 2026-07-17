@@ -63,6 +63,21 @@ final class AppServices {
         }
     }
 
+    /// Arrangement autopilot toggle (FR-A-6). Playing → live action at the
+    /// next bar (adopts the running ensemble); stopped → project config +
+    /// transport rebuild (play starts in Intro/Build).
+    func setArrangerEnabled(_ on: Bool) {
+        var config = project.arrangement ?? ArrangementConfig()
+        config.enabled = on
+        project.arrangement = config
+        if transport?.isPlaying == true {
+            transport?.enqueue(.setArrangementEnabled(on))
+            transportStale = true
+        } else {
+            rebuildTransport()
+        }
+    }
+
     // MARK: - Project mutations
 
     private func rebuildTransport() {

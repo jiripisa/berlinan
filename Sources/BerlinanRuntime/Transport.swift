@@ -416,6 +416,27 @@ public final class Transport: @unchecked Sendable {
             latestOffset = offset
             lock.unlock()
 
+            // Arranger ending (FR-A-1): the engine renders nothing at/after
+            // its stop tick — wait for that musical moment, then shut down
+            // from inside the loop (a self-stop; external stop() sees
+            // running == false and stays out of the way).
+            if let stopTick = engine.pendingStopTick, renderHead >= stopTick {
+                let stopMach = clock.machTime(forTick: stopTick)
+                while mach_absolute_time() < stopMach && isPlaying {
+                    Thread.sleep(forTimeInterval: 0.005)
+                }
+                lock.lock()
+                let stillRunningNow = running
+                running = false
+                activeClock = nil
+                lock.unlock()
+                if stillRunningNow {
+                    if emitClock { midi.send([(hostTime: 0, event: .stop)]) }
+                    midi.flush()                             // FR-IO-8
+                }
+                return
+            }
+
             Thread.sleep(forTimeInterval: wakeInterval)
         }
     }

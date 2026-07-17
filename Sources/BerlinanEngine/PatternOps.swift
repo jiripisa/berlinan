@@ -60,6 +60,23 @@ public enum PatternOps {
 
     /// "Keep the notes, move the accents" (M §5.8): relocate one accent to a
     /// different note; pitches, times, velocities and gates stay untouched.
+    /// Ending move (M §12.4, FR-A-1): keep only root-degree notes; a pattern
+    /// with no root retunes its first note instead. Arrives locked and
+    /// established — the piece is over, nothing may mutate it further.
+    public static func thinToRoots(_ pattern: Pattern) -> Pattern {
+        var out = pattern
+        let roots = out.notes.filter { $0.pitch.degree == 0 }
+        if roots.isEmpty, var first = out.notes.first {
+            first.pitch.degree = 0
+            out.notes = [first]
+        } else {
+            out.notes = roots
+        }
+        out.locked = true
+        out.lifecycle = .established
+        return out
+    }
+
     public static func moveAccents(_ pattern: Pattern, seed: UInt64) -> Pattern {
         var rng = SplitMix64(seed: seed)
         var out = pattern
