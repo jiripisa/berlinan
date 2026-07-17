@@ -36,6 +36,15 @@ struct ControlMapTests {
         #expect(back.macro(for: .cc(channel: 0, number: 30)) == .advancePhase)
     }
 
+    @Test("fireBPart macro (FR-A-5) binds and round-trips")
+    func fireBPartMacro() throws {
+        var map = ControlMap()
+        map.bind(.fireBPart, to: .note(channel: 0, number: 41))
+        let data = try JSONEncoder().encode(map)
+        let back = try JSONDecoder().decode(ControlMap.self, from: data)
+        #expect(back.macro(for: .note(channel: 0, number: 41)) == .fireBPart)
+    }
+
     @Test("JSON persistence round-trip")
     func persistence() throws {
         var map = ControlMap()
