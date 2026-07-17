@@ -6,10 +6,16 @@
   Full P2+P3 scope shipped: arranger autopilot, density, ambient, B-part,
   melody engine (extraction/promotion/alternation/tension), bassMelody +
   chordLayer + heartbeat generators, tension budget.
-- **Next entry point**: no milestone open. Candidates: GitHub publication
-  (open source; NEEDS explicit push confirmation), backlog runtime METER
-  changes, M6 ideas (arrangement presets, chord-layer voicings, more kick
-  patterns).
+- **Milestone**: M6 IN PROGRESS (opened 2026-07-18) — "The Long Piece",
+  target v1.2.0. Phases: 32 horizon strip → 33 drone+slides → 34 CC scenes
+  → 35 form templates → 36 template gallery → 37 release. Scope approved by
+  user from the musician+UX two-lens review.
+- **Current phase**: 32-horizon-strip.
+- 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
+  (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
+  Public release still pending user decision.
+- 2026-07-18 — `examples/full_ensemble.berlinan` showcase added (6 voices:
+  chord layer, bassMelody, heartbeat, lead for promotion).
 - Pending human checks (26-31): see the phase VERIFICATIONs — AUTO arc,
   DENS/B/T moves, melody extraction + promotion, alternation, ambient jam,
   and the 1.1 dist re-run below.
