@@ -51,6 +51,14 @@
 
 ## Deferred / watch list
 
+- 2026-07-17 — Link transport test flaked (currentBPM stayed 90 for 0.5 s,
+  ~5 consecutive runs, then vanished; unreproducible). Investigated:
+  LinkService tempo round-trip correct, disabled instances see no network
+  peers (Ableton Live was running), no source diff between failing and
+  passing binaries. Test now polls up to 2 s instead of sampling one
+  instant. If it recurs: instrument `link.tempo()` inside the scheduler's
+  start block and per-wake re-anchor first.
+
 - ~~LinkKit licensing check before M4 (spec OQ-3)~~ RESOLVED 2026-07-15:
   open source (GPL-2.0-or-later), official abl_link vendored in phase 23
 - ~~AppIcon.png not yet created~~ RESOLVED 2026-07-15 (phase 25)

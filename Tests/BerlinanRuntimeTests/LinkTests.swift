@@ -66,10 +66,21 @@ struct LinkTransportTests {
         transport.linkService?.setTempo(133)
 
         transport.play()
-        Thread.sleep(forTimeInterval: 0.5)
+        // Condition-based wait: the per-wake re-anchor normally converges in
+        // one wake (25 ms). 2026-07-17 a since-unreproduced flake held 90 for
+        // a full 0.5 s (see STATE watch list), so poll generously instead of
+        // sampling one instant.
+        var waited = 0.0
+        while waited < 2.0 {
+            let converged = abs(transport.currentBPM - 133) < 1.0
+            let ticking = (transport.currentTick ?? 0) > 0
+            if converged && ticking { break }
+            Thread.sleep(forTimeInterval: 0.05)
+            waited += 0.05
+        }
         #expect(transport.isPlaying)
         #expect(abs(transport.currentBPM - 133) < 1.0,
-                "got \(transport.currentBPM)")
+                "got \(transport.currentBPM) after \(waited)s")
         let tick = try #require(transport.currentTick)
         #expect(tick > 0)
 
