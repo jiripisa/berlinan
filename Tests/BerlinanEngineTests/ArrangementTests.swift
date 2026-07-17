@@ -144,8 +144,8 @@ struct ArrangementSMTests {
     @Test("Subtract deactivates in reverse build order down to one voice")
     func subtractReverses() {
         var sm = makeSM()
-        _ = advanceUntil(&sm, phase: .subtract)
-        let directives = advanceUntil(&sm, phase: .ending)
+        var directives = advanceUntil(&sm, phase: .subtract)
+        directives += advanceUntil(&sm, phase: .ending)
         let deactivations = directives.compactMap { d -> String? in
             if case .deactivate(let id) = d { return id } else { return nil }
         }
