@@ -25,6 +25,10 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
     /// (odd tone counts phase naturally against the meter).
     case arpeggiator(chordDegrees: [Int], octaves: Int, direction: ArpDirection,
                      rate: ArpRate)
+    /// M §8.4 (FR-MEL-5) — progression roots on the downbeats, scale
+    /// passing tones walking toward the next bar's root. Deterministic:
+    /// the walk IS the harmony, no dice.
+    case bassMelody(bars: Int)
 
     var generatorID: GeneratorID {
         switch self {
@@ -34,12 +38,16 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
         case .drunkardsWalk:  return .drunkardsWalk
         case .stagedPluck:    return .stagedPluck
         case .arpeggiator:    return .arpeggiator
+        case .bassMelody:     return .bassMelody
         }
     }
 
-    /// All current generators draw from the seed stream (used by tests to
-    /// assert the seed is not ignored).
-    var usesRandomness: Bool { true }
+    /// All generators except the bass melody draw from the seed stream
+    /// (used by tests to assert the seed is not ignored).
+    var usesRandomness: Bool {
+        if case .bassMelody = self { return false }
+        return true
+    }
 }
 
 public enum PatternFactory {
@@ -74,12 +82,62 @@ public enum PatternFactory {
                                        key: key, meter: meter, rng: &rng)
             length = expansion.length
             notes = expansion.notes
+        case let .bassMelody(bars):
+            // Without a schedule the walk is a pedal — the real path goes
+            // through `makeBassMelody` (OfflineRenderer supplies the
+            // resolved transposition schedule).
+            return makeBassMelody(id: id, bars: bars, schedule: .pedal,
+                                  meter: meter, seed: seed)
         }
 
         return Pattern(
             id: id, length: length, notes: notes,
             provenance: Provenance(generator: config.generatorID, version: 1, seed: seed)
         )
+    }
+
+    /// Bass melody (FR-MEL-5, M §8.4): beat 1 states the bar's progression
+    /// root; the bar's tail walks stepwise (|Δ| ≤ 2 by construction) toward
+    /// the next bar's root — wrapping, so the loop closes on itself.
+    public static func makeBassMelody(id: String, bars: Int,
+                                      schedule: TranspositionSchedule,
+                                      meter: Meter, seed: UInt64) -> Pattern {
+        precondition(bars >= 1)
+        var notes: [PatternNote] = []
+        let beatTicks = meter.ticksPerBeat
+        for barIdx in 0..<bars {
+            let root = schedule.offset(atBar: barIdx)
+            let next = schedule.offset(atBar: (barIdx + 1) % bars)
+            let delta = next - root
+            let passing = delta == 0
+                ? 1                                     // turnaround dip
+                : max(0, min(meter.beatsPerBar - 1, abs(delta) - 1))
+            let barStart = Tick(barIdx) * meter.ticksPerBar
+            let heldBeats = max(1, meter.beatsPerBar - passing)
+            notes.append(PatternNote(position: barStart,
+                                     pitch: DegreePitch(degree: root),
+                                     gate: Tick(heldBeats) * beatTicks,
+                                     accent: true))
+            var previous = root
+            if passing > 0 {
+                for k in 1...passing {
+                    let degree = delta == 0
+                        ? root - 1
+                        : root + Int((Double(delta) * Double(k)
+                                      / Double(passing + 1)).rounded())
+                    guard degree != previous else { continue }
+                    let beat = meter.beatsPerBar - passing + (k - 1)
+                    notes.append(PatternNote(position: barStart + Tick(beat) * beatTicks,
+                                             pitch: DegreePitch(degree: degree),
+                                             gate: beatTicks))
+                    previous = degree
+                }
+            }
+        }
+        return Pattern(id: id, length: Tick(bars) * meter.ticksPerBar,
+                       notes: notes,
+                       provenance: Provenance(generator: .bassMelody,
+                                              version: 1, seed: seed))
     }
 
     // MARK: - Shared helpers

@@ -52,7 +52,13 @@ struct DelayCheatSheetView: View {
     }
 
     private func row(for voice: VoiceConfig) -> some View {
-        let hint = DelayHint.compute(role: voice.role, bpm: services.project.bpm)
+        let alt = services.project.alternating
+        let slot: Int? = alt.flatMap {
+            voice.id == $0.voiceA ? 0 : (voice.id == $0.voiceB ? 1 : nil)
+        }
+        let hint = DelayHint.compute(role: voice.role,
+                                     bpm: services.project.bpm,
+                                     alternationSlot: slot)
         let midiDelayOn = voice.midiDelay?.enabled == true
         return HStack {
             Text(voice.id)

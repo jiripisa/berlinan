@@ -95,6 +95,8 @@ public struct Project: Codable, Equatable, Sendable {
     public var density: Double?
     /// B-part bundle configuration (FR-A-5); nil = the default S4 move.
     public var bPart: BPartConfig?
+    /// Alternating phrase scheduler (FR-MEL-3); nil = off.
+    public var alternating: AlternatingConfig?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],

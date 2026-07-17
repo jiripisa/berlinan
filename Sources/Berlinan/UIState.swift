@@ -114,6 +114,14 @@ final class UIState {
 
     var hasLeadVoice: Bool { project.voices.contains { $0.role == .lead } }
 
+    /// Alternating phrase scheduler (FR-MEL-3).
+    var alternating: AlternatingConfig? { project.alternating }
+
+    func setAlternating(_ config: AlternatingConfig?) {
+        services.setAlternating(config)
+        refresh()
+    }
+
     /// Melody extraction toggle — binds at the voice's next loop boundary.
     func toggleMelody(_ voiceID: String) {
         services.transport?.enqueue(.extractMelody(voiceID: voiceID))

@@ -52,6 +52,7 @@ public enum GeneratorID: String, Codable, Sendable {
     case drunkardsWalk      // M §13.2 (P2)
     case stagedPluck        // M §5.6 (P2)
     case arpeggiator        // M §5.9 (P2)
+    case bassMelody         // M §8.4 (P3, FR-MEL-5)
     case handEdited         // producer edits (FR-P-7)
 }
 

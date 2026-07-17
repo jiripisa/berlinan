@@ -4,6 +4,40 @@
 /// manual prescribes it), so extracted patterns arrive locked against the
 /// Legitimizer, like accumulators are exempt from the verbatim rule.
 
+/// Alternating phrase scheduler (FR-MEL-3, M §8.3): two voices own
+/// complementary phrase slots and are guaranteed never to sound together —
+/// onsets filter by slot, gates clamp at the slot edge.
+public struct AlternatingConfig: Codable, Equatable, Sendable {
+    public var voiceA: String
+    public var voiceB: String
+    public var phraseBars: Int
+
+    public init(voiceA: String, voiceB: String, phraseBars: Int = 4) {
+        precondition(phraseBars >= 1)
+        self.voiceA = voiceA
+        self.voiceB = voiceB
+        self.phraseBars = phraseBars
+    }
+}
+
+/// The manual's interval tension table (M §4.4, FR-MEL-4): 0 = rest,
+/// 10 = maximum pull. Intervals fold to one octave.
+public enum TensionTable {
+    public static func score(semitones: Int) -> Int {
+        switch ((semitones % 12) + 12) % 12 {
+        case 0:      return 0    // unison / octave — home
+        case 7:      return 1    // perfect fifth — stable
+        case 5:      return 2    // perfect fourth
+        case 3, 4:   return 3    // thirds — mild color
+        case 9:      return 4    // major sixth
+        case 2, 8:   return 5    // major second / minor sixth
+        case 10:     return 6    // minor seventh
+        case 6, 11:  return 9    // tritone / major seventh — tense
+        default:     return 10   // minor second — maximum pull
+        }
+    }
+}
+
 public enum Melody {
 
     /// Curated accent picks (M §8.1 steps 2–3): prefer on-beat, never
@@ -24,11 +58,37 @@ public enum Melody {
         return select(from: complement, pattern: pattern, meter: meter, seed: seed)
     }
 
-    /// The 4-bar growth (M §8.1 step 6): the single best unused note.
+    /// The 4-bar growth (M §8.1 step 6), scored by the interval tension
+    /// table against the melody note preceding the candidate (FR-MEL-4).
+    /// The tension-walk contour is the default policy: walk position 0
+    /// wants the tensest available note, positions 1–2 want release.
     public static func growthPick(pattern: Pattern, current: Set<Int>,
-                                  meter: Meter) -> Int? {
-        rank(pattern.notes.indices.filter { !current.contains($0) },
-             pattern: pattern, meter: meter).first
+                                  meter: Meter, key: Key, referenceC: Int,
+                                  walkPosition: Int) -> Int? {
+        let candidates = pattern.notes.indices.filter { !current.contains($0) }
+        guard !candidates.isEmpty else { return nil }
+        guard !current.isEmpty else {
+            return rank(candidates, pattern: pattern, meter: meter).first
+        }
+        let sortedCurrent = current.sorted {
+            pattern.notes[$0].position < pattern.notes[$1].position
+        }
+        func semis(_ idx: Int) -> Int {
+            key.resolve(pattern.notes[idx].pitch, referenceC: referenceC)
+        }
+        func tension(_ idx: Int) -> Int {
+            let position = pattern.notes[idx].position
+            let previous = sortedCurrent.last {
+                pattern.notes[$0].position < position
+            } ?? sortedCurrent.last!
+            return TensionTable.score(semitones: abs(semis(idx) - semis(previous)))
+        }
+        let wantTense = walkPosition % 3 == 0
+        return candidates.sorted { a, b in
+            let ta = tension(a), tb = tension(b)
+            if ta != tb { return wantTense ? ta > tb : ta < tb }
+            return pattern.notes[a].position < pattern.notes[b].position
+        }.first
     }
 
     /// The sounding extraction: picked notes only, all accented; locked and

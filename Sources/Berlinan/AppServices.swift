@@ -91,6 +91,18 @@ final class AppServices {
         }
     }
 
+    /// Alternating phrase scheduler (FR-MEL-3): live → bar-quantized
+    /// action; stopped → project value + rebuild.
+    func setAlternating(_ config: AlternatingConfig?) {
+        project.alternating = config
+        if transport?.isPlaying == true {
+            transport?.enqueue(.setAlternating(config))
+            transportStale = true
+        } else {
+            rebuildTransport()
+        }
+    }
+
     /// Ambient mode (FR-A-4). Stopped only — it rescales legitimization at
     /// materialize time.
     func setAmbientMode(_ on: Bool) {
