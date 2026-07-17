@@ -50,6 +50,17 @@ Goal: `swift run berlinan-cli render project.json --bars 64 -o out.mid` produces
 | 24-learn-dnd-profiles | MIDI learn for macros, drag & drop clips (pattern pool + capture), global synth CC profiles | FR-IO-9/10, FR-MOD-5 | ✅ |
 | 25-v1-release | AppIcon, dist smoke (Developer ID + notarized DMG), README, release checklist | NFR-7, workflow §4.5 | ✅ |
 
-## M5 — Arranger & polish
+## M5 — Arranger & polish → v1.1.0
 
-Arrangement state machine, ambient mode, melody engine, tension budget, chord layer.
+Goal: the app can arrange a whole piece by itself (advisory autopilot, OFF by
+default — performance mode stays the first-run experience) and grow melodies.
+Full scope (P2 + P3) per user decision 2026-07-17; vertical feature slices.
+
+| Phase | Scope | FR-IDs | Status |
+|---|---|---|---|
+| 26-arranger-core | Arrangement state machine (Build→Bed→Variation→B-Part→Payoff→Subtract→End), additive build order, engine-level voice activation, manual override (AUTO toggle + advance-now, MIDI-learnable), arranger UI | FR-A-1/2/6 | ☐ |
+| 27-density-ambient-bpart | Density macro 0–1 (voices, note caps, mutation rate), ambient mode (~1 change/min, legitimization 16/32), B-part event bundle | FR-A-3/4/5 | ☐ |
+| 28-melody-extraction | Velocity-accent melody extraction (curation rules, 2-bar inversion, 4-bar growth), lead promotion | FR-MEL-1/2 | ☐ |
+| 29-melody-scheduler | Alternating 4-bar phrase scheduler (never simultaneous), interval tension table + tension-walk scoring, bass-melody mode | FR-MEL-3/4/5 | ☐ |
+| 30-harmony-color | Tension budget (flagged quantizer bypass), stochastic chord layer (pad-voice mode), heartbeat kick voice | FR-H-7/8, FR-V-7 | ☐ |
+| 31-v1.1-release | CHANGELOG, README refresh, version 1.1.0, tag | — | ☐ |

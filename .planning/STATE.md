@@ -2,11 +2,13 @@
 
 ## Current position
 
-- **Milestone**: M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and
-  notarized DMG built (Developer ID present on this machine).
-- **Next entry point**: M5 — arranger & polish (arrangement state machine,
-  ambient mode, melody engine, tension budget, chord layer). No phase
-  plans written yet.
+- **Milestone**: M5 IN PROGRESS (opened 2026-07-17) — arranger & polish,
+  full scope P2+P3, target v1.1.0. Phase plan: 26 arranger core →
+  27 density/ambient/B-part → 28 melody extraction → 29 melody scheduler →
+  30 harmony color → 31 release.
+- **Current phase**: 26-arranger-core (PLAN written; implementation starting).
+- M4 CLOSED 2026-07-15 (tag v1.0.0, 224 tests). Signed and notarized DMG
+  built (Developer ID present on this machine).
 - Backlog: runtime METER changes (piecewise meter map design sketch in
   phases/21 PLAN).
 - Pending human checks (19): hand edit audible + survives save/reopen;
@@ -26,6 +28,11 @@
   M2 live jamming — carried as a watch-list item).
 
 ## Decisions log
+
+- 2026-07-17 — M5 scope: FULL (P2 + P3 — all of FR-A-*, FR-MEL-*, FR-H-7/8,
+  FR-V-7), vertical feature slices (arranger first). User decision.
+- 2026-07-17 — Arrangement SM is OFF by default (performance mode is the
+  first-run experience); the automaton is advisory (FR-A-6). User decision.
 
 - 2026-07-14 — CLI product named `berlinan-cli` (not `berlinan`): a product named
   `berlinan` would collide with the `Berlinan` app product in SPM's build
