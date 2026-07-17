@@ -21,19 +21,20 @@ private func soloProject() -> Project {
 struct DensityCapTests {
 
     private func makePattern() -> Pattern {
-        var p = Pattern(id: "t", length: bar, notes: [])
         func note(_ sixteenth: Int, degree: Int, accent: Bool) -> PatternNote {
             PatternNote(position: Tick(sixteenth) * (beat / 4),
                         pitch: DegreePitch(degree: degree, octave: 0),
                         gate: 60, accent: accent)
         }
-        p.notes = [note(0, degree: 0, accent: false),
-                   note(3, degree: 2, accent: true),
-                   note(4, degree: 4, accent: false),
-                   note(7, degree: 1, accent: false),
-                   note(10, degree: 3, accent: true),
-                   note(14, degree: 5, accent: false)]
-        return p
+        return Pattern(id: "t", length: bar,
+                       notes: [note(0, degree: 0, accent: false),
+                               note(3, degree: 2, accent: true),
+                               note(4, degree: 4, accent: false),
+                               note(7, degree: 1, accent: false),
+                               note(10, degree: 3, accent: true),
+                               note(14, degree: 5, accent: false)],
+                       provenance: Provenance(generator: .seedProcedure,
+                                              version: 1, seed: 1))
     }
 
     @Test("Density 1 is the identity")
