@@ -26,6 +26,16 @@ struct ControlMapTests {
         #expect(map.macro(for: .note(channel: 1, number: 36)) == .newSeed)
     }
 
+    @Test("advancePhase macro (FR-A-6) binds and round-trips")
+    func advancePhaseMacro() throws {
+        var map = ControlMap()
+        map.bind(.advancePhase, to: .cc(channel: 0, number: 30))
+        #expect(map.macro(for: .cc(channel: 0, number: 30)) == .advancePhase)
+        let data = try JSONEncoder().encode(map)
+        let back = try JSONDecoder().decode(ControlMap.self, from: data)
+        #expect(back.macro(for: .cc(channel: 0, number: 30)) == .advancePhase)
+    }
+
     @Test("JSON persistence round-trip")
     func persistence() throws {
         var map = ControlMap()
