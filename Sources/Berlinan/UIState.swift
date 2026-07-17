@@ -110,6 +110,20 @@ final class UIState {
 
     var ambientMode: Bool { project.arrangement?.ambientMode ?? false }
 
+    // MARK: - Melody (FR-MEL-1/2)
+
+    var hasLeadVoice: Bool { project.voices.contains { $0.role == .lead } }
+
+    /// Melody extraction toggle — binds at the voice's next loop boundary.
+    func toggleMelody(_ voiceID: String) {
+        services.transport?.enqueue(.extractMelody(voiceID: voiceID))
+    }
+
+    /// Copy the extracted melody to the lead voice (locked legato line).
+    func promoteToLead(_ voiceID: String) {
+        services.transport?.enqueue(.promoteToLead(voiceID: voiceID))
+    }
+
     /// Ambient mode (FR-A-4). Stopped-only (it rescales legitimization at
     /// materialize time); the toggle is disabled while playing.
     func setAmbientMode(_ on: Bool) {

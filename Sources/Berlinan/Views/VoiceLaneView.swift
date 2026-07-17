@@ -62,6 +62,11 @@ struct VoiceLaneView: View {
                             }
                         }
                     }
+                    if voice.melodyActive && ui.hasLeadVoice {
+                        Button("Promote Melody to Lead") {
+                            ui.promoteToLead(voice.id)
+                        }
+                    }
                 }
 
             VStack(spacing: 6) {
@@ -98,6 +103,14 @@ struct VoiceLaneView: View {
                                activeColor: AppColor.cyan,
                                help: "MIDI delay — echoes as notes (use when no audio delay is available)") {
                         ui.toggleMIDIDelay(voice.id)
+                    }
+                }
+                HStack(spacing: 6) {
+                    laneButton("music.note",
+                               active: voice.melodyActive,
+                               activeColor: AppColor.tangerine,
+                               help: "Melody extraction (M §8.1): mute all, raise 3–4 accents; evolves every few bars. Toggle off restores the pattern") {
+                        ui.toggleMelody(voice.id)
                     }
                 }
             }
