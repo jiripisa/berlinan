@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Bass melody walks are seeded now (user feedback): regenerate and New
+  Seed produce a NEW walk telling the SAME harmony — downbeat roots stay
+  the progression's law; the seed shapes the path, syncopation and octave
+  dips. Deterministic voices (drone, heartbeat) disable their regenerate
+  button and say why.
+
 ## 1.2.0 — 2026-07-18 (M6 — the long piece)
 
 Trust and dramaturgy: the app narrates what it is about to do, and a piece

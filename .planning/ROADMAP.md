@@ -82,3 +82,9 @@ musician + UX designer review (user-approved).
 | 37-v1.2-release | CHANGELOG, README, version 1.2.0, tag | — | ✅ |
 
 Deferred to M7: capture browser, runtime meter changes (backlog).
+
+## Interim (post-1.2 user feedback)
+
+| Phase | Scope | FR-IDs | Status |
+|---|---|---|---|
+| 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
