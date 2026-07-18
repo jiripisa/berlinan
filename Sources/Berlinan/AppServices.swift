@@ -103,6 +103,13 @@ final class AppServices {
         }
     }
 
+    /// Arrangement form preset (phase 35). Stopped only.
+    func setArrangerForm(_ config: ArrangementConfig) {
+        guard transport?.isPlaying != true else { return }
+        project.arrangement = config
+        rebuildTransport()
+    }
+
     /// Ambient mode (FR-A-4). Stopped only — it rescales legitimization at
     /// materialize time.
     func setAmbientMode(_ on: Bool) {

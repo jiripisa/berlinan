@@ -138,6 +138,17 @@ struct PerformancePanelView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Arranger autopilot: builds, varies, subtracts and ends the piece by itself — you stay in charge (every move is also a manual control)")
+                .contextMenu {
+                    Button("Classic arc (8–16 bars, reprise)") {
+                        ui.setArrangerForm(.classicArc)
+                    }
+                    Button("Slow build (12–24 bars, reprise)") {
+                        ui.setArrangerForm(.slowBuild)
+                    }
+                    Button("Ambient plateau (~1 change/min)") {
+                        ui.setArrangerForm(.ambientPlateau)
+                    }
+                }
 
                 if let status = ui.arrangement {
                     Text("\(phaseLabel(status.phase)) · \(status.barsInPhase)")

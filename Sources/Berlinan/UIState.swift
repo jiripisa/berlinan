@@ -165,6 +165,12 @@ final class UIState {
         refresh()
     }
 
+    /// Arrangement form preset (phase 35). Stopped-only.
+    func setArrangerForm(_ config: ArrangementConfig) {
+        services.setArrangerForm(config)
+        refresh()
+    }
+
     /// CC profile application (FR-MOD-5).
     func applyProfile(_ profile: CCProfile, to voiceID: String) {
         services.updateVoiceCCMap(voiceID, map: profile.map)
