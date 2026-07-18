@@ -173,4 +173,71 @@ struct BassMelodyTests {
             #expect(delta <= 2, "step \(pair.0.pitch.degree)→\(pair.1.pitch.degree)")
         }
     }
+
+    @Test("The walk's laws hold for every seed; seeds vary the walk (phase 38)")
+    func seededVariety() {
+        var signatures: Set<String> = []
+        for seed in UInt64(1)...16 {
+            let pattern = PatternFactory.makeBassMelody(
+                id: "t", bars: 3,
+                schedule: TranspositionSchedule(events: [
+                    TranspositionEvent(bar: 0, degreeOffset: 0),
+                    TranspositionEvent(bar: 1, degreeOffset: 5),
+                    TranspositionEvent(bar: 2, degreeOffset: 3),
+                ]),
+                meter: .fourFour, seed: seed)
+            // Laws: downbeat roots, ≤2-degree steps incl. the wrap.
+            for (barIndex, expected) in [0, 5, 3].enumerated() {
+                let downbeat = pattern.notes.first {
+                    $0.position == Tick(barIndex) * bar
+                }
+                #expect(downbeat?.pitch.degree == expected, "seed \(seed)")
+            }
+            let sorted = pattern.notes.sorted { $0.position < $1.position }
+            for pair in zip(sorted, sorted.dropFirst()) {
+                #expect(abs(pair.1.pitch.degree - pair.0.pitch.degree) <= 2,
+                        "seed \(seed)")
+            }
+            let wrapDelta = abs((sorted.first?.pitch.degree ?? 0)
+                                - (sorted.last?.pitch.degree ?? 0))
+            #expect(wrapDelta <= 2, "seed \(seed): the loop must close stepwise")
+            signatures.insert(sorted
+                .map { "\($0.position)/\($0.pitch.degree)/\($0.pitch.octave)" }
+                .joined(separator: ","))
+            // Determinism: the same seed reproduces itself.
+            let again = PatternFactory.makeBassMelody(
+                id: "t", bars: 3,
+                schedule: TranspositionSchedule(events: [
+                    TranspositionEvent(bar: 0, degreeOffset: 0),
+                    TranspositionEvent(bar: 1, degreeOffset: 5),
+                    TranspositionEvent(bar: 2, degreeOffset: 3),
+                ]),
+                meter: .fourFour, seed: seed)
+            #expect(again.notes == pattern.notes, "seed \(seed)")
+        }
+        #expect(signatures.count >= 4,
+                "16 seeds must produce real variety, got \(signatures.count)")
+    }
+
+    @Test("Live regenerate re-rolls the bass walk (phase 38)")
+    func regenerateVaries() {
+        var project = walkProject()
+        project.transposition = TranspositionSchedule(events: [
+            TranspositionEvent(bar: 0, degreeOffset: 0),
+            TranspositionEvent(bar: 1, degreeOffset: 5),
+            TranspositionEvent(bar: 2, degreeOffset: 3),
+        ])
+        project.voices[0].generator = .bassMelody(bars: 3)
+        var engine = LiveEngine(project: project)
+        func signature() -> String {
+            engine.voiceState(id: "bass")!.pattern.notes
+                .map { "\($0.position)/\($0.pitch.degree)/\($0.pitch.octave)" }
+                .joined(separator: ",")
+        }
+        let before = signature()
+        engine.enqueue(.regenerate(voiceID: "bass"), atTick: 0)
+        _ = engine.render(range: 0..<(4 * bar))
+        #expect(signature() != before,
+                "regenerate must produce a different walk over the same harmony")
+    }
 }

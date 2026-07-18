@@ -55,12 +55,13 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
     }
 
     /// Most generators draw from the seed stream (used by tests to assert
-    /// the seed is not ignored); the bass melody and heartbeat are the
-    /// deterministic exceptions.
+    /// the seed is not ignored); the heartbeat and drone are the
+    /// deterministic exceptions (bassMelody re-rolls its walk since
+    /// phase 38 — the roots stay the harmony's).
     var usesRandomness: Bool {
         switch self {
-        case .bassMelody, .heartbeat, .drone: return false
-        default:                              return true
+        case .heartbeat, .drone: return false
+        default:                 return true
         }
     }
 }
@@ -151,42 +152,81 @@ public enum PatternFactory {
         return notes
     }
 
-    /// Bass melody (FR-MEL-5, M §8.4): beat 1 states the bar's progression
-    /// root; the bar's tail walks stepwise (|Δ| ≤ 2 by construction) toward
-    /// the next bar's root — wrapping, so the loop closes on itself.
+    /// Bass melody (FR-MEL-5, M §8.4; seeded in phase 38): beat 1 states
+    /// the bar's progression root — that is the LAW. The seed decides HOW
+    /// the walk gets to the next root: passing-tone count, the constrained
+    /// stepwise path (|Δ| ≤ 2 by construction, wrap included), occasional
+    /// off-beat syncopation and octave dips. Regenerate = a new line
+    /// telling the same harmony.
     public static func makeBassMelody(id: String, bars: Int,
                                       schedule: TranspositionSchedule,
                                       meter: Meter, seed: UInt64) -> Pattern {
         precondition(bars >= 1)
+        var rng = SplitMix64(seed: seed)
         var notes: [PatternNote] = []
         let beatTicks = meter.ticksPerBeat
         for barIdx in 0..<bars {
             let root = schedule.offset(atBar: barIdx)
             let next = schedule.offset(atBar: (barIdx + 1) % bars)
             let delta = next - root
-            let passing = delta == 0
-                ? 1                                     // turnaround dip
-                : max(0, min(meter.beatsPerBar - 1, abs(delta) - 1))
+            let maxSlots = meter.beatsPerBar - 1
+            // Fewest passing tones a ≤2-step path needs, then seeded extras.
+            let minNeeded = delta == 0 ? 0 : max(0, (abs(delta) + 1) / 2 - 1)
+            var count: Int
+            if delta == 0 {
+                count = [0, 1, 1, 2].randomElement(using: &rng)!  // hold or dip
+            } else {
+                let room = max(0, maxSlots - minNeeded)
+                count = minNeeded + Int.random(in: 0...min(2, room), using: &rng)
+            }
+            count = min(count, maxSlots)
+
             let barStart = Tick(barIdx) * meter.ticksPerBar
-            let heldBeats = max(1, meter.beatsPerBar - passing)
+            let heldBeats = max(1, meter.beatsPerBar - count)
             notes.append(PatternNote(position: barStart,
                                      pitch: DegreePitch(degree: root),
                                      gate: Tick(heldBeats) * beatTicks,
                                      accent: true))
-            var previous = root
-            if passing > 0 {
-                for k in 1...passing {
-                    let degree = delta == 0
-                        ? root - 1
-                        : root + Int((Double(delta) * Double(k)
-                                      / Double(passing + 1)).rounded())
-                    guard degree != previous else { continue }
-                    let beat = meter.beatsPerBar - passing + (k - 1)
-                    notes.append(PatternNote(position: barStart + Tick(beat) * beatTicks,
-                                             pitch: DegreePitch(degree: degree),
-                                             gate: beatTicks))
-                    previous = degree
+
+            // The path: a constrained random walk toward the next root.
+            var degrees: [Int] = []
+            if delta == 0 {
+                switch count {
+                case 1:  degrees = [root - Int.random(in: 1...2, using: &rng)]
+                case 2:  degrees = Bool.random(using: &rng)
+                    ? [root - 1, root - 2] : [root - 2, root - 1]
+                default: break
                 }
+            } else if count > 0 {
+                var current = root
+                var remaining = delta
+                for slot in 0..<count {
+                    let gapsAfter = count - slot        // incl. the final gap
+                    let candidates = [-2, -1, 1, 2].filter { g in
+                        abs(remaining - g) <= 2 * gapsAfter
+                    }
+                    let g = candidates.randomElement(using: &rng)
+                        ?? (remaining > 0 ? min(2, remaining) : max(-2, remaining))
+                    current += g
+                    remaining -= g
+                    degrees.append(current)
+                }
+            }
+
+            for (k, degree) in degrees.enumerated() {
+                let beat = meter.beatsPerBar - degrees.count + k
+                var position = barStart + Tick(beat) * beatTicks
+                var gate = beatTicks
+                if Double.random(in: 0..<1, using: &rng) < 0.2 {
+                    position += beatTicks / 2           // off-beat push
+                    gate = beatTicks / 2
+                }
+                var pitch = DegreePitch(degree: degree)
+                if Double.random(in: 0..<1, using: &rng) < 0.15 {
+                    pitch.octave = -1                   // the idiomatic dip
+                }
+                notes.append(PatternNote(position: position, pitch: pitch,
+                                         gate: gate))
             }
         }
         return Pattern(id: id, length: Tick(bars) * meter.ticksPerBar,

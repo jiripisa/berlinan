@@ -10,7 +10,8 @@
   Shipped: horizon strip, drone intro, slides, CC scenes, form presets +
   reprise, template gallery. Next entry point: M7 candidates — capture
   browser, runtime meter (backlog), tie editing in the pattern editor.
-- No phase open.
+- Phase 38 (bass-walk variety, user feedback) DONE 2026-07-18 — 307 tests.
+  Ships with the next release (CHANGELOG: Unreleased). No phase open.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
   Public release still pending user decision.
