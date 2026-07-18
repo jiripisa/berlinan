@@ -10,7 +10,7 @@
   target v1.2.0. Phases: 32 horizon strip → 33 drone+slides → 34 CC scenes
   → 35 form templates → 36 template gallery → 37 release. Scope approved by
   user from the musician+UX two-lens review.
-- **Current phase**: 33-drone-slides DONE 2026-07-18 (295 tests). Next: 34-cc-scenes.
+- **Current phase**: 34-cc-scenes DONE 2026-07-18 (300 tests). Next: 35-form-templates.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
   Public release still pending user decision.
