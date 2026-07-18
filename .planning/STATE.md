@@ -6,11 +6,11 @@
   Full P2+P3 scope shipped: arranger autopilot, density, ambient, B-part,
   melody engine (extraction/promotion/alternation/tension), bassMelody +
   chordLayer + heartbeat generators, tension budget.
-- **Milestone**: M6 IN PROGRESS (opened 2026-07-18) — "The Long Piece",
-  target v1.2.0. Phases: 32 horizon strip → 33 drone+slides → 34 CC scenes
-  → 35 form templates → 36 template gallery → 37 release. Scope approved by
-  user from the musician+UX two-lens review.
-- **Current phase**: 36-template-gallery DONE 2026-07-18 (305 tests). Next: 37-v1.2-release.
+- **Milestone**: M6 CLOSED 2026-07-18 (tag v1.2.0, 305 tests / 107 suites).
+  Shipped: horizon strip, drone intro, slides, CC scenes, form presets +
+  reprise, template gallery. Next entry point: M7 candidates — capture
+  browser, runtime meter (backlog), tie editing in the pattern editor.
+- No phase open.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
   Public release still pending user decision.
