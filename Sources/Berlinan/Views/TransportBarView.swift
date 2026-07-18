@@ -71,6 +71,41 @@ struct TransportBarView: View {
             .keyboardShortcut("n", modifiers: [])
             .help("New seed — a whole new musical universe (live: at the next bar; ⌘Z undoes)")
 
+            Menu {
+                Section("Templates") {
+                    ForEach(TemplateStore.builtIns, id: \.name) { template in
+                        Button(template.name) {
+                            ui.applyTemplate(template.project)
+                        }
+                    }
+                }
+                let userTemplates = TemplateStore.userTemplates()
+                if !userTemplates.isEmpty {
+                    Section("My templates") {
+                        ForEach(userTemplates, id: \.name) { template in
+                            Button(template.name) {
+                                ui.applyTemplate(template.project)
+                            }
+                        }
+                    }
+                }
+                Divider()
+                Button("Save as Template…") { ui.saveAsTemplate() }
+            } label: {
+                Image(systemName: "square.grid.2x2")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(AppColor.ink2)
+                    .frame(width: 28, height: 24)
+                    .background(AppColor.bgPanel)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4)
+                        .stroke(AppColor.line, lineWidth: 1))
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .disabled(ui.isPlaying)
+            .help("Templates: starting points (fresh seed every time) + save your own")
+
             Button(action: onSettings) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 12, weight: .medium))

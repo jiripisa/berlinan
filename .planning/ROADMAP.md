@@ -78,7 +78,7 @@ musician + UX designer review (user-approved).
 | 33-drone-slides | Drone generator + arranger intro-on-a-drone; tie/slide steps (legato overlap + portamento hint) as pattern ops and mutation operator | FR-P-1(+), FR-A-2(+), M §5/§9 | ✅ |
 | 34-cc-scenes | CC scenes: named CC target sets morphed over bars, driven by arranger phases (Build closed → Payoff open) or manually | FR-MOD-3(+) | ✅ |
 | 35-form-templates | Arrangement form presets (classic arc, slow build, ambient plateau) + reprise: bed-entry theme returns at the payoff | FR-A-1(+), FR-L-6(+) | ✅ |
-| 36-template-gallery | Startup template picker (Demo / Full ensemble / Ambient), save-as-template | FR-UX (new) | ☐ |
+| 36-template-gallery | Startup template picker (Demo / Full ensemble / Ambient), save-as-template | FR-UX (new) | ✅ |
 | 37-v1.2-release | CHANGELOG, README, version 1.2.0, tag | — | ☐ |
 
 Deferred to M7: capture browser, runtime meter changes (backlog).

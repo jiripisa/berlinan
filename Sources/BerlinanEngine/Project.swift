@@ -168,4 +168,83 @@ extension Project {
             TranspositionEvent(bar: 28, degreeOffset: 0),
         ])
     )
+
+    /// The full 1.1 palette (phase 36; mirrors examples/full_ensemble):
+    /// two beds, a bass-melody walk, a chord-layer pad, a lead ready for
+    /// melody promotion, and the heartbeat kick.
+    public static let fullEnsemble: Project = {
+        var p = Project.demo
+        p.bpm = 96
+        p.masterSeed = 2_477_861_893
+        p.voices[2] = VoiceConfig(id: "bass", role: .bass,
+                                  register: RegisterWindow(low: 24, high: 48),
+                                  referenceC: 36,
+                                  generator: .bassMelody(bars: 16), channel: 2)
+        p.voices.append(VoiceConfig(
+            id: "pad", role: .pad,
+            register: RegisterWindow(low: 48, high: 72), referenceC: 60,
+            generator: .chordLayer(periodBars: 7), channel: 3,
+            ccLanes: [CCLane(target: "filter", shape: .sine,
+                             cycleBars: 32, depth: 0.4, center: 0.5)],
+            ccMap: ["filter": 74]))
+        p.voices.append(VoiceConfig(
+            id: "lead", role: .lead,
+            register: RegisterWindow(low: 60, high: 96), referenceC: 72,
+            generator: .stagedPluck(bars: 2), channel: 4))
+        p.voices.append(VoiceConfig(
+            id: "kick", role: .rhythm,
+            register: RegisterWindow(low: 36, high: 47), referenceC: 36,
+            generator: .heartbeat, channel: 9))
+        return p
+    }()
+
+    /// The generative radio (phase 36): a drone-led, ambient-arranged
+    /// setup with a timbre journey mapped to the arranger's phases.
+    public static let ambientDrift: Project = {
+        var p = Project(
+            formatVersion: 1,
+            masterSeed: 0x0A3B_11ED,
+            bpm: 72,
+            key: Key.default,
+            meter: .fourFour,
+            voices: [
+                VoiceConfig(id: "drone", role: .drone,
+                            register: RegisterWindow(low: 36, high: 60),
+                            referenceC: 48,
+                            generator: .drone(bars: 8), channel: 0,
+                            ccMap: ["filter": 74]),
+                VoiceConfig(id: "bedPluck1", role: .bedPluck1,
+                            register: RegisterWindow(low: 55, high: 79),
+                            referenceC: 60,
+                            generator: .seedProcedure(bars: 1, mutations: 3),
+                            channel: 1,
+                            ccMap: ["filter": 74]),
+                VoiceConfig(id: "bedPluck2", role: .bedPluck2,
+                            register: RegisterWindow(low: 60, high: 84),
+                            referenceC: 60,
+                            generator: .seedProcedure(bars: 1, mutations: 3),
+                            channel: 2, phaseSteps: -1,
+                            ccMap: ["filter": 74]),
+                VoiceConfig(id: "pad", role: .pad,
+                            register: RegisterWindow(low: 48, high: 72),
+                            referenceC: 60,
+                            generator: .chordLayer(periodBars: 7), channel: 3,
+                            ccMap: ["filter": 74]),
+            ],
+            transposition: .pedal)
+        p.arrangement = .ambientPlateau
+        p.ccScenes = [
+            CCScene(name: "closed", values: [
+                "drone": ["filter": 0.25], "bedPluck1": ["filter": 0.3],
+                "bedPluck2": ["filter": 0.3], "pad": ["filter": 0.2],
+            ]),
+            CCScene(name: "open", values: [
+                "drone": ["filter": 0.6], "bedPluck1": ["filter": 0.75],
+                "bedPluck2": ["filter": 0.75], "pad": ["filter": 0.65],
+            ]),
+        ]
+        p.sceneByPhase = ["bed": "closed", "payoff": "open",
+                          "subtract": "closed"]
+        return p
+    }()
 }
