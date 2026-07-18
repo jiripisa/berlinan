@@ -35,6 +35,9 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
     case chordLayer(periodBars: Int)
     /// M §9.2 (FR-V-7) — the quarter-note heartbeat kick.
     case heartbeat
+    /// M §12 (phase 33) — the intro layer: root + fifth sustained for the
+    /// whole loop. Deterministic.
+    case drone(bars: Int)
 
     var generatorID: GeneratorID {
         switch self {
@@ -47,6 +50,7 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
         case .bassMelody:     return .bassMelody
         case .chordLayer:     return .chordLayer
         case .heartbeat:      return .heartbeat
+        case .drone:          return .drone
         }
     }
 
@@ -55,8 +59,8 @@ public enum GeneratorConfig: Codable, Equatable, Sendable {
     /// deterministic exceptions.
     var usesRandomness: Bool {
         switch self {
-        case .bassMelody, .heartbeat: return false
-        default:                      return true
+        case .bassMelody, .heartbeat, .drone: return false
+        default:                              return true
         }
     }
 }
@@ -109,6 +113,12 @@ public enum PatternFactory {
                             pitch: DegreePitch(degree: 0), velocity: 92,
                             gate: meter.ticksPerBeat / 2)
             }
+        case let .drone(bars):
+            length = Tick(bars) * meter.ticksPerBar
+            notes = [PatternNote(position: 0, pitch: DegreePitch(degree: 0),
+                                 velocity: 64, gate: length),
+                     PatternNote(position: 0, pitch: DegreePitch(degree: 4),
+                                 velocity: 60, gate: length)]
         }
 
         return Pattern(

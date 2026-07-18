@@ -84,6 +84,33 @@ public enum PatternOps {
         return out
     }
 
+    /// Slides (phase 33, M §9): a tied note's gate stretches to the next
+    /// onset plus a small overlap — MIDI legato that a mono synth's
+    /// portamento turns into the glide. Render-time only; the stored
+    /// pattern keeps its short gates.
+    public static func applyTies(_ pattern: Pattern, overlap: Tick = 30) -> Pattern {
+        guard pattern.notes.contains(where: { $0.tie == true }) else {
+            return pattern
+        }
+        var out = pattern
+        let order = out.notes.indices.sorted {
+            out.notes[$0].position < out.notes[$1].position
+        }
+        for (rank, idx) in order.enumerated() where out.notes[idx].tie == true {
+            let gap: Tick
+            if order.count == 1 {
+                gap = pattern.length
+            } else if rank + 1 < order.count {
+                gap = out.notes[order[rank + 1]].position - out.notes[idx].position
+            } else {
+                gap = pattern.length - out.notes[idx].position
+                    + out.notes[order[0]].position
+            }
+            out.notes[idx].gate = max(out.notes[idx].gate, gap + overlap)
+        }
+        return out
+    }
+
     /// Ending move (M §12.4, FR-A-1): keep only root-degree notes; a pattern
     /// with no root retunes its first note instead. Arrives locked and
     /// established — the piece is over, nothing may mutate it further.

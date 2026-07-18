@@ -65,7 +65,10 @@ public enum OfflineRenderer {
         while t < total {
             let segmentEnd = min(t + voice.pattern.length, total)
             let humanSeed = voice.pattern.provenance.seed
-            let segment = HarmonyEngine.render(voices: [voice],
+            // Slides (phase 33): render-time legato, same as the LiveEngine.
+            var renderSource = voice
+            renderSource.pattern = PatternOps.applyTies(renderSource.pattern)
+            let segment = HarmonyEngine.render(voices: [renderSource],
                                                schedule: resolved.schedule,
                                                key: project.key,
                                                meter: project.meter,
@@ -101,7 +104,8 @@ public enum OfflineRenderer {
                                              "voice", config.id, "mut", String(generation))
                 voice = Legitimizer.mutate(voice, key: project.key,
                                            meter: project.meter, seed: seed,
-                                           config: legit)
+                                           config: legit,
+                                           slidesEnabled: project.slidesEnabled ?? false)
                 generation += 1
                 // Mutation replaces the material — the drift restarts.
                 accumBase = nil

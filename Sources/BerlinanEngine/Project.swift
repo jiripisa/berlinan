@@ -99,6 +99,9 @@ public struct Project: Codable, Equatable, Sendable {
     public var alternating: AlternatingConfig?
     /// Tension budget (FR-H-7): out-of-key allowances per piece; nil = 2.
     public var tensionBudget: Int?
+    /// Slides (phase 33): lets mutations set/clear tie steps on bass and
+    /// lead voices. nil/false = the pre-1.2 mutation stream, byte-identical.
+    public var slidesEnabled: Bool?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],

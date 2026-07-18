@@ -96,11 +96,12 @@ public struct ArrangementSM: Sendable {
     private var roundRobin = 0
     private var stopRequested = false
 
-    /// Default additive order (FR-A-2): beds → pad → bass → lead, then any
-    /// remaining roles in declaration order.
+    /// Default additive order (FR-A-2, extended in phase 33): a drone opens
+    /// the piece, then beds → pad → bass → lead, then any remaining roles
+    /// in declaration order.
     public static func deriveBuildOrder(from voices: [VoiceConfig]) -> [String] {
-        let rank: [VoiceRole: Int] = [.bedPluck1: 0, .bedPluck2: 1, .pad: 2,
-                                      .bass: 3, .lead: 4]
+        let rank: [VoiceRole: Int] = [.drone: -1, .bedPluck1: 0, .bedPluck2: 1,
+                                      .pad: 2, .bass: 3, .lead: 4]
         return voices.enumerated()
             .sorted { a, b in
                 let ra = rank[a.element.role] ?? (5 + a.offset)
