@@ -36,6 +36,15 @@ struct RepriseTests {
         return p
     }
 
+    /// Note-content signature (mutations keep pattern ids — compare notes).
+    private func signature(_ engine: LiveEngine) -> [String] {
+        engine.snapshot().voices.map { voice in
+            voice.pattern.id + "|" + voice.pattern.notes
+                .map { "\($0.position)/\($0.pitch.degree)/\($0.accent)/\($0.velocity)" }
+                .joined(separator: ",")
+        }
+    }
+
     /// Advance bar-by-bar until the SM reports the phase; returns the tick.
     private func advance(_ engine: inout LiveEngine, to phase: ArrangementPhase,
                          from startBar: Int) -> Int {
@@ -53,22 +62,21 @@ struct RepriseTests {
     func repriseRecalls() {
         var engine = LiveEngine(project: project(reprise: true))
         let bedBar = advance(&engine, to: .bed, from: 0)
-        let theme = engine.snapshot().voices.map(\.pattern.id)
+        let theme = signature(engine)
         let varBar = advance(&engine, to: .variation, from: bedBar)
         _ = advance(&engine, to: .payoff, from: varBar)
-        let payoff = engine.snapshot().voices.map(\.pattern.id)
-        #expect(payoff == theme,
-                "the theme must return: \(payoff) vs \(theme)")
+        let payoff = signature(engine)
+        #expect(payoff == theme, "the theme must return")
     }
 
     @Test("Without reprise, the payoff keeps the evolved material")
     func noReprise() {
         var engine = LiveEngine(project: project(reprise: false))
         let bedBar = advance(&engine, to: .bed, from: 0)
-        let theme = engine.snapshot().voices.map(\.pattern.id)
+        let theme = signature(engine)
         let varBar = advance(&engine, to: .variation, from: bedBar)
         _ = advance(&engine, to: .payoff, from: varBar)
-        let payoff = engine.snapshot().voices.map(\.pattern.id)
+        let payoff = signature(engine)
         #expect(payoff != theme,
                 "variation nudges must have changed something by the payoff")
     }

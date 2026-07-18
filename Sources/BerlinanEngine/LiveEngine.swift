@@ -144,6 +144,8 @@ public struct LiveEngine: Sendable {
         }
     }
     private var sceneMorphs: [String: SceneMorph] = [:]
+    /// Reprise (phase 35): the theme captured when the bed settles.
+    private var themeSnapshot: StateSnapshot? = nil
     /// Spent-but-not-yet-rendered tension notes (bar-bound one-shots).
     private var pendingTensionNotes: [(tick: Tick, voiceID: String)] = []
     private let velocity: VelocityPolicy
@@ -634,6 +636,18 @@ public struct LiveEngine: Sendable {
         if sm.phase != phaseBefore,
            let sceneName = project.sceneByPhase?[sm.phase.rawValue] {
             startSceneMorph(named: sceneName, bars: 8, at: tick)
+        }
+        // Reprise (phase 35, M §12.3): capture the theme as the bed
+        // settles; the payoff is its return with the full ensemble.
+        if sm.phase != phaseBefore {
+            if sm.phase == .bed && themeSnapshot == nil {
+                themeSnapshot = captureState()
+            }
+            if sm.phase == .payoff,
+               project.arrangement?.reprise == true,
+               let theme = themeSnapshot {
+                applyRecall(theme, at: tick)
+            }
         }
     }
 

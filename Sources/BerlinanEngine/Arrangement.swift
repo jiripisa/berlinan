@@ -20,10 +20,13 @@ public struct ArrangementConfig: Codable, Equatable, Sendable {
     public var maxPeriodBars: Int
     /// ~1 change/minute + scaled legitimization — wired in phase 27 (FR-A-4).
     public var ambientMode: Bool
+    /// Reprise (phase 35, M §12.3): the bed-entry theme returns at the
+    /// payoff. Optional so pre-1.2 documents decode; nil = off.
+    public var reprise: Bool?
 
     public init(enabled: Bool = false, buildOrder: [String]? = nil,
                 minPeriodBars: Int = 8, maxPeriodBars: Int = 16,
-                ambientMode: Bool = false) {
+                ambientMode: Bool = false, reprise: Bool? = nil) {
         precondition(minPeriodBars >= 1 && minPeriodBars <= maxPeriodBars,
                      "period range must be 1 ≤ min ≤ max")
         self.enabled = enabled
@@ -31,7 +34,22 @@ public struct ArrangementConfig: Codable, Equatable, Sendable {
         self.minPeriodBars = minPeriodBars
         self.maxPeriodBars = maxPeriodBars
         self.ambientMode = ambientMode
+        self.reprise = reprise
     }
+
+    // MARK: - Form presets (phase 35, M §12)
+
+    /// The genre's default dramaturgy: 8–16-bar changes, theme reprise.
+    public static let classicArc = ArrangementConfig(enabled: true,
+                                                     reprise: true)
+    /// Patient: 12–24-bar changes, reprise.
+    public static let slowBuild = ArrangementConfig(enabled: true,
+                                                    minPeriodBars: 12,
+                                                    maxPeriodBars: 24,
+                                                    reprise: true)
+    /// The generative radio: ~1 change/min, no reprise — plateaus drift.
+    public static let ambientPlateau = ArrangementConfig(enabled: true,
+                                                         ambientMode: true)
 }
 
 /// The manual's S4 move (FR-A-5): one trigger = progression start + bass
