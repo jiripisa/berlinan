@@ -106,6 +106,7 @@ struct HorizonStripView: View {
         case .promoteToLead: "arrow.up.right"
         case .arranger: "wand.and.stars"
         case .advance: "forward.frame"
+        case .scene: "camera.filters"
         }
     }
 
@@ -121,6 +122,7 @@ struct HorizonStripView: View {
         case .promoteToLead: "LEAD ← \(event.detail)"
         case .arranger: "AUTO \(event.detail)"
         case .advance: "ADVANCE"
+        case .scene: "SCENE \(event.detail)"
         }
     }
 }

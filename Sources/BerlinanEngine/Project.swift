@@ -102,6 +102,11 @@ public struct Project: Codable, Equatable, Sendable {
     /// Slides (phase 33): lets mutations set/clear tie steps on bass and
     /// lead voices. nil/false = the pre-1.2 mutation stream, byte-identical.
     public var slidesEnabled: Bool?
+    /// CC scenes (phase 34): named timbre destinations. nil = none.
+    public var ccScenes: [CCScene]?
+    /// Arranger phase → scene name (phase 34); fires an 8-bar morph on the
+    /// transition into the phase. nil = the arranger leaves CC alone.
+    public var sceneByPhase: [String: String]?
 
     public init(formatVersion: Int = 1, masterSeed: UInt64, bpm: Double,
                 key: Key, meter: Meter, voices: [VoiceConfig],
