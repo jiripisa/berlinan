@@ -65,7 +65,7 @@ Full scope (P2 + P3) per user decision 2026-07-17; vertical feature slices.
 | 30-harmony-color | Tension budget (flagged quantizer bypass), stochastic chord layer (pad-voice mode), heartbeat kick voice | FR-H-7/8, FR-V-7 | ✅ |
 | 31-v1.1-release | CHANGELOG, README refresh, version 1.1.0, tag | — | ✅ |
 
-## M6 — The Long Piece → v1.2.0
+## M6 — The Long Piece → v1.2.0 ✅ (tagged 2026-07-18)
 
 Goal: trust and dramaturgy — the app SHOWS what it is about to do, and a
 piece can carry the genre's long-form arc (drone opening, gliding lines,
@@ -79,6 +79,6 @@ musician + UX designer review (user-approved).
 | 34-cc-scenes | CC scenes: named CC target sets morphed over bars, driven by arranger phases (Build closed → Payoff open) or manually | FR-MOD-3(+) | ✅ |
 | 35-form-templates | Arrangement form presets (classic arc, slow build, ambient plateau) + reprise: bed-entry theme returns at the payoff | FR-A-1(+), FR-L-6(+) | ✅ |
 | 36-template-gallery | Startup template picker (Demo / Full ensemble / Ambient), save-as-template | FR-UX (new) | ✅ |
-| 37-v1.2-release | CHANGELOG, README, version 1.2.0, tag | — | ☐ |
+| 37-v1.2-release | CHANGELOG, README, version 1.2.0, tag | — | ✅ |
 
 Deferred to M7: capture browser, runtime meter changes (backlog).
