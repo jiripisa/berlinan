@@ -94,7 +94,7 @@
       "generator" : { "heartbeat" : { } },
       "id" : "kick",
       "referenceC" : 36,
-      "register" : { "high" : 36, "low" : 36 },
+      "register" : { "high" : 47, "low" : 36 },
       "role" : "rhythm"
     }
   ]

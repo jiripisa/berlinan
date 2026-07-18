@@ -140,6 +140,29 @@ final class AppServices {
         rebuildTransport()
     }
 
+    /// Instantiate a template (phase 36): fresh seed, fresh universe.
+    func applyTemplate(_ template: Project) {
+        guard transport?.isPlaying != true else { return }
+        var fresh = template
+        fresh.masterSeed = UInt64.random(in: UInt64.min...UInt64.max)
+        applyProject(fresh)
+    }
+
+    /// Save the current setup into the templates folder (phase 36).
+    func saveAsTemplate() {
+        let directory = TemplateStore.userTemplatesDirectory()
+        try? FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.berlinanProject]
+        panel.directoryURL = directory
+        panel.nameFieldStringValue = "my-template.berlinan"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try? (try? encoder.encode(project))?.write(to: url)
+    }
+
     /// Runtime key/tempo changes (FR-GS-5) — usable while playing, both
     /// bar-quantized (key in the engine, tempo in the transport clock).
     func applyLiveMusicalChanges(key: Key?, bpm: Double?) {

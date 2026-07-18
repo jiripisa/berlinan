@@ -171,6 +171,17 @@ final class UIState {
         refresh()
     }
 
+    // MARK: - Templates (phase 36)
+
+    func applyTemplate(_ template: Project) {
+        services.applyTemplate(template)
+        refresh()
+    }
+
+    func saveAsTemplate() {
+        services.saveAsTemplate()
+    }
+
     /// CC profile application (FR-MOD-5).
     func applyProfile(_ profile: CCProfile, to voiceID: String) {
         services.updateVoiceCCMap(voiceID, map: profile.map)
