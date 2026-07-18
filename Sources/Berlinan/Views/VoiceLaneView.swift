@@ -115,9 +115,11 @@ struct VoiceLaneView: View {
                 }
                 HStack(spacing: 6) {
                     laneButton("arrow.clockwise", active: false,
-                               activeColor: AppColor.tangerine, help: "Regenerate at next loop") {
+                               activeColor: AppColor.tangerine,
+                               help: regenerateHelp) {
                         ui.regenerate(voice.id)
                     }
+                    .disabled(regenerateInert)
                     laneButton("circle.slash", active: voice.blankActive,
                                activeColor: AppColor.cyan, help: "Blank cycle (one silent loop)") {
                         ui.blankCycle(voice.id)
@@ -151,6 +153,22 @@ struct VoiceLaneView: View {
         .background(AppColor.bgPanel2)
         .clipShape(RoundedRectangle(cornerRadius: 4))
         .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.lineSoft, lineWidth: 1))
+    }
+
+    /// Deterministic voices (drone, heartbeat) have nothing to re-roll.
+    private var regenerateInert: Bool {
+        [.drone, .heartbeat].contains(voice.pattern.provenance.generator)
+    }
+
+    private var regenerateHelp: String {
+        switch voice.pattern.provenance.generator {
+        case .drone, .heartbeat:
+            return "This voice is deterministic — there is nothing to re-roll"
+        case .bassMelody:
+            return "Regenerate at next loop: a NEW walk over the SAME harmony (downbeat roots stay the progression's)"
+        default:
+            return "Regenerate at next loop"
+        }
     }
 
     private func laneButton(_ symbol: String, active: Bool, activeColor: Color,
