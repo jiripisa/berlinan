@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.2.0 — 2026-07-18 (M6 — the long piece)
+
+Trust and dramaturgy: the app narrates what it is about to do, and a piece
+can carry the genre's long-form arc.
+
+- Horizon strip: one timeline of everything coming — pending key/density/
+  B-part/tension binds, the arranger's phase countdown, the nearest
+  mutation due; lanes the arranger holds back say WAITS instead of going
+  silently dark (plus manual engine-level voice on/off)
+- Drone intro: a `.drone` voice opens the arranger's build — the piece
+  starts as a plateau, sequences enter over it
+- Slides: tie steps stretch to legato at render (mono synth + portamento =
+  the classic glide); opt-in per project so 1.1 documents render
+  byte-identically; glide hints in the Delay Cheat Sheet
+- CC scenes: named timbre destinations morphed over bars — manually
+  (SCENE menu) or by the arranger's phases (Build closed → Payoff open);
+  stateless, chunk-safe, silent once settled
+- Form presets (right-click AUTO): classic arc, slow build, ambient
+  plateau — and the reprise: the bed-entry theme returns at the payoff,
+  progression resolving home with it (M §12.3 additive repetition)
+- Template gallery: Demo trio / Full ensemble / Ambient drift one click
+  away (always a fresh seed), plus Save as Template…
+- New example: `examples/full_ensemble.berlinan` — the whole 1.1 palette
+
 ## 1.1.0 — 2026-07-18 (M5 — arranger & polish)
 
 The app learns to arrange a whole piece by itself — and to grow melodies.
