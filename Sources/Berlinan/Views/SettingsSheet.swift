@@ -13,6 +13,7 @@ struct SettingsSheet: View {
     @State private var mode: ModeID = .naturalMinor
     @State private var bpm = 90.0
     @State private var meterIndex = 0
+    @State private var slides = false
 
     private static let noteNames = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     /// Meter presets with the manual's groupings (M §9.3).
@@ -72,6 +73,14 @@ struct SettingsSheet: View {
                 }
             }
 
+            Toggle(isOn: $slides) {
+                Text("Slides (glide) — mutations may tie bass/lead steps; set the synth to mono + portamento ≈ 60–120 ms")
+                    .font(AppFont.monoCaption)
+                    .foregroundStyle(AppColor.ink2)
+            }
+            .toggleStyle(.checkbox)
+            .disabled(ui.isPlaying)
+
             Text(ui.isPlaying
                  ? "playing: key + tempo bind at the next bar (meter needs stop)"
                  : "applying regenerates the patterns in the new key/meter\n(seeds unchanged — the material stays recognizable)")
@@ -95,6 +104,7 @@ struct SettingsSheet: View {
                         project.key = newKey
                         project.bpm = bpm
                         project.meter = Self.meters[meterIndex].meter
+                        project.slidesEnabled = slides ? true : nil
                         services.applyProject(project)
                     }
                     dismiss()
@@ -110,6 +120,7 @@ struct SettingsSheet: View {
             root = project.key.root
             mode = project.key.scale.mode
             bpm = project.bpm
+            slides = project.slidesEnabled ?? false
             meterIndex = Self.meters.firstIndex {
                 $0.meter == project.meter
             } ?? 0

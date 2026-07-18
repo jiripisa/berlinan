@@ -682,6 +682,8 @@ public struct LiveEngine: Sendable {
                             renderSource.pattern, density: density,
                             meter: project.meter)
                     }
+                    // Slides (phase 33): ties stretch to legato at render.
+                    renderSource.pattern = PatternOps.applyTies(renderSource.pattern)
                     let segment = HarmonyEngine.render(voices: [renderSource],
                                                        schedule: schedule,
                                                        key: project.key,
@@ -876,7 +878,8 @@ public struct LiveEngine: Sendable {
                                          "mut", String(state.generation))
             state.voice = Legitimizer.mutate(state.voice, key: project.key,
                                              meter: project.meter, seed: seed,
-                                             config: legit)
+                                             config: legit,
+                                             slidesEnabled: project.slidesEnabled ?? false)
             state.generation += 1
             state.accumBase = nil            // drift restarts on new material
             state.accumCycle = 0

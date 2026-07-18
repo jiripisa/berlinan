@@ -59,6 +59,8 @@ struct DelayCheatSheetView: View {
         let hint = DelayHint.compute(role: voice.role,
                                      bpm: services.project.bpm,
                                      alternationSlot: slot)
+        let glides = services.project.slidesEnabled == true
+            && (voice.role == .bass || voice.role == .lead)
         let midiDelayOn = voice.midiDelay?.enabled == true
         return HStack {
             Text(voice.id)
@@ -78,6 +80,13 @@ struct DelayCheatSheetView: View {
                 Text("⚠ echoes already in MIDI — disable/lower the audio delay")
                     .font(AppFont.monoCaption)
                     .foregroundStyle(AppColor.amber)
+                    .padding(.leading, 8)
+            }
+            if glides {
+                // Slides (phase 33): the tie needs the synth's cooperation.
+                Text("glide: mono + portamento ≈ 60–120 ms")
+                    .font(AppFont.monoCaption)
+                    .foregroundStyle(AppColor.cyan)
                     .padding(.leading, 8)
             }
             Spacer()

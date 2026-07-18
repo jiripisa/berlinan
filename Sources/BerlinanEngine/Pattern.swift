@@ -14,9 +14,14 @@ public struct PatternNote: Codable, Equatable, Sendable {
     public var accent: Bool
     /// 1 = normal; 2–3 = intermittent ratchet (M §13.5).
     public var ratchet: Int
+    /// Slide (phase 33, M §9): the gate stretches to the next onset at
+    /// render — legato overlap = portamento glide on a mono synth.
+    /// Optional so pre-1.2 documents decode unchanged; nil = no tie.
+    public var tie: Bool?
 
     public init(position: Tick, pitch: DegreePitch, velocity: UInt8 = 100,
-                gate: Tick, accent: Bool = false, ratchet: Int = 1) {
+                gate: Tick, accent: Bool = false, ratchet: Int = 1,
+                tie: Bool? = nil) {
         precondition(position >= 0, "position must be non-negative")
         precondition((1...127).contains(Int(velocity)), "velocity must be 1–127")
         precondition(gate > 0, "gate must be positive")
@@ -27,6 +32,7 @@ public struct PatternNote: Codable, Equatable, Sendable {
         self.gate = gate
         self.accent = accent
         self.ratchet = ratchet
+        self.tie = tie
     }
 }
 
@@ -55,6 +61,7 @@ public enum GeneratorID: String, Codable, Sendable {
     case bassMelody         // M §8.4 (P3, FR-MEL-5)
     case chordLayer         // M §13.3 (P3, FR-H-8)
     case heartbeat          // M §9.2 (P3, FR-V-7)
+    case drone              // M §12 intro layer (phase 33)
     case handEdited         // producer edits (FR-P-7)
 }
 

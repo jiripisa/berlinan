@@ -75,7 +75,8 @@ public enum Legitimizer {
     /// `.repeating(N−1)` so the change is legitimized before the next one.
     public static func mutate(_ voice: Voice, key: Key, meter: Meter,
                               seed: UInt64,
-                              config: Config = .default) -> Voice {
+                              config: Config = .default,
+                              slidesEnabled: Bool = false) -> Voice {
         guard isMutable(voice.pattern) else { return voice }
 
         var rng = SplitMix64(seed: seed)
@@ -141,6 +142,15 @@ public enum Legitimizer {
         if Double.random(in: 0..<1, using: &rng) < (config.ratchetProbability ?? 0.15),
            let idx = p.notes.indices.randomElement(using: &rng) {
             p.notes[idx].ratchet = Int.random(in: 2...3, using: &rng)
+        }
+
+        // 5. Slides (phase 33, M §9) — only when the project opted in, so
+        //    pre-1.2 mutation streams stay byte-identical. One tie may set
+        //    or clear; bass and lead glide, beds stay plucky.
+        if slidesEnabled, voice.role == .bass || voice.role == .lead,
+           Double.random(in: 0..<1, using: &rng) < 0.35,
+           let idx = p.notes.indices.randomElement(using: &rng) {
+            p.notes[idx].tie = (p.notes[idx].tie == true) ? nil : true
         }
 
         // Legitimize the change: N total verbatim plays before the next
