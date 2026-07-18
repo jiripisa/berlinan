@@ -85,6 +85,32 @@ struct PerformancePanelView: View {
             .disabled(!ui.isPlaying || ui.tensionRemaining == 0)
             .help("Tension budget (M §4.4): spend one of \(ui.tensionRemaining) out-of-key allowances — a sustained minor 2nd against the root at the next bar")
 
+            if !ui.sceneNames.isEmpty {
+                Menu {
+                    ForEach(ui.sceneNames, id: \.self) { name in
+                        Button(name) { ui.morphToScene(name) }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "camera.filters")
+                            .font(.system(size: 10, weight: .medium))
+                        Text("SCENE")
+                            .font(AppFont.sansBold(9.5))
+                            .tracking(AppTracking.label)
+                    }
+                    .foregroundStyle(AppColor.ink2)
+                    .padding(.horizontal, 10)
+                    .frame(height: 26)
+                    .background(AppColor.bgPanel)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.line, lineWidth: 1))
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .disabled(!ui.isPlaying)
+                .help("CC scenes: morph all mapped controllers toward the named timbre over 8 bars")
+            }
+
             Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
 
             // Arranger autopilot (FR-A-1/6): advisory — AUTO toggles it,

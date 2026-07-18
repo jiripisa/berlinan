@@ -56,6 +56,9 @@ public struct LiveEngine: Sendable {
         /// sustained minor-2nd-against-the-root note on the voice at the
         /// next bar — the only quantizer bypass. Exhausted budget → no-op.
         case spendTension(voiceID: String)
+        /// Morph every CC target toward the named scene over `bars`
+        /// (phase 34); binds at the next bar. Unknown name → no-op.
+        case morphToScene(name: String, bars: Int)
     }
 
     /// Bar-quantized global changes that split the render window.
@@ -68,6 +71,7 @@ public struct LiveEngine: Sendable {
         case promoteToLead(String)
         case alternating(AlternatingConfig?)
         case tension(String)
+        case scene(String, Int)
     }
 
     /// The complete recallable generative state (FR-L-6): patterns (inside
@@ -123,6 +127,23 @@ public struct LiveEngine: Sendable {
     private var alternating: AlternatingConfig?
     /// Tension budget (FR-H-7): remaining out-of-key allowances.
     private var tensionRemaining: Int
+    /// CC scene morphs (phase 34), keyed "voiceID|target". Descriptors are
+    /// pure — `renderCC` interpolates statelessly, so morphs are chunk-safe
+    /// and go silent by construction once settled.
+    struct SceneMorph: Sendable {
+        var start: Double
+        var end: Double
+        var startTick: Tick
+        var endTick: Tick
+
+        func value(at tick: Tick) -> Double {
+            if tick <= startTick { return start }
+            if tick >= endTick { return end }
+            let progress = Double(tick - startTick) / Double(endTick - startTick)
+            return start + (end - start) * progress
+        }
+    }
+    private var sceneMorphs: [String: SceneMorph] = [:]
     /// Spent-but-not-yet-rendered tension notes (bar-bound one-shots).
     private var pendingTensionNotes: [(tick: Tick, voiceID: String)] = []
     private let velocity: VelocityPolicy
@@ -243,7 +264,7 @@ public struct LiveEngine: Sendable {
     public struct UpcomingEvent: Equatable, Sendable {
         public enum Kind: String, Sendable {
             case key, recall, density, bPart, voiceActive, alternating,
-                 tension, promoteToLead, arranger, advance
+                 tension, promoteToLead, arranger, advance, scene
         }
         public let tick: Tick
         public let kind: Kind
@@ -310,6 +331,8 @@ public struct LiveEngine: Sendable {
                                      detail: config == nil ? "off" : "on")
             case .tension(let id):
                 return UpcomingEvent(tick: entry.tick, kind: .tension, detail: id)
+            case .scene(let name, _):
+                return UpcomingEvent(tick: entry.tick, kind: .scene, detail: name)
             }
         }
         events += pendingArrangementEnables.map {
@@ -327,15 +350,68 @@ public struct LiveEngine: Sendable {
         schedule.offset(atBar: bar)
     }
 
-    /// CC lanes for a window (FR-MOD-3/4). Stateless and chunk-safe — the
-    /// scheduler calls it alongside `render` with the same windows.
+    /// CC lanes for a window (FR-MOD-3/4) plus scene-morph emissions
+    /// (phase 34). Stateless and chunk-safe — the scheduler calls it
+    /// alongside `render` with the same windows.
     public func renderCC(range: Range<Tick>) -> [RenderedCC] {
-        project.voices.flatMap { config in
+        var events = project.voices.flatMap { config in
             ModulationEngine.render(
                 lanes: config.ccLanes ?? [], ccMap: config.ccMap ?? [:],
                 voiceID: config.id, in: range, meter: project.meter,
                 seed: SeedStream.derive(master: project.masterSeed,
                                         "voice", config.id, "cc"))
+        }
+        events += sceneEmissions(in: range)
+        return events
+    }
+
+    /// Scene-morph CC stream: 1/96-grid points where the quantized value
+    /// changed (plus the morph's first grid point). Pure function of the
+    /// morph descriptors — no state advances per window (FR-MOD-4 limits).
+    private func sceneEmissions(in range: Range<Tick>) -> [RenderedCC] {
+        guard !sceneMorphs.isEmpty else { return [] }
+        let quantum = Time.ppqn * 4 / 96
+        var events: [RenderedCC] = []
+        for (key, morph) in sceneMorphs.sorted(by: { $0.key < $1.key }) {
+            let parts = key.split(separator: "|", maxSplits: 1)
+            guard parts.count == 2,
+                  let config = project.voices.first(where: { $0.id == parts[0] }),
+                  let controller = config.ccMap?[String(parts[1])]
+            else { continue }
+            let firstGrid = (morph.startTick + quantum - 1) / quantum * quantum
+            var t = max(firstGrid, (range.lowerBound + quantum - 1) / quantum * quantum)
+            while t < range.upperBound {
+                let value = UInt8(max(0, min(127, (morph.value(at: t) * 127).rounded())))
+                let previous = t == firstGrid
+                    ? nil
+                    : UInt8(max(0, min(127, (morph.value(at: t - quantum) * 127).rounded())))
+                if previous != value {
+                    events.append(RenderedCC(voiceID: config.id, at: t,
+                                             controller: controller, value: value))
+                }
+                t += quantum
+            }
+        }
+        return events
+    }
+
+    /// Start (or retarget) morphs toward the named scene: each target's new
+    /// morph departs from the outgoing morph's value at the switch tick
+    /// (0.5 when the target was never touched).
+    private mutating func startSceneMorph(named name: String, bars: Int,
+                                          at tick: Tick) {
+        guard let scene = project.ccScenes?.first(where: { $0.name == name })
+        else { return }
+        let duration = Tick(max(1, bars)) * project.meter.ticksPerBar
+        for (voiceID, targets) in scene.values {
+            for (target, destination) in targets {
+                let key = "\(voiceID)|\(target)"
+                let current = sceneMorphs[key]?.value(at: tick) ?? 0.5
+                sceneMorphs[key] = SceneMorph(start: current,
+                                              end: max(0, min(1, destination)),
+                                              startTick: tick,
+                                              endTick: tick + duration)
+            }
         }
     }
 
@@ -377,6 +453,8 @@ public struct LiveEngine: Sendable {
             enqueueGlobalChange(.alternating(config), requestTick: requestTick)
         case .spendTension(let voiceID):
             enqueueGlobalChange(.tension(voiceID), requestTick: requestTick)
+        case .morphToScene(let name, let bars):
+            enqueueGlobalChange(.scene(name, bars), requestTick: requestTick)
         case .setArrangementEnabled(let on):
             let tick = barBindTick(requestTick)
             let index = pendingArrangementEnables.firstIndex { $0.tick > tick }
@@ -507,6 +585,8 @@ public struct LiveEngine: Sendable {
                     tensionRemaining -= 1
                     pendingTensionNotes.append((tick: next.tick, voiceID: voiceID))
                 }
+            case .scene(let name, let bars):
+                startSceneMorph(named: name, bars: bars, at: next.tick)
             }
             notes += renderResolvingChanges(
                 max(next.tick, range.lowerBound)..<range.upperBound)
@@ -540,6 +620,7 @@ public struct LiveEngine: Sendable {
             }
         }
         guard var sm = arrangement else { return }
+        let phaseBefore = sm.phase
         let locked = Set(states.filter { $0.voice.pattern.locked }.map(\.voice.id))
         while let first = pendingAdvances.first, first <= tick {
             pendingAdvances.removeFirst()
@@ -549,6 +630,11 @@ public struct LiveEngine: Sendable {
             applyDirectives(sm.tickBar(locked: locked), at: tick)
         }
         arrangement = sm
+        // CC scenes (phase 34): a phase transition fires its mapped scene.
+        if sm.phase != phaseBefore,
+           let sceneName = project.sceneByPhase?[sm.phase.rawValue] {
+            startSceneMorph(named: sceneName, bars: 8, at: tick)
+        }
     }
 
     /// ≈ bars per minute at the project tempo (FR-A-4), floored at 8.

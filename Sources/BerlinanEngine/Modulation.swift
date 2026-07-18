@@ -57,6 +57,19 @@ public struct GateRampProgram: Codable, Equatable, Sendable {
     }
 }
 
+/// A named timbre destination (phase 34, M §11): per-voice CC target
+/// values, morphed over bars by `.morphToScene` or the arranger's phase map.
+public struct CCScene: Codable, Equatable, Sendable {
+    public var name: String
+    /// voiceID → CC-map target name → 0–1.
+    public var values: [String: [String: Double]]
+
+    public init(name: String, values: [String: [String: Double]]) {
+        self.name = name
+        self.values = values
+    }
+}
+
 public struct RenderedCC: Equatable, Sendable {
     public var voiceID: String
     public var at: Tick

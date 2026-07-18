@@ -106,6 +106,14 @@ final class UIState {
         services.transport?.enqueue(.fireBPart)
     }
 
+    /// CC scenes (phase 34): names available for the SCENE menu.
+    var sceneNames: [String] { (project.ccScenes ?? []).map(\.name) }
+
+    /// Morph every CC target toward the scene over 8 bars.
+    func morphToScene(_ name: String) {
+        services.transport?.enqueue(.morphToScene(name: name, bars: 8))
+    }
+
     /// Spend one out-of-key allowance (FR-H-7) — lands on the pad voice
     /// when there is one, else the first voice.
     func spendTension() {
