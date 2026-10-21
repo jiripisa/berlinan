@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- MIDI output device (user request): the output label in the transport
+  bar is now a menu — keep the virtual source "Berlinan Out" or send notes,
+  CC and clock straight to a connected device (DIN interface, USB synth,
+  IAC bus). The choice is remembered; an unplugged device shows
+  "disconnected" and resumes when plugged back in.
 - Fix: the templates menu was disabled while playing, so 1.2.3's
   "templates load while playing" could not actually be used. The menu now
   opens mid-jam.

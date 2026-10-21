@@ -88,6 +88,7 @@ Deferred to M7: capture browser, runtime meter changes (backlog).
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 44-midi-output-device | Choose the MIDI output: virtual source or a connected destination (notes/CC/clock), unique-ID persistence, hot-plug safe, flush on switch; transport-bar menu. Also fixed: templates menu disabled while playing (1.2.3 regression of phase 42) | FR-IO-1 (app-wide part) | ✅ |
 | 43-v1.2.3-release | Version 1.2.3 (live template load), notarized DMG, website links + screenshot — tagged 2026-10-22 | — | ✅ |
 | 42-live-template-load | Templates load while playing: Transport.loadProject swaps the whole project at the next bar (engine origin, clock continuity, tempo adopt in INT); horizon chip | FR-UX-4 | ✅ |
 | 41-v1.2.2-release | Version 1.2.2 (voice names + "1 bar" fix), notarized DMG, website links — tagged 2026-10-22 | — | ✅ |

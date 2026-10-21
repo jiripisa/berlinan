@@ -38,7 +38,9 @@ from ~225 hours of synthesist interviews and breakdowns:
    lead ready for melody promotion — channels 1–5 + 10) and *Ambient drift*
    (drone-led, ~1 change/min, a filter journey mapped to the arranger).
    Picked while playing, a template takes over at the next bar.
-2. In Ableton Live: create MIDI tracks, set input to **Berlinan Out**,
+2. Pick the output in the transport bar (top right): the virtual source
+   **Berlinan Out** for a DAW, or a connected MIDI device to play hardware
+   synths directly. In Ableton Live: create MIDI tracks, set input to **Berlinan Out**,
    channels 1–3 (Pluck 1, Pluck 2, Bass — the built-in ensemble; your own
    projects can add pad, lead, rhythm voices), arm + monitor In.
 3. Jam surface:
@@ -86,7 +88,7 @@ macOS 14+.
 ./run.sh              # build + launch
 ./build.sh release    # optimized bundle
 ./build.sh dist       # release + codesign + notarized DMG (needs Developer ID)
-swift test            # 314 tests
+swift test            # 318 tests
 swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 ```
 

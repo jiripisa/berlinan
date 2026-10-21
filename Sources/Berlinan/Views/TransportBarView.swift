@@ -138,16 +138,40 @@ struct TransportBarView: View {
             .disabled(ui.isPlaying)
             .help("Clock source (FR-IO-4/5). EXT: Berlinan follows Start/Stop and tempo of incoming MIDI clock (enable Sync OUT to Berlinan in Ableton). LINK: tempo and bar phase lock to the Ableton Link session on the local network")
 
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(midiUp ? AppColor.green : AppColor.rec)
-                    .frame(width: 6, height: 6)
-                    .shadow(color: (midiUp ? AppColor.green : AppColor.rec).opacity(0.6),
-                            radius: 2)
+            // The status dot stays outside the menu: macOS menu labels render
+            // their text only.
+            Circle()
+                .fill(outputUp ? AppColor.green : AppColor.rec)
+                .frame(width: 6, height: 6)
+                .shadow(color: (outputUp ? AppColor.green : AppColor.rec).opacity(0.6),
+                        radius: 2)
+                .padding(.trailing, -10)
+
+            Menu {
+                outputButton("Berlinan Out (virtual)", selected: ui.midiOutputID == nil) {
+                    ui.setMIDIOutput(nil)
+                }
+                let devices = ui.midiDestinations
+                Section("Devices") {
+                    if devices.isEmpty {
+                        Text("No MIDI devices connected")
+                    }
+                    ForEach(devices, id: \.uniqueID) { device in
+                        outputButton(device.name,
+                                     selected: ui.midiOutputID == device.uniqueID) {
+                            ui.setMIDIOutput(device)
+                        }
+                    }
+                }
+            } label: {
                 Text(statusText)
                     .font(AppFont.monoCaption)
                     .foregroundStyle(AppColor.ink3)
             }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .disabled(!midiUp)
+            .help("MIDI output: the virtual source \"Berlinan Out\" (point your DAW at it) or a connected device — notes, CC and clock go straight to it")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -166,7 +190,23 @@ struct TransportBarView: View {
         switch ui.syncMode {
         case .externalClock where !ui.isPlaying: "EXT — waiting for clock"
         case .link: "LINK — \(ui.linkPeers) peer\(ui.linkPeers == 1 ? "" : "s")"
-        default: midiStatus
+        default: midiUp
+            ? ui.midiOutputName + (ui.midiOutputAvailable ? "" : " — disconnected")
+            : midiStatus
+        }
+    }
+
+    private var outputUp: Bool { midiUp && ui.midiOutputAvailable }
+
+    @ViewBuilder
+    private func outputButton(_ title: String, selected: Bool,
+                              action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            if selected {
+                Label(title, systemImage: "checkmark")
+            } else {
+                Text(title)
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 import AppKit
+import CoreMIDI
 import Observation
 import UniformTypeIdentifiers
 import BerlinanEngine
@@ -45,10 +46,45 @@ final class AppServices {
             midi.createControlInput(named: "Berlinan Control") { [weak self] trigger in
                 Task { @MainActor in self?.onControlTrigger?(trigger) }
             }
+            // Output choice (phase 44) survives relaunches — and unplugging:
+            // the device is found again by its unique ID.
+            if let id = UserDefaults.standard.object(forKey: Self.outputIDKey) as? Int {
+                midi.setOutput(MIDIUniqueID(id))
+                outputName = UserDefaults.standard.string(forKey: Self.outputNameKey)
+                    ?? outputName
+            }
         } catch {
             self.midi = nil
             self.midiStatus = "MIDI unavailable: \(error)"
             self.transport = nil
+        }
+    }
+
+    // MARK: - MIDI output (phase 44, FR-IO-1)
+
+    private static let outputIDKey = "midiOutputDestinationID"
+    private static let outputNameKey = "midiOutputDestinationName"
+
+    /// Where the notes go: the virtual source or the chosen device's name.
+    private(set) var outputName = "Berlinan Out"
+
+    var midiDestinations: [MIDIService.Destination] { midi?.destinations() ?? [] }
+
+    var midiOutputID: MIDIUniqueID? { midi?.outputDestinationID }
+
+    /// nil = back to the virtual source. Works while playing: what still
+    /// sounds on the previous output is silenced first.
+    func setMIDIOutput(_ destination: MIDIService.Destination?) {
+        guard let midi else { return }
+        midi.setOutput(destination?.uniqueID)
+        outputName = destination?.name ?? "Berlinan Out"
+        let defaults = UserDefaults.standard
+        if let destination {
+            defaults.set(Int(destination.uniqueID), forKey: Self.outputIDKey)
+            defaults.set(destination.name, forKey: Self.outputNameKey)
+        } else {
+            defaults.removeObject(forKey: Self.outputIDKey)
+            defaults.removeObject(forKey: Self.outputNameKey)
         }
     }
 
