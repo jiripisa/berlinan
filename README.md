@@ -83,7 +83,7 @@ macOS 14+.
 ./run.sh              # build + launch
 ./build.sh release    # optimized bundle
 ./build.sh dist       # release + codesign + notarized DMG (needs Developer ID)
-swift test            # 305 tests
+swift test            # 307 tests
 swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 ```
 

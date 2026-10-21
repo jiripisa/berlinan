@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased
+## 1.2.1 — 2026-10-21
 
 - Bass melody walks are seeded now (user feedback): regenerate and New
   Seed produce a NEW walk telling the SAME harmony — downbeat roots stay
   the progression's law; the seed shapes the path, syncopation and octave
   dips. Deterministic voices (drone, heartbeat) disable their regenerate
   button and say why.
+- Distribution: the DMG is notarized again, and the app inside it is
+  notarized and stapled on its own too (timestamped Developer ID signature,
+  pipeline aligned with MDPre).
 
 ## 1.2.0 — 2026-07-18 (M6 — the long piece)
 
