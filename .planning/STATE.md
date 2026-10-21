@@ -19,7 +19,9 @@
 - 2026-10-22 — v1.2.2 RELEASED (phase 41): voice names + "1 bar" fix,
   notarized DMG, GitHub Release.
 - Phase 42 (live template load, FR-UX-4, user feedback) DONE 2026-10-22 —
-  314 tests. Unreleased (CHANGELOG). No phase open. Next entry point: M7.
+  314 tests.
+- 2026-10-22 — v1.2.3 RELEASED (phase 43): live template load, notarized
+  DMG, GitHub Release, website updated. No phase open. Next entry point: M7.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
   Public release still pending user decision.
