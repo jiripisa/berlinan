@@ -20,10 +20,15 @@ Date: 2026-10-22 · Branch: feature/42-live-template-load · Suite: **314 tests 
 - A template picked while another one is still armed is no longer lost
   (the swap only clears the pending project it actually installed).
 
-## Not verified in the app
+## Not verified in the app — and broken in 1.2.3
 
-UI automation could not open the SwiftUI templates menu (synthetic clicks
-are ignored), so the app path was not exercised end-to-end.
+UI automation "could not open the templates menu": the real cause was that
+the menu itself was `.disabled(ui.isPlaying)` (phase 36), so the feature was
+unreachable while playing in the 1.2.3 release. Fixed afterwards
+(fix/templates-menu-while-playing) and verified in the app on 2026-10-22:
+picked Full ensemble while playing → horizon chip "TEMPLATE FULL ENSEMBLE ·
+next bar" → six lanes on the bar line, position restarted, template tempo
+(96 BPM) adopted.
 
 ## Human checklist (pending)
 

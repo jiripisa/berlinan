@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Fix: the templates menu was disabled while playing, so 1.2.3's
+  "templates load while playing" could not actually be used. The menu now
+  opens mid-jam.
+
 ## 1.2.3 — 2026-10-22
 
 - Templates load while playing (user feedback): pick one from the
