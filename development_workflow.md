@@ -89,26 +89,35 @@ SPM produces a bare executable; the script assembles the bundle manually:
 
 ### 2.2 Distribution (`dist`)
 
+Aligned with the MDPre pipeline (`../MDPre/build.sh`).
+
 1. Find the signing identity automatically:
    ```
    security find-identity -v -p codesigning | grep "Developer ID Application"
    ```
-   (Graceful skip with a warning if absent — the release bundle still builds.)
-2. Sign with hardened runtime:
+   `dist` aborts with an error if it is absent (use `release` for an unsigned bundle).
+2. Sign with hardened runtime and a secure timestamp (notarization rejects signatures without one):
    ```
-   codesign --force --options runtime --entitlements Resources/Berlinan.entitlements --sign "$IDENTITY" Berlinan.app
+   codesign --force --options runtime --timestamp --entitlements Resources/Berlinan.entitlements --sign "$IDENTITY" Berlinan.app
    ```
-   then verify with `codesign -vvv`.
-3. Build the DMG: staging folder with the app + an `/Applications` symlink (drag-to-install UX), then
+   then verify with `codesign --verify --deep --strict --verbose=2`.
+3. Notarize and staple the app itself (zipped with `ditto -c -k --keepParent`), so a copy dragged out of the DMG passes Gatekeeper offline:
+   ```
+   xcrun notarytool submit build/Berlinan-notarize.zip --keychain-profile notary --wait
+   xcrun stapler staple build/release/Berlinan.app
+   ```
+4. Build the DMG: staging folder with the app + an `/Applications` symlink (drag-to-install UX), then
    ```
    hdiutil create -volname Berlinan -srcfolder staging -ov -format UDZO build/Berlinan.dmg
    ```
-4. Sign the DMG with the same identity.
-5. Notarize and staple:
+5. Sign the DMG with the same identity (`--timestamp`).
+6. Notarize and staple the DMG:
    ```
    xcrun notarytool submit build/Berlinan.dmg --keychain-profile notary --wait
    xcrun stapler staple build/Berlinan.dmg
    ```
+
+A notarization `HTTP status code: 403. A required agreement is missing or has expired` is an account issue, not a script one: the Account Holder must accept the updated Apple Developer Program License Agreement at developer.apple.com/account.
 
 The stapled, notarized DMG opens on any Mac without Gatekeeper warnings.
 
