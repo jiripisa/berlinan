@@ -347,7 +347,7 @@ public final class Transport: @unchecked Sendable {
             // takes over with its tick 0 on that bar; the clock runs on.
             var projectBoundary: Tick? = nil
             if let newProject = requestedProject {
-                let boundary = (renderHead + barTicks - 1) / barTicks * barTicks
+                let boundary = Self.nextBar(after: renderHead, origin: origin, barTicks: barTicks)
                 if renderHead == boundary {
                     engine = LiveEngine(project: newProject)
                     origin = boundary
@@ -366,7 +366,7 @@ public final class Transport: @unchecked Sendable {
                     channelMap = Dictionary(uniqueKeysWithValues:
                         newProject.voices.map { ($0.id, $0.channel) })
                     mutedVoices.removeAll()
-                    pendingProject = nil
+                    if pendingProject == newProject { pendingProject = nil }
                     engineOrigin = boundary
                     if adoptTempo {
                         activeClock = clock
@@ -424,7 +424,7 @@ public final class Transport: @unchecked Sendable {
             // reaches it the clock swaps with segment continuity.
             var tempoBoundary: Tick? = nil
             if let newBPM = requestedBPM {
-                let boundary = (renderHead + barTicks - 1) / barTicks * barTicks
+                let boundary = Self.nextBar(after: renderHead, origin: origin, barTicks: barTicks)
                 if renderHead == boundary {
                     clock = TickClock.current(
                         bpm: newBPM,
@@ -516,6 +516,12 @@ public final class Transport: @unchecked Sendable {
 
             Thread.sleep(forTimeInterval: wakeInterval)
         }
+    }
+
+    /// The first bar line at or after `tick`; bars count from the running
+    /// engine's origin (a loaded project may bring a different meter).
+    static func nextBar(after tick: Tick, origin: Tick, barTicks: Tick) -> Tick {
+        origin + (tick - origin + barTicks - 1) / barTicks * barTicks
     }
 
     private func machAfter(nanos: Double) -> UInt64 {

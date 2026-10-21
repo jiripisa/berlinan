@@ -38,6 +38,17 @@ struct TemplateLoadTests {
         #expect(tick < bar, "the new piece starts from its beginning")
     }
 
+    @Test("Bar lines count from the loaded project's origin (meter may change)")
+    func barsFromOrigin() {
+        let fourFour: Tick = 4 * Time.ppqn, threeFour: Tick = 3 * Time.ppqn
+        #expect(Transport.nextBar(after: 1, origin: 0, barTicks: fourFour) == fourFour)
+        #expect(Transport.nextBar(after: fourFour, origin: 0, barTicks: fourFour) == fourFour)
+        // A 3/4 project loaded at bar 2 of a 4/4 piece: its bars start there.
+        let origin = 2 * fourFour
+        #expect(Transport.nextBar(after: origin + 1, origin: origin, barTicks: threeFour)
+                == origin + threeFour)
+    }
+
     @Test("Stopped: loadProject is ignored — the app rebuilds instead")
     func ignoredWhenStopped() throws {
         let midi = try MIDIService(clientName: "BerlinanLoadTest2",
