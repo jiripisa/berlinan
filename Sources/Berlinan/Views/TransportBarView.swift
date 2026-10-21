@@ -75,7 +75,7 @@ struct TransportBarView: View {
                 Section("Templates") {
                     ForEach(TemplateStore.builtIns, id: \.name) { template in
                         Button(template.name) {
-                            ui.applyTemplate(template.project)
+                            ui.applyTemplate(template.project, name: template.name)
                         }
                     }
                 }
@@ -84,7 +84,7 @@ struct TransportBarView: View {
                     Section("My templates") {
                         ForEach(userTemplates, id: \.name) { template in
                             Button(template.name) {
-                                ui.applyTemplate(template.project)
+                                ui.applyTemplate(template.project, name: template.name)
                             }
                         }
                     }

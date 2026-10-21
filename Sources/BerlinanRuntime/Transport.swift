@@ -10,9 +10,9 @@ import BerlinanEngine
 /// tick 0 with a fresh engine — deterministic every time.
 public final class Transport: @unchecked Sendable {
 
-    private let project: Project
+    private var project: Project
     private let midi: MIDIService
-    private let channelMap: [String: UInt8]
+    private var channelMap: [String: UInt8]
     private let wakeInterval: TimeInterval = 0.025      // spec §8.2
     private let lookaheadNanos: Double = 150_000_000    // 150 ms
     private let prerollNanos: Double = 100_000_000      // anchor 100 ms ahead
@@ -28,6 +28,10 @@ public final class Transport: @unchecked Sendable {
     private var activeClock: TickClock?
     private var capture: CaptureBuffer
     private var pendingBPM: Double? = nil
+    /// A whole project waiting for the next bar (phase 42).
+    private var pendingProject: Project? = nil
+    /// Transport tick where the running engine's tick 0 sits (phase 42).
+    private var engineOrigin: Tick = 0
     private var liveBPM: Double
     public private(set) var sendsClock = true
 
@@ -168,7 +172,7 @@ public final class Transport: @unchecked Sendable {
     public var currentTick: Tick? {
         lock.lock(); defer { lock.unlock() }
         guard running, let clock = activeClock else { return nil }
-        let tick = clock.tick(atMach: mach_absolute_time())
+        let tick = clock.tick(atMach: mach_absolute_time()) - engineOrigin
         return tick >= 0 ? tick : 0
     }
 
@@ -191,6 +195,7 @@ public final class Transport: @unchecked Sendable {
     public func exportCapture(lastBars: Int) -> [UInt8]? {
         lock.lock()
         let buffer = capture
+        let project = self.project
         lock.unlock()
         guard !buffer.isEmpty else { return nil }
         let clip = buffer.notes(lastBars: lastBars, endTick: buffer.head,
@@ -218,6 +223,8 @@ public final class Transport: @unchecked Sendable {
         guard !running else { lock.unlock(); return }
         running = true
         pendingActions.removeAll()
+        pendingProject = nil
+        engineOrigin = 0
         lock.unlock()
 
         let thread = Thread { [weak self] in self?.schedulerLoop() }
@@ -232,6 +239,7 @@ public final class Transport: @unchecked Sendable {
         let wasRunning = running
         running = false
         activeClock = nil
+        pendingProject = nil
         lock.unlock()
         guard wasRunning else { return }
         // The loop observes `running` at each wake (≤ 25 ms) and exits.
@@ -248,6 +256,20 @@ public final class Transport: @unchecked Sendable {
 
     // MARK: - Live controls
 
+    /// Load a whole project while playing (phase 42): it takes over at the
+    /// next bar — the clock keeps running, the new piece starts from its
+    /// beginning there. Ignored when stopped (rebuild the transport instead).
+    public func loadProject(_ newProject: Project) {
+        lock.lock(); defer { lock.unlock() }
+        guard running else { return }
+        pendingProject = newProject
+    }
+
+    public var hasPendingProjectLoad: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return pendingProject != nil
+    }
+
     /// Quantized engine actions (transpose / regenerate / blank / lock) —
     /// consumed by the scheduler at its next wake, bound at the render head.
     public func enqueue(_ action: LiveEngine.Action) {
@@ -260,8 +282,9 @@ public final class Transport: @unchecked Sendable {
     public func setMuted(_ voiceID: String, _ muted: Bool) {
         lock.lock()
         if muted { mutedVoices.insert(voiceID) } else { mutedVoices.remove(voiceID) }
+        let channel = channelMap[voiceID]
         lock.unlock()
-        if muted, let channel = channelMap[voiceID] {
+        if muted, let channel {
             midi.flush(channel: channel)
         }
     }
@@ -269,8 +292,8 @@ public final class Transport: @unchecked Sendable {
     // MARK: - Scheduler loop (dedicated thread)
 
     private func schedulerLoop() {
-        var engine = LiveEngine(project: project)
         lock.lock()
+        var engine = LiveEngine(project: project)
         let external = syncMode == .externalClock
         let link = syncMode == .link ? linkService : nil
         let startAnchor = externalStartMach
@@ -279,7 +302,7 @@ public final class Transport: @unchecked Sendable {
 
         // Link (FR-IO-5): quantum = one bar; tick 0 lands on the session's
         // next quantum boundary (granted verbatim when there are no peers).
-        let quantum = Double(project.meter.ticksPerBar) / Double(Time.ppqn)
+        var quantum = Double(project.meter.ticksPerBar) / Double(Time.ppqn)
         var clock: TickClock
         if let link {
             let anchorMach = machAfter(nanos: prerollNanos)
@@ -304,7 +327,8 @@ public final class Transport: @unchecked Sendable {
             midi.send([(hostTime: clock.machTime(forTick: 0), event: .start)])
         }
         var renderHead: Tick = 0
-        let barTicks = project.meter.ticksPerBar
+        var origin: Tick = 0                         // engine tick 0 in transport ticks
+        var barTicks = project.meter.ticksPerBar
 
         while true {
             lock.lock()
@@ -315,11 +339,48 @@ public final class Transport: @unchecked Sendable {
             let requestedBPM = (external || link != nil) ? nil : pendingBPM
             let estimate = external ? estimator.bpm : nil
             let pulse = latestPulse
+            let requestedProject = pendingProject
             lock.unlock()
             guard stillRunning else { return }
 
+            // Live project load (phase 42): at the next bar a fresh engine
+            // takes over with its tick 0 on that bar; the clock runs on.
+            var projectBoundary: Tick? = nil
+            if let newProject = requestedProject {
+                let boundary = (renderHead + barTicks - 1) / barTicks * barTicks
+                if renderHead == boundary {
+                    engine = LiveEngine(project: newProject)
+                    origin = boundary
+                    barTicks = newProject.meter.ticksPerBar
+                    quantum = Double(barTicks) / Double(Time.ppqn)
+                    let adoptTempo = !external && link == nil
+                        && newProject.bpm != clock.bpm
+                    if adoptTempo {
+                        clock = TickClock.current(
+                            bpm: newProject.bpm,
+                            anchorMach: clock.machTime(forTick: boundary),
+                            anchorTick: boundary)
+                    }
+                    lock.lock()
+                    project = newProject
+                    channelMap = Dictionary(uniqueKeysWithValues:
+                        newProject.voices.map { ($0.id, $0.channel) })
+                    mutedVoices.removeAll()
+                    pendingProject = nil
+                    engineOrigin = boundary
+                    if adoptTempo {
+                        activeClock = clock
+                        liveBPM = newProject.bpm
+                        pendingBPM = nil
+                    }
+                    lock.unlock()
+                } else {
+                    projectBoundary = boundary
+                }
+            }
+
             for action in actions {
-                engine.enqueue(action, atTick: renderHead)
+                engine.enqueue(action, atTick: renderHead - origin)
             }
 
             // External sync (FR-IO-4): re-anchor the clock segment to the
@@ -383,13 +444,28 @@ public final class Transport: @unchecked Sendable {
             if let boundary = tempoBoundary {
                 target = min(target, boundary)
             }
+            if let boundary = projectBoundary {
+                target = min(target, boundary)
+            }
             if target > renderHead {
                 let window = renderHead..<target
-                let rendered = engine.render(range: window)
+                let local = (renderHead - origin)..<(target - origin)
+                let rendered = engine.render(range: local).map { note -> RenderedNote in
+                    var shifted = note
+                    shifted.at += origin
+                    return shifted
+                }
+                let cc = engine.renderCC(range: local).map { event -> RenderedCC in
+                    var shifted = event
+                    shifted.at += origin
+                    return shifted
+                }
+                lock.lock()
+                let channels = channelMap
+                lock.unlock()
                 var timed = NoteEventConverter.events(
-                    for: rendered, channelMap: channelMap, muted: muted)
-                timed += NoteEventConverter.ccEvents(
-                    for: engine.renderCC(range: window), channelMap: channelMap)
+                    for: rendered, channelMap: channels, muted: muted)
+                timed += NoteEventConverter.ccEvents(for: cc, channelMap: channels)
                 if emitClock {
                     timed += NoteEventConverter.clockTicks(in: window)
                         .map { NoteEventConverter.TimedEvent(tick: $0, event: .clock) }
@@ -408,7 +484,7 @@ public final class Transport: @unchecked Sendable {
             // Publish the UI mirror (spec §5.4).
             let snap = engine.snapshot()
             let fullState = engine.captureState()
-            let bar = Int(renderHead / project.meter.ticksPerBar)
+            let bar = Int((renderHead - origin) / barTicks)
             let offset = engine.transpositionOffset(atBar: bar)
             lock.lock()
             latestSnapshot = snap
@@ -420,7 +496,8 @@ public final class Transport: @unchecked Sendable {
             // its stop tick — wait for that musical moment, then shut down
             // from inside the loop (a self-stop; external stop() sees
             // running == false and stays out of the way).
-            if let stopTick = engine.pendingStopTick, renderHead >= stopTick {
+            if let localStop = engine.pendingStopTick, renderHead >= localStop + origin {
+                let stopTick = localStop + origin
                 let stopMach = clock.machTime(forTick: stopTick)
                 while mach_absolute_time() < stopMach && isPlaying {
                     Thread.sleep(forTimeInterval: 0.005)
