@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.3 — 2026-10-22
 
 - Templates load while playing (user feedback): pick one from the
   templates menu mid-jam and it takes over at the next bar — the clock
