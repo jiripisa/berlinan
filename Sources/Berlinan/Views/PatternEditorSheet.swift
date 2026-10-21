@@ -26,7 +26,7 @@ struct PatternEditorSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("EDIT \(voiceID.uppercased())")
+            Text("EDIT \(ui.voiceName(voiceID).uppercased())")
                 .font(AppFont.sansBold(11))
                 .tracking(AppTracking.label)
                 .foregroundStyle(AppColor.tangerine)

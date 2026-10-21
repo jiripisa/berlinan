@@ -39,7 +39,7 @@ struct VoiceLaneView: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(voice.id)
+                Text(ui.voiceName(voice.id))
                     .font(AppFont.sectionLabel)
                     .tracking(AppTracking.label)
                     .foregroundStyle(isMuted ? AppColor.ink4 : AppColor.ink)
@@ -87,7 +87,7 @@ struct VoiceLaneView: View {
                     Menu("Alternate With") {
                         ForEach(ui.voices.filter { $0.id != voice.id },
                                 id: \.id) { other in
-                            Button(other.id) {
+                            Button(ui.voiceName(other.id)) {
                                 ui.setAlternating(AlternatingConfig(
                                     voiceA: voice.id, voiceB: other.id))
                             }

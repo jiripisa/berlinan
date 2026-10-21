@@ -135,6 +135,9 @@ final class UIState {
 
     var hasLeadVoice: Bool { project.voices.contains { $0.role == .lead } }
 
+    /// The name the UI shows for a voice — by role, never the id (FR-UX-7).
+    func voiceName(_ id: String) -> String { project.voiceLabels[id] ?? id }
+
     /// Alternating phrase scheduler (FR-MEL-3).
     var alternating: AlternatingConfig? { project.alternating }
 

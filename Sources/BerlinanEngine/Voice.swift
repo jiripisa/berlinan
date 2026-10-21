@@ -1,6 +1,43 @@
 /// Voice roles per the manual's architecture (M §10.1).
 public enum VoiceRole: String, Codable, CaseIterable, Sendable {
     case bedPluck1, bedPluck2, bass, pad, lead, drone, rhythm, aux
+
+    /// The name a musician reads in the UI (FR-UX-7). The raw value stays
+    /// the document/export identifier.
+    public var displayName: String {
+        switch self {
+        case .bedPluck1: "Pluck 1"
+        case .bedPluck2: "Pluck 2"
+        case .bass:      "Bass"
+        case .pad:       "Pad"
+        case .lead:      "Lead"
+        case .drone:     "Drone"
+        case .rhythm:    "Heartbeat"
+        case .aux:       "Aux"
+        }
+    }
+}
+
+/// UI labels for a list of voices (FR-UX-7): voice id → role name. A role
+/// used by several voices is numbered in document order ("Lead 1",
+/// "Lead 2") so labels never collide.
+public enum VoiceLabels {
+    public static func make(_ voices: [(id: String, role: VoiceRole)]) -> [String: String] {
+        var counts: [VoiceRole: Int] = [:]
+        for voice in voices { counts[voice.role, default: 0] += 1 }
+        var seen: [VoiceRole: Int] = [:]
+        var labels: [String: String] = [:]
+        for voice in voices {
+            let name = voice.role.displayName
+            if counts[voice.role, default: 0] > 1 {
+                seen[voice.role, default: 0] += 1
+                labels[voice.id] = "\(name) \(seen[voice.role]!)"
+            } else {
+                labels[voice.id] = name
+            }
+        }
+        return labels
+    }
 }
 
 /// The bass anchor rule (FR-V-5, M §6.6): while phasing runs, the bass
