@@ -1,3 +1,4 @@
+import CoreMIDI
 import AppKit
 import Foundation
 import Observation
@@ -268,6 +269,7 @@ final class UIState {
             upcomingEvents = snapshot.upcomingEvents
         }
         liveBPM = transport.currentBPM
+        midiOutputAvailable = services.midi?.isOutputAvailable ?? false
         if !transport.hasPendingProjectLoad { pendingTemplateName = nil }
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
     }
@@ -428,6 +430,20 @@ final class UIState {
         guard let transport = services.transport else { return }
         transport.setSyncMode(mode)
         transport.linkService?.enable(mode == .link)
+        refresh()
+    }
+
+    // MARK: - MIDI output (phase 44)
+
+    /// False while the chosen output device is unplugged.
+    private(set) var midiOutputAvailable = true
+
+    var midiOutputName: String { services.outputName }
+    var midiOutputID: MIDIUniqueID? { services.midiOutputID }
+    var midiDestinations: [MIDIService.Destination] { services.midiDestinations }
+
+    func setMIDIOutput(_ destination: MIDIService.Destination?) {
+        services.setMIDIOutput(destination)
         refresh()
     }
 

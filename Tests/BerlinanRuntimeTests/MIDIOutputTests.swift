@@ -63,11 +63,11 @@ struct MIDIOutputTests {
         let synth = FakeSynth(name: "Berlinan Test Synth A")
         let midi = try MIDIService(clientName: "BerlinanOutTest1",
                                    sourceName: "Berlinan Out Test 1")
-        midi.createControlInput(named: "Berlinan Test Control") { _ in }
+        midi.createControlInput(named: "Berlinan Output Test Control") { _ in }
         Thread.sleep(forTimeInterval: 0.1)
         let names = midi.destinations().map(\.name)
         #expect(names.contains("Berlinan Test Synth A"))
-        #expect(!names.contains("Berlinan Test Control"), "never offer our own input")
+        #expect(!names.contains("Berlinan Output Test Control"), "never offer our own input")
         #expect(midi.destinations().contains { $0.uniqueID == synth.uniqueID })
     }
 

@@ -1,8 +1,9 @@
 import CoreMIDI
 
 /// CoreMIDI virtual source + timestamped sending (FR-IO-1/2). One instance
-/// owns one virtual source ("Berlinan Out" in the app). Not thread-safe by
-/// design — owned and driven by the scheduler thread (spec §5.4).
+/// owns one virtual source ("Berlinan Out" in the app) and can instead send
+/// to one connected destination (phase 44). Sending and output switching
+/// are serialized by a lock (the scheduler sends, the UI flushes/switches).
 public final class MIDIService {
 
     public enum MIDIError: Error {
@@ -13,6 +14,17 @@ public final class MIDIService {
     private var client = MIDIClientRef()
     public private(set) var sourceEndpoint = MIDIEndpointRef()
     private var registry = NoteRegistry()
+    private let sendLock = NSRecursiveLock()
+
+    /// A connected MIDI destination (DIN interface, USB synth, IAC bus).
+    public struct Destination: Hashable, Sendable {
+        public let uniqueID: MIDIUniqueID
+        public let name: String
+    }
+
+    private var outputPort = MIDIPortRef()
+    /// nil = the virtual source; otherwise the chosen destination.
+    private var destinationID: MIDIUniqueID? = nil
 
     public var activeNoteCount: Int { registry.activeCount }
 
@@ -52,6 +64,17 @@ public final class MIDIService {
 
     private func sendChunk(_ events: ArraySlice<(hostTime: UInt64, event: MIDI1Event)>) {
         guard !events.isEmpty else { return }
+        sendLock.lock(); defer { sendLock.unlock() }
+        // Hot-plug (NFR-5): resolve the device per send; while it is gone the
+        // events are dropped (still tracked, so a later flush stays correct).
+        var target: MIDIEndpointRef? = nil
+        if let destinationID {
+            guard let endpoint = Self.destinationEndpoint(destinationID) else {
+                events.forEach { registry.track($0.event) }
+                return
+            }
+            target = endpoint
+        }
         var buffer = [UInt8](repeating: 0, count: 4096)
         buffer.withUnsafeMutableBytes { raw in
             let listPtr = raw.baseAddress!.assumingMemoryBound(to: MIDIEventList.self)
@@ -62,8 +85,61 @@ public final class MIDIService {
                 packet = MIDIEventListAdd(listPtr, raw.count, packet,
                                           MIDITimeStamp(item.hostTime), 1, &word)
             }
-            MIDIReceivedEventList(sourceEndpoint, listPtr)
+            if let target {
+                MIDISendEventList(outputPort, target, listPtr)
+            } else {
+                MIDIReceivedEventList(sourceEndpoint, listPtr)
+            }
         }
+    }
+
+    // MARK: - Output choice (phase 44)
+
+    /// Connected destinations, Berlinan's own control input excluded.
+    public func destinations() -> [Destination] {
+        (0..<MIDIGetNumberOfDestinations()).compactMap { index in
+            let endpoint = MIDIGetDestination(index)
+            guard endpoint != controlEndpoint else { return nil }
+            var id: MIDIUniqueID = 0
+            MIDIObjectGetIntegerProperty(endpoint, kMIDIPropertyUniqueID, &id)
+            var name: Unmanaged<CFString>?
+            MIDIObjectGetStringProperty(endpoint, kMIDIPropertyDisplayName, &name)
+            return Destination(uniqueID: id,
+                               name: (name?.takeRetainedValue() as String?) ?? "MIDI \(id)")
+        }
+    }
+
+    /// The chosen destination, nil while sending through the virtual source.
+    public var outputDestinationID: MIDIUniqueID? {
+        sendLock.lock(); defer { sendLock.unlock() }
+        return destinationID
+    }
+
+    /// False while the chosen device is unplugged.
+    public var isOutputAvailable: Bool {
+        guard let id = outputDestinationID else { return true }
+        return Self.destinationEndpoint(id) != nil
+    }
+
+    /// Send to a destination (nil = back to the virtual source). Whatever
+    /// still sounds on the previous output gets its note-offs first.
+    public func setOutput(_ uniqueID: MIDIUniqueID?) {
+        sendLock.lock(); defer { sendLock.unlock() }
+        guard uniqueID != destinationID else { return }
+        flush()
+        if uniqueID != nil && outputPort == 0 {
+            MIDIOutputPortCreate(client, "out" as CFString, &outputPort)
+        }
+        destinationID = uniqueID
+    }
+
+    private static func destinationEndpoint(_ uniqueID: MIDIUniqueID) -> MIDIEndpointRef? {
+        var object = MIDIObjectRef()
+        var type = MIDIObjectType.other
+        guard MIDIObjectFindByUniqueID(uniqueID, &object, &type) == noErr,
+              type == .destination || type == .externalDestination
+        else { return nil }
+        return object
     }
 
     // MARK: - Clock input (FR-IO-4)
@@ -145,6 +221,7 @@ public final class MIDIService {
     /// Immediately silence everything sounding (optionally one channel):
     /// note-offs + CC 123, sent now.
     public func flush(channel: UInt8? = nil) {
+        sendLock.lock(); defer { sendLock.unlock() }
         let offs = registry.flushEvents(channel: channel)
         guard !offs.isEmpty else { return }
         // Sending also re-tracks the offs, which is harmless (they remove).
