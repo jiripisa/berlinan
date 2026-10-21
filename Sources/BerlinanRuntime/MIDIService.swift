@@ -26,7 +26,11 @@ public final class MIDIService {
     /// nil = the virtual source; otherwise the chosen destination.
     private var destinationID: MIDIUniqueID? = nil
 
-    public var activeNoteCount: Int { registry.activeCount }
+    /// Notes sounding right now or scheduled to (note-ons already sent).
+    public var activeNoteCount: Int {
+        sendLock.lock(); defer { sendLock.unlock() }
+        return registry.activeCount(at: mach_absolute_time())
+    }
 
     public init(clientName: String, sourceName: String) throws {
         var status = MIDIClientCreateWithBlock(clientName as CFString, &client, nil)
@@ -70,7 +74,7 @@ public final class MIDIService {
         var target: MIDIEndpointRef? = nil
         if let destinationID {
             guard let endpoint = Self.destinationEndpoint(destinationID) else {
-                events.forEach { registry.track($0.event) }
+                events.forEach { registry.track($0.event, at: $0.hostTime) }
                 return
             }
             target = endpoint
@@ -80,7 +84,7 @@ public final class MIDIService {
             let listPtr = raw.baseAddress!.assumingMemoryBound(to: MIDIEventList.self)
             var packet = MIDIEventListInit(listPtr, ._1_0)
             for item in events {
-                registry.track(item.event)
+                registry.track(item.event, at: item.hostTime)
                 var word = item.event.umpWord
                 packet = MIDIEventListAdd(listPtr, raw.count, packet,
                                           MIDITimeStamp(item.hostTime), 1, &word)
@@ -218,13 +222,27 @@ public final class MIDIService {
 
     // MARK: - Note-off safety net (FR-IO-8)
 
-    /// Immediately silence everything sounding (optionally one channel):
-    /// note-offs + CC 123, sent now.
+    /// Immediately silence everything sounding or scheduled to sound
+    /// (optionally one channel): note-offs + CC 123, sent now — and once
+    /// more after the scheduler's lookahead, for notes whose note-on was
+    /// already queued with a future timestamp (audit #2).
     public func flush(channel: UInt8? = nil) {
         sendLock.lock(); defer { sendLock.unlock() }
-        let offs = registry.flushEvents(channel: channel)
+        let now = mach_absolute_time()
+        let offs = registry.flushEvents(channel: channel, now: now)
         guard !offs.isEmpty else { return }
-        // Sending also re-tracks the offs, which is harmless (they remove).
-        send(offs.map { (hostTime: 0, event: $0) })
+        let afterQueued = now + Self.machTicks(nanos: Self.queuedHorizonNanos)
+        // Sending re-tracks the offs, which is harmless (the notes are gone).
+        send(offs.map { (hostTime: 0, event: $0) }
+             + offs.map { (hostTime: afterQueued, event: $0) })
+    }
+
+    /// Covers the transport's preroll (100 ms) + lookahead (150 ms).
+    private static let queuedHorizonNanos: Double = 300_000_000
+
+    private static func machTicks(nanos: Double) -> UInt64 {
+        var info = mach_timebase_info_data_t()
+        mach_timebase_info(&info)
+        return UInt64((nanos * Double(info.denom) / Double(info.numer)).rounded())
     }
 }
