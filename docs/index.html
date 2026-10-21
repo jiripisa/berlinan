@@ -175,6 +175,9 @@
   .routing {
     display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: start;
   }
+  .routing-example { margin: 0; }
+  .routing-example figcaption { margin-bottom: 1rem; color: var(--ink2); font-size: .95rem; }
+  .routing-example figcaption b { color: var(--ink); font-weight: 600; }
   .flow { margin: 0; padding: 0; list-style: none; font-family: "JetBrains Mono", monospace; font-size: .9rem; }
   .flow li {
     display: flex; justify-content: space-between; gap: 1rem;
@@ -263,7 +266,7 @@
   <div class="wrap shot">
     <figure>
       <img src="assets/berlinan-window.png" width="2800" height="1280"
-           alt="The Berlinan window playing: three voice lanes (two plucks and a bass) with note strips and playheads, a transport bar with position, tempo and key, the harmony schedule, and a horizon strip announcing that a voice may mutate in about three bars.">
+           alt="The Berlinan window playing: three voice lanes (two plucks and a bass) with note strips and playheads, a transport bar with position, tempo and key, the harmony schedule, and a horizon strip announcing that Pluck 1 may mutate soon.">
       <figcaption>
         Two plucks, 16 and 15 steps long, over a 16-step bass. The horizon strip
         tells you what is about to change, so nothing surprises you mid-set.
@@ -315,14 +318,20 @@
           <p><b>LINK</b> Ableton Link over your network, tempo and bar phase locked both ways.</p>
         </div>
       </div>
-      <ul class="flow" aria-label="Example channel routing">
-        <li><span><span class="dot" style="--c: var(--cyan)"></span>bed pluck</span><span class="ch">ch 1</span></li>
-        <li><span><span class="dot" style="--c: #5F9EC9"></span>phasing partner</span><span class="ch">ch 2</span></li>
-        <li><span><span class="dot" style="--c: var(--amber)"></span>bass</span><span class="ch">ch 3</span></li>
-        <li><span><span class="dot" style="--c: var(--violet)"></span>chord-layer pad</span><span class="ch">ch 4</span></li>
-        <li><span><span class="dot" style="--c: #D9DDE3"></span>lead</span><span class="ch">ch 5</span></li>
-        <li><span><span class="dot" style="--c: #C96F6F"></span>heartbeat kick</span><span class="ch">ch 10</span></li>
-      </ul>
+      <figure class="routing-example">
+        <figcaption>
+          <b>Full ensemble template</b>, one voice per MIDI channel. The
+          default ensemble plays Pluck 1, Pluck 2 and Bass on channels 1 to 3.
+        </figcaption>
+        <ul class="flow">
+          <li><span><span class="dot" style="--c: var(--cyan)"></span>Pluck 1</span><span class="ch">ch 1</span></li>
+          <li><span><span class="dot" style="--c: #5F9EC9"></span>Pluck 2</span><span class="ch">ch 2</span></li>
+          <li><span><span class="dot" style="--c: var(--amber)"></span>Bass</span><span class="ch">ch 3</span></li>
+          <li><span><span class="dot" style="--c: var(--violet)"></span>Pad</span><span class="ch">ch 4</span></li>
+          <li><span><span class="dot" style="--c: #D9DDE3"></span>Lead</span><span class="ch">ch 5</span></li>
+          <li><span><span class="dot" style="--c: #C96F6F"></span>Heartbeat</span><span class="ch">ch 10</span></li>
+        </ul>
+      </figure>
     </div>
   </section>
 
