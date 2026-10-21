@@ -87,8 +87,8 @@ swift test            # 305 tests
 swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 ```
 
-`dist` degrades gracefully: without a Developer ID identity it builds the
-bundle and skips signing/notarization with a warning.
+`dist` requires a Developer ID identity and the `notary` keychain profile
+(see `development_workflow.md` §2.3); without the identity it aborts.
 
 ## Documentation map
 

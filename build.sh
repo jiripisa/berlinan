@@ -4,7 +4,7 @@
 #
 #   debug   — debug build, no optimization (default)
 #   release — optimized build + app bundle
-#   dist    — release build + sign + notarize + DMG
+#   dist    — release build + Developer ID signing + notarization (app, then DMG) + stapled DMG
 #   clean   — remove build artifacts
 
 set -e
@@ -50,6 +50,7 @@ swift build -c "$SPM_CONFIG"
 
 # --- App Bundle ---
 echo "Creating app bundle..."
+rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$APP_BUNDLE/Contents/Resources"
 
@@ -104,27 +105,35 @@ fi
 IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | sed 's/.*"\(.*\)".*/\1/')
 
 if [ -z "$IDENTITY" ]; then
-    echo ""
-    echo "WARNING: No 'Developer ID Application' identity found in Keychain."
-    echo "Skipping code signing and notarization."
-    exit 0
+    echo "ERROR: No 'Developer ID Application' identity found in Keychain; cannot build dist."
+    exit 1
 fi
 
 echo "Signing with: $IDENTITY"
 
-codesign --force --options runtime \
+codesign --force --options runtime --timestamp \
     --entitlements "Resources/$APP_NAME.entitlements" \
     --sign "$IDENTITY" \
     "$APP_BUNDLE"
 
 echo "Verifying signature..."
-codesign -vvv "$APP_BUNDLE"
+codesign --verify --deep --strict --verbose=2 "$APP_BUNDLE"
+
+# --- Notarize and staple the app itself (so the copied app works offline) ---
+APP_ZIP="$BUILD_DIR/$APP_NAME-notarize.zip"
+rm -f "$APP_ZIP"
+ditto -c -k --keepParent "$APP_BUNDLE" "$APP_ZIP"
+echo "Submitting $APP_NAME.app for notarization (this may take a few minutes)..."
+xcrun notarytool submit "$APP_ZIP" --keychain-profile "$NOTARY_PROFILE" --wait
+rm -f "$APP_ZIP"
+echo "Stapling notarization ticket to $APP_NAME.app..."
+xcrun stapler staple "$APP_BUNDLE"
 
 # --- DMG with Applications symlink ---
 DMG_PATH="$BUILD_DIR/$APP_NAME.dmg"
 DMG_STAGING="$BUILD_DIR/dmg-staging"
 echo "Creating DMG..."
-rm -rf "$DMG_STAGING"
+rm -rf "$DMG_STAGING" "$DMG_PATH"
 mkdir -p "$DMG_STAGING"
 cp -R "$APP_BUNDLE" "$DMG_STAGING/"
 ln -s /Applications "$DMG_STAGING/Applications"
@@ -133,14 +142,13 @@ hdiutil create -volname "$APP_NAME" -srcfolder "$DMG_STAGING" \
 rm -rf "$DMG_STAGING"
 
 echo "Signing DMG..."
-codesign --force --sign "$IDENTITY" "$DMG_PATH"
+codesign --force --timestamp --sign "$IDENTITY" "$DMG_PATH"
 
 # --- Notarization ---
-echo "Submitting for notarization (this may take a few minutes)..."
-xcrun notarytool submit "$DMG_PATH" \
-    --keychain-profile "$NOTARY_PROFILE" --wait
+echo "Submitting $APP_NAME.dmg for notarization..."
+xcrun notarytool submit "$DMG_PATH" --keychain-profile "$NOTARY_PROFILE" --wait
 
-echo "Stapling notarization ticket..."
+echo "Stapling notarization ticket to the DMG..."
 xcrun stapler staple "$DMG_PATH"
 
 echo ""
