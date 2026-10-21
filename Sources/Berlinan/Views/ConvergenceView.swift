@@ -34,6 +34,6 @@ struct ConvergenceView: View {
         let seconds = Convergence.seconds(period: period, bpm: ui.project.bpm)
         let barsText = bars.truncatingRemainder(dividingBy: 1) == 0
             ? String(Int(bars)) : String(format: "%.1f", bars)
-        return "\(barsText) bars ≈ \(Int(seconds.rounded())) s"
+        return "\(barsText) \(bars == 1 ? "bar" : "bars") ≈ \(Int(seconds.rounded())) s"
     }
 }

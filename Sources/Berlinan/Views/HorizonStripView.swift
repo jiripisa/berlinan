@@ -16,7 +16,7 @@ struct HorizonStripView: View {
 
             if let status = ui.arrangement {
                 chip(icon: "wand.and.stars",
-                     text: "\(phaseName(status.phase)) · change in ~\(max(0, status.barsUntilChange)) bars",
+                     text: "\(phaseName(status.phase)) · change in ~\(barCount(max(0, status.barsUntilChange)))",
                      color: AppColor.tangerine)
             }
 
@@ -79,7 +79,11 @@ struct HorizonStripView: View {
             return (ui.voiceName(voice.id), bars)
         }
         .min { $0.1 < $1.1 }
-        .map { "\($0.0) may mutate · ~\($0.1) bars" }
+        .map { "\($0.0) may mutate · ~\(barCount($0.1))" }
+    }
+
+    private func barCount(_ bars: Int) -> String {
+        bars == 1 ? "1 bar" : "\(bars) bars"
     }
 
     private func phaseName(_ phase: ArrangementPhase) -> String {
