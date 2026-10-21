@@ -248,3 +248,10 @@ extension Project {
         return p
     }()
 }
+
+extension Project {
+    /// Voice id → the name the UI shows (FR-UX-7).
+    public var voiceLabels: [String: String] {
+        VoiceLabels.make(voices.map { ($0.id, $0.role) })
+    }
+}

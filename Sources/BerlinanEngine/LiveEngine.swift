@@ -270,8 +270,10 @@ public struct LiveEngine: Sendable {
         }
         public let tick: Tick
         public let kind: Kind
-        /// Short, UI-formattable payload (voice id, value, on/off).
+        /// Short, UI-formattable payload (value, on/off).
         public let detail: String
+        /// The voice the event concerns, if any (FR-UX-7: the UI names it).
+        public var voiceID: String? = nil
     }
 
     /// A voice-level request waiting for its loop boundary (phase 32).
@@ -324,15 +326,16 @@ public struct LiveEngine: Sendable {
                 return UpcomingEvent(tick: entry.tick, kind: .bPart, detail: "")
             case .voiceActive(let id, let on):
                 return UpcomingEvent(tick: entry.tick, kind: .voiceActive,
-                                     detail: "\(id) \(on ? "on" : "off")")
+                                     detail: on ? "on" : "off", voiceID: id)
             case .promoteToLead(let id):
                 return UpcomingEvent(tick: entry.tick, kind: .promoteToLead,
-                                     detail: id)
+                                     detail: id, voiceID: id)
             case .alternating(let config):
                 return UpcomingEvent(tick: entry.tick, kind: .alternating,
                                      detail: config == nil ? "off" : "on")
             case .tension(let id):
-                return UpcomingEvent(tick: entry.tick, kind: .tension, detail: id)
+                return UpcomingEvent(tick: entry.tick, kind: .tension, detail: id,
+                                     voiceID: id)
             case .scene(let name, _):
                 return UpcomingEvent(tick: entry.tick, kind: .scene, detail: name)
             }

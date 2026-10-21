@@ -76,7 +76,7 @@ struct HorizonStripView: View {
                   case .repeating(let remaining) = voice.pattern.lifecycle
             else { return nil }
             let bars = remaining * max(1, Int(voice.pattern.length / barTicks))
-            return (voice.id, bars)
+            return (ui.voiceName(voice.id), bars)
         }
         .min { $0.1 < $1.1 }
         .map { "\($0.0) may mutate · ~\($0.1) bars" }
@@ -110,16 +110,20 @@ struct HorizonStripView: View {
         }
     }
 
+    private func voiceName(_ event: LiveEngine.UpcomingEvent) -> String {
+        event.voiceID.map(ui.voiceName) ?? event.detail
+    }
+
     private func label(for event: LiveEngine.UpcomingEvent) -> String {
         switch event.kind {
         case .key: "KEY \(NoteNames.name(root: Int(event.detail) ?? 0))"
         case .recall: "RECALL"
         case .density: "DENS \(event.detail)"
         case .bPart: "B-PART"
-        case .voiceActive: "VOICE \(event.detail)"
+        case .voiceActive: "\(voiceName(event).uppercased()) \(event.detail)"
         case .alternating: "ALT \(event.detail)"
         case .tension: "TENSION"
-        case .promoteToLead: "LEAD ← \(event.detail)"
+        case .promoteToLead: "LEAD ← \(voiceName(event).uppercased())"
         case .arranger: "AUTO \(event.detail)"
         case .advance: "ADVANCE"
         case .scene: "SCENE \(event.detail)"

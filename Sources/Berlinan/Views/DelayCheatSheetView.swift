@@ -62,8 +62,9 @@ struct DelayCheatSheetView: View {
         let glides = services.project.slidesEnabled == true
             && (voice.role == .bass || voice.role == .lead)
         let midiDelayOn = voice.midiDelay?.enabled == true
+        let name = services.project.voiceLabels[voice.id] ?? voice.id
         return HStack {
-            Text(voice.id)
+            Text(name)
                 .font(AppFont.monoCaption)
                 .foregroundStyle(AppColor.ink)
                 .frame(width: 110, alignment: .leading)
@@ -93,7 +94,7 @@ struct DelayCheatSheetView: View {
             Button {
                 let pasteboard = NSPasteboard.general
                 pasteboard.clearContents()
-                pasteboard.setString("\(voice.id): \(hint.summary)", forType: .string)
+                pasteboard.setString("\(name): \(hint.summary)", forType: .string)
             } label: {
                 Image(systemName: "doc.on.doc")
                     .font(.system(size: 10))
