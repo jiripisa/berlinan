@@ -154,28 +154,57 @@ public final class MIDIService {
 
     private var inputPort = MIDIPortRef()
 
+    /// The current clock receiver. Replaceable: the app rebuilds its
+    /// Transport on project changes while this service (and its input port)
+    /// lives on (audit #3).
+    private final class ClockHandlerBox: @unchecked Sendable {
+        private let lock = NSLock()
+        private var handler: (@Sendable (RealTimeMessage, UInt64) -> Void)?
+
+        func set(_ handler: @escaping @Sendable (RealTimeMessage, UInt64) -> Void) {
+            lock.lock(); defer { lock.unlock() }
+            self.handler = handler
+        }
+
+        func callAsFunction(_ message: RealTimeMessage, _ timeStamp: UInt64) {
+            lock.lock()
+            let handler = self.handler
+            lock.unlock()
+            handler?(message, timeStamp)
+        }
+    }
+
+    private let clockHandler = ClockHandlerBox()
+
     /// Connect an input port to external sources (self excluded; optionally
     /// filtered by display name) and deliver real-time messages with their
-    /// packet timestamps (mach units). Call once.
+    /// packet timestamps (mach units). Calling again replaces the handler
+    /// and the source selection.
     public func connectClockInput(sourceName: String? = nil,
                                   handler: @escaping @Sendable (RealTimeMessage, UInt64) -> Void) {
-        guard inputPort == 0 else { return }
-        let status = MIDIInputPortCreateWithProtocol(client, "clock-in" as CFString,
-                                                     ._1_0, &inputPort) { list, _ in
-            for packet in list.unsafeSequence() {
-                let timeStamp = packet.pointee.timeStamp
-                for word in packet.words() {
-                    switch word {
-                    case 0x10F8_0000: handler(.clock, timeStamp)
-                    case 0x10FA_0000: handler(.start, timeStamp)
-                    case 0x10FB_0000: handler(.continuePlayback, timeStamp)
-                    case 0x10FC_0000: handler(.stop, timeStamp)
-                    default: break
+        clockHandler.set(handler)
+        if inputPort == 0 {
+            let receiver = clockHandler
+            let status = MIDIInputPortCreateWithProtocol(client, "clock-in" as CFString,
+                                                         ._1_0, &inputPort) { list, _ in
+                for packet in list.unsafeSequence() {
+                    let timeStamp = packet.pointee.timeStamp
+                    for word in packet.words() {
+                        switch word {
+                        case 0x10F8_0000: receiver(.clock, timeStamp)
+                        case 0x10FA_0000: receiver(.start, timeStamp)
+                        case 0x10FB_0000: receiver(.continuePlayback, timeStamp)
+                        case 0x10FC_0000: receiver(.stop, timeStamp)
+                        default: break
+                        }
                     }
                 }
             }
+            guard status == noErr else { return }
         }
-        guard status == noErr else { return }
+        for index in 0..<MIDIGetNumberOfSources() {
+            MIDIPortDisconnectSource(inputPort, MIDIGetSource(index))
+        }
         for index in 0..<MIDIGetNumberOfSources() {
             let endpoint = MIDIGetSource(index)
             guard endpoint != sourceEndpoint else { continue }   // never self

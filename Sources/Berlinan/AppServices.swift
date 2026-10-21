@@ -160,7 +160,16 @@ final class AppServices {
 
     private func rebuildTransport() {
         guard let midi else { return }
-        transport = Transport(project: project, midi: midi)
+        // The clock source survives the rebuild (audit #3): EXT reconnects
+        // the clock input to the new transport, LINK moves its session over.
+        let mode = transport?.currentSyncMode ?? .internalClock
+        transport?.linkService?.enable(false)
+        let rebuilt = Transport(project: project, midi: midi)
+        if mode != .internalClock {
+            rebuilt.setSyncMode(mode)
+            rebuilt.linkService?.enable(mode == .link)
+        }
+        transport = rebuilt
         transportStale = false
     }
 
