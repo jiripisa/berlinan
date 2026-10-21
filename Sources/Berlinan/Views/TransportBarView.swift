@@ -103,8 +103,7 @@ struct TransportBarView: View {
             }
             .menuStyle(.borderlessButton)
             .fixedSize()
-            .disabled(ui.isPlaying)
-            .help("Templates: starting points (fresh seed every time) + save your own")
+            .help("Templates: starting points (fresh seed every time) + save your own. Picked while playing, a template takes over at the next bar")
 
             Button(action: onSettings) {
                 Image(systemName: "gearshape")
