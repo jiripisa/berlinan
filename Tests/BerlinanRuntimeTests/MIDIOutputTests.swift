@@ -114,3 +114,49 @@ struct MIDIOutputTests {
         #expect(midi.isOutputAvailable, "the virtual source is always there")
     }
 }
+
+/// Phase 45 (audit #2): a note's note-off is sent ahead with its note-on;
+/// until that time the note still sounds and stop/mute must silence it.
+@Suite("Scheduled notes and flush", .serialized)
+struct ScheduledFlushTests {
+
+    @Test("A note stays tracked until its scheduled note-off time")
+    func tracksUntilOffTime() {
+        var registry = NoteRegistry()
+        registry.track(.noteOn(channel: 0, note: 36, velocity: 100), at: 100)
+        registry.track(.noteOff(channel: 0, note: 36), at: 5_000)
+        let atStop = registry.flushEvents(now: 1_000)
+        #expect(atStop.contains(.noteOff(channel: 0, note: 36)))
+        #expect(atStop.contains(.cc(channel: 0, controller: 123, value: 0)))
+        #expect(registry.flushEvents(now: 1_000).isEmpty, "flushed once")
+    }
+
+    @Test("A note whose note-off already passed is not flushed again")
+    func endedNotesIgnored() {
+        var registry = NoteRegistry()
+        registry.track(.noteOn(channel: 1, note: 60, velocity: 100), at: 100)
+        registry.track(.noteOff(channel: 1, note: 60), at: 500)
+        #expect(registry.flushEvents(now: 1_000).isEmpty)
+    }
+
+    @Test("Stop silences a long note that is still sounding on the device")
+    func flushReachesDevice() throws {
+        let synth = FakeSynth(name: "Berlinan Test Synth F")
+        let midi = try MIDIService(clientName: "BerlinanOutTest5",
+                                   sourceName: "Berlinan Out Test 5")
+        midi.setOutput(synth.uniqueID)
+        var info = mach_timebase_info_data_t()
+        mach_timebase_info(&info)
+        let threeSeconds = UInt64(3e9 * Double(info.denom) / Double(info.numer))
+        midi.send([
+            (hostTime: 0, event: .noteOn(channel: 0, note: 36, velocity: 100)),
+            (hostTime: mach_absolute_time() + threeSeconds, event: .noteOff(channel: 0, note: 36)),
+        ])
+        #expect(midi.activeNoteCount == 1, "the drone still sounds")
+        midi.flush()
+        Thread.sleep(forTimeInterval: 0.2)
+        #expect(synth.received.words.contains(0x2080_2400), "note-off now, not in 3 s")
+        #expect(synth.received.words.contains(0x20B0_7B00), "CC 123 too")
+        #expect(midi.activeNoteCount == 0)
+    }
+}
