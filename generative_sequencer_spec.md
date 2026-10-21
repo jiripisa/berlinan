@@ -176,7 +176,7 @@ Requirements are numbered `FR-<group>-<n>`. Priority: **P1** = MVP (Milestone M1
 
 ### 3.10 MIDI I/O, sync, export (IO)
 
-- **FR-IO-1 (P1)** — The app publishes CoreMIDI **virtual sources**. Routing modes: (a) single source, voices on channels 1–8 (default); (b) one virtual source per voice (named `Berlinan – Bass` etc.). Also routable to any existing destination (IAC, DIN interface) per voice.
+- **FR-IO-1 (P1)** — The app publishes CoreMIDI **virtual sources**. Routing modes: (a) single source, voices on channels 1–8 (default); (b) one virtual source per voice (named `Berlinan – Bass` etc.). Also routable to any existing destination (IAC, DIN interface) per voice. *(Status 2026-10-22, phase 44: one app-wide output — the virtual source OR one connected destination; per-voice routing and per-voice sources remain open.)*
 - **FR-IO-2 (P1)** — All events are sent **timestamped** (CoreMIDI host-time timestamps from the lookahead scheduler, §8) — never "send now" from a UI thread.
 - **FR-IO-3 (P1)** — **MIDI clock master**: 24 PPQ clock, Start/Stop/Continue, Song Position Pointer on transport actions.
 - **FR-IO-4 (P2)** — **MIDI clock slave**: lock tempo/phase to incoming clock on a selectable source, with jitter smoothing (§8.4); transport follows Start/Stop/Continue.
