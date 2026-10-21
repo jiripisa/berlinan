@@ -1,11 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.2.2 — 2026-10-22
 
 - Voices are named by role in the UI (user feedback): lanes, menus, the
   horizon strip, the Delay Cheat Sheet and the pattern editor say
   Pluck 1, Pluck 2, Bass, Pad, Lead, Drone, Heartbeat instead of internal
   ids like "bedPluck1". Exported MIDI track names are unchanged.
+- "1 bar" instead of "1 bars" in the horizon strip and the LCM readout.
 
 ## 1.2.1 — 2026-10-21
 
