@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Templates load while playing (user feedback): pick one from the
+  templates menu mid-jam and it takes over at the next bar — the clock
+  keeps running (MIDI clock, Link and EXT stay in phase) and the new piece
+  starts from its beginning. The horizon strip announces it. Before, the
+  menu silently did nothing while the transport ran.
+
 ## 1.2.2 — 2026-10-22
 
 - Voices are named by role in the UI (user feedback): lanes, menus, the

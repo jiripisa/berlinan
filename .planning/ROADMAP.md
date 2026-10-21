@@ -88,6 +88,7 @@ Deferred to M7: capture browser, runtime meter changes (backlog).
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 42-live-template-load | Templates load while playing: Transport.loadProject swaps the whole project at the next bar (engine origin, clock continuity, tempo adopt in INT); horizon chip | FR-UX-4 | ✅ |
 | 41-v1.2.2-release | Version 1.2.2 (voice names + "1 bar" fix), notarized DMG, website links — tagged 2026-10-22 | — | ✅ |
 | 40-voice-names | Role-based voice names in the UI (Pluck 1/2, Bass, Pad, Lead, Drone, Heartbeat); horizon events carry voice ids; website routing aligned | FR-UX-7 | ✅ |
 | 39-v1.2.1-release | Version 1.2.1, CHANGELOG, notarized DMG (dist pipeline aligned with MDPre) — tagged 2026-10-21 | — | ✅ |
