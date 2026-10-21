@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Voices are named by role in the UI (user feedback): lanes, menus, the
+  horizon strip, the Delay Cheat Sheet and the pattern editor say
+  Pluck 1, Pluck 2, Bass, Pad, Lead, Drone, Heartbeat instead of internal
+  ids like "bedPluck1". Exported MIDI track names are unchanged.
+
 ## 1.2.1 — 2026-10-21
 
 - Bass melody walks are seeded now (user feedback): regenerate and New

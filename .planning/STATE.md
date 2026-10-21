@@ -11,8 +11,11 @@
   reprise, template gallery. Next entry point: M7 candidates — capture
   browser, runtime meter (backlog), tie editing in the pattern editor.
 - Phase 38 (bass-walk variety, user feedback) DONE 2026-07-18 — 307 tests.
-- 2026-10-21 — v1.2.1 RELEASED (phase 39): phase 38 + notarized DMG. No
-  phase open. Next entry point: M7 candidates (see above).
+- 2026-10-21 — v1.2.1 RELEASED (phase 39): phase 38 + notarized DMG.
+- 2026-10-21 — repo PUBLIC; website live at https://jiripisa.github.io/berlinan/
+  (GitHub Pages from main:/docs).
+- Phase 40 (role-based voice names, FR-UX-7, user feedback) DONE 2026-10-22 —
+  311 tests. Unreleased (CHANGELOG). No phase open. Next entry point: M7.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
   Public release still pending user decision.
