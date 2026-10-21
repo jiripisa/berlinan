@@ -14,6 +14,12 @@ struct HorizonStripView: View {
                 .tracking(AppTracking.field)
                 .foregroundStyle(AppColor.ink4)
 
+            if let template = ui.pendingTemplateName {
+                chip(icon: "square.grid.2x2",
+                     text: "TEMPLATE \(template.uppercased()) · next bar",
+                     color: AppColor.cyan)
+            }
+
             if let status = ui.arrangement {
                 chip(icon: "wand.and.stars",
                      text: "\(phaseName(status.phase)) · change in ~\(barCount(max(0, status.barsUntilChange)))",
@@ -32,8 +38,8 @@ struct HorizonStripView: View {
                      text: mutation, color: AppColor.ink3)
             }
 
-            if ui.arrangement == nil && ui.upcomingEvents.isEmpty
-                && nearestMutation() == nil {
+            if ui.pendingTemplateName == nil && ui.arrangement == nil
+                && ui.upcomingEvents.isEmpty && nearestMutation() == nil {
                 Text("steady — nothing scheduled")
                     .font(AppFont.monoCaption)
                     .foregroundStyle(AppColor.ink4)

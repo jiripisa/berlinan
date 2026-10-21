@@ -141,11 +141,17 @@ final class AppServices {
     }
 
     /// Instantiate a template (phase 36): fresh seed, fresh universe.
+    /// Stopped → rebuild; playing → it takes over at the next bar (phase 42).
     func applyTemplate(_ template: Project) {
-        guard transport?.isPlaying != true else { return }
         var fresh = template
         fresh.masterSeed = UInt64.random(in: UInt64.min...UInt64.max)
-        applyProject(fresh)
+        if transport?.isPlaying == true {
+            project = fresh
+            transportStale = true                 // next stop rebuilds on the template
+            transport?.loadProject(fresh)
+        } else {
+            applyProject(fresh)
+        }
     }
 
     /// Save the current setup into the templates folder (phase 36).

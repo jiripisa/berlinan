@@ -176,8 +176,13 @@ final class UIState {
 
     // MARK: - Templates (phase 36)
 
-    func applyTemplate(_ template: Project) {
+    /// The template armed to take over at the next bar (phase 42), for the
+    /// horizon strip; nil when nothing is pending.
+    private(set) var pendingTemplateName: String? = nil
+
+    func applyTemplate(_ template: Project, name: String) {
         services.applyTemplate(template)
+        pendingTemplateName = isPlaying ? name : nil
         refresh()
     }
 
@@ -263,6 +268,7 @@ final class UIState {
             upcomingEvents = snapshot.upcomingEvents
         }
         liveBPM = transport.currentBPM
+        if !transport.hasPendingProjectLoad { pendingTemplateName = nil }
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
     }
 
