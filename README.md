@@ -10,6 +10,8 @@ Berlinan is a MIDI instrument, not a DAW: it publishes a virtual MIDI source
 (**Berlinan Out**) and you point synths — hardware or Ableton Live tracks —
 at its channels. Audio never touches it.
 
+Website and download: https://jiripisa.github.io/berlinan/
+
 ![Berlinan](Resources/AppIcon.png)
 
 ## The style laws (why it sounds right)
@@ -101,6 +103,7 @@ swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 | `development_workflow.md` | Build pipeline, branch/TDD methodology, release |
 | `.planning/` | Roadmap, per-phase plans and verifications |
 | `CHANGELOG.md` | Release history |
+| `docs/` | Product website (GitHub Pages) |
 
 ## Architecture (short version)
 
