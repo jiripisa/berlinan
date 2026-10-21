@@ -28,6 +28,24 @@ public struct Meter: Codable, Equatable, Sendable {
         self.grouping = grouping
     }
 
+    private enum CodingKeys: String, CodingKey { case beatsPerBar, beatUnit, grouping }
+
+    /// Decoding runs the same checks as `init` — synthesized Codable would
+    /// let a document with beatUnit 0 through to a division by zero.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let beatsPerBar = try container.decode(Int.self, forKey: .beatsPerBar)
+        let beatUnit = try container.decode(Int.self, forKey: .beatUnit)
+        let grouping = try container.decodeIfPresent([Int].self, forKey: .grouping) ?? []
+        guard beatsPerBar > 0, beatUnit == 4 || beatUnit == 8,
+              grouping.isEmpty || grouping.reduce(0, +) == beatsPerBar else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .beatUnit, in: container,
+                debugDescription: "invalid meter \(beatsPerBar)/\(beatUnit)")
+        }
+        self.init(beatsPerBar: beatsPerBar, beatUnit: beatUnit, grouping: grouping)
+    }
+
     public var ticksPerBeat: Tick { Time.ppqn * 4 / Tick(beatUnit) }
     public var ticksPerBar: Tick { Tick(beatsPerBar) * ticksPerBeat }
 

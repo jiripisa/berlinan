@@ -51,6 +51,9 @@ case "render":
     do {
         let data = try Data(contentsOf: URL(fileURLWithPath: projectPath))
         project = try JSONDecoder().decode(Project.self, from: data)
+        try project.validate()
+    } catch let error as Project.ValidationError {
+        fail("render: invalid project — \(error.description)")
     } catch {
         fail("render: cannot read project — \(error.localizedDescription)")
     }

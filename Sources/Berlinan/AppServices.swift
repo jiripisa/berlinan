@@ -281,9 +281,19 @@ final class AppServices {
         guard transport?.isPlaying != true else { return nil }
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.berlinanProject, .json]
-        guard panel.runModal() == .OK, let url = panel.url,
-              let data = try? Data(contentsOf: url),
-              let loaded = try? JSONDecoder().decode(Project.self, from: data) else {
+        guard panel.runModal() == .OK, let url = panel.url else { return nil }
+        let loaded: Project
+        do {
+            let data = try Data(contentsOf: url)
+            loaded = try JSONDecoder().decode(Project.self, from: data)
+            try loaded.validate()
+        } catch {
+            // Invalid documents never reach the engine; the current project stays.
+            let alert = NSAlert()
+            alert.messageText = "“\(url.lastPathComponent)” can’t be opened"
+            alert.informativeText = (error as? Project.ValidationError)?.description
+                ?? "The file is not a valid Berlinan project."
+            alert.runModal()
             return nil
         }
         applyProject(loaded)

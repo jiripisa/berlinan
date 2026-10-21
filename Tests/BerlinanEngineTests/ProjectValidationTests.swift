@@ -17,11 +17,18 @@ struct ProjectValidationTests {
         try JSONSerialization.data(withJSONObject: object)
     }
 
+    /// What the app and the CLI do with a document: decode, then validate.
+    private func load(_ data: Data) throws -> Project {
+        let project = try JSONDecoder().decode(Project.self, from: data)
+        try project.validate()
+        return project
+    }
+
     @Test("Built-in templates are valid")
     func builtInsValid() throws {
         for project in [Project.demo, .fullEnsemble, .ambientDrift] {
             try project.validate()
-            _ = try Project.load(from: JSONEncoder().encode(project))
+            _ = try load(JSONEncoder().encode(project))
         }
     }
 
@@ -30,7 +37,7 @@ struct ProjectValidationTests {
         var project = Project.demo
         project.voices[1].id = project.voices[0].id
         #expect(throws: Project.ValidationError.self) {
-            try Project.load(from: JSONEncoder().encode(project))
+            try load(JSONEncoder().encode(project))
         }
     }
 
@@ -39,7 +46,7 @@ struct ProjectValidationTests {
         var object = try json(.demo)
         object["meter"] = ["beatsPerBar": 4, "beatUnit": 0, "grouping": []]
         #expect(throws: (any Error).self) {
-            try Project.load(from: data(object))
+            try load(data(object))
         }
     }
 
@@ -48,7 +55,7 @@ struct ProjectValidationTests {
         var object = try json(.demo)
         object["bpm"] = 0
         #expect(throws: Project.ValidationError.self) {
-            try Project.load(from: data(object))
+            try load(data(object))
         }
     }
 
@@ -57,7 +64,7 @@ struct ProjectValidationTests {
         var project = Project.demo
         project.voices[0].channel = 16
         #expect(throws: Project.ValidationError.self) {
-            try Project.load(from: JSONEncoder().encode(project))
+            try load(JSONEncoder().encode(project))
         }
     }
 }

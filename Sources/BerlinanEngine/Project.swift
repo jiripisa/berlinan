@@ -255,3 +255,40 @@ extension Project {
         VoiceLabels.make(voices.map { ($0.id, $0.role) })
     }
 }
+
+extension Project {
+    /// Why a decoded document cannot be used (audit #1).
+    public enum ValidationError: Error, Equatable, CustomStringConvertible {
+        case duplicateVoiceID(String)
+        case tempoOutOfRange(Double)
+        case channelOutOfRange(voiceID: String, channel: UInt8)
+
+        public var description: String {
+            switch self {
+            case .duplicateVoiceID(let id): "two voices share the id \"\(id)\""
+            case .tempoOutOfRange(let bpm): "tempo \(bpm) BPM is outside 40–220"
+            case .channelOutOfRange(let id, let channel):
+                "voice \"\(id)\" uses MIDI channel \(Int(channel) + 1) (1–16 allowed)"
+            }
+        }
+    }
+
+    /// The invariants the engine and runtime rely on. Every place that
+    /// decodes a document (open, user templates, CLI) calls this before use.
+    public func validate() throws {
+        var seen = Set<String>()
+        for voice in voices {
+            guard seen.insert(voice.id).inserted else {
+                throw ValidationError.duplicateVoiceID(voice.id)
+            }
+            guard voice.channel <= 15 else {
+                throw ValidationError.channelOutOfRange(voiceID: voice.id,
+                                                        channel: voice.channel)
+            }
+        }
+        guard bpm.isFinite, (40...220).contains(bpm) else {
+            throw ValidationError.tempoOutOfRange(bpm)
+        }
+    }
+
+}
