@@ -103,4 +103,24 @@ struct ExternalSyncTests {
         #expect(!transport.isPlaying, "Stop must halt the transport")
         #expect(midi.activeNoteCount == 0)
     }
+
+    @Test("A rebuilt transport on the same MIDI service still follows external clock (audit #3)")
+    func followAfterRebuild() throws {
+        let senderMIDI = try MIDIService(clientName: "BerlinanClockSender2",
+                                         sourceName: "Berlinan Test Clock Master 2")
+        let midi = try MIDIService(clientName: "BerlinanSlaveTest2",
+                                   sourceName: "Berlinan Slave Test Out 2")
+        var first: Transport? = Transport(project: .demo, midi: midi)
+        first?.setSyncMode(.externalClock, sourceName: "Berlinan Test Clock Master 2")
+        first = nil                                   // project change → rebuild
+
+        let rebuilt = Transport(project: .fullEnsemble, midi: midi)
+        rebuilt.setSyncMode(.externalClock, sourceName: "Berlinan Test Clock Master 2")
+        senderMIDI.send([(hostTime: 0, event: .start)])
+        Thread.sleep(forTimeInterval: 0.4)
+        #expect(rebuilt.isPlaying, "external Start must reach the rebuilt transport")
+        senderMIDI.send([(hostTime: 0, event: .stop)])
+        Thread.sleep(forTimeInterval: 0.2)
+        #expect(!rebuilt.isPlaying)
+    }
 }

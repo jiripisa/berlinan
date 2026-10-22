@@ -27,6 +27,8 @@
 - Phase 44 (MIDI output device, FR-IO-1 app-wide, user request) DONE
   2026-10-22 — 318 tests. Unreleased (CHANGELOG, incl. the menu fix). No
   phase open. Next entry point: M7; FR-IO-1 per-voice routing still open.
+- Phase 45 (Codex audit fixes, all 5 findings verified + fixed) DONE
+  2026-10-22 — 330 tests. Unreleased (CHANGELOG).
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
   Public release still pending user decision.

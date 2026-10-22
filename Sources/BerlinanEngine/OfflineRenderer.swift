@@ -8,28 +8,49 @@ public enum OfflineRenderer {
     public static func render(project: Project, bars: Int) -> [UInt8] {
         let total = Tick(bars) * project.meter.ticksPerBar
         let resolved = HarmonyScheduler.resolve(project: project)
-        var tracks: [SMFTrack] = []
-        for config in project.voices {
-            let notes = renderVoice(config, project: project, total: total)
-            let ccs = ModulationEngine.render(
-                lanes: config.ccLanes ?? [], ccMap: config.ccMap ?? [:],
-                voiceID: config.id, in: 0..<total, meter: project.meter,
-                seed: SeedStream.derive(master: project.masterSeed,
-                                        "voice", config.id, "cc"))
-            let hint = DelayHint.compute(role: config.role, bpm: project.bpm)
-            tracks.append(SMFTrack(
-                name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue) | delay: \(hint.division.label)",
-                channel: config.channel,
-                notes: notes,
-                ccs: ccs
-            ))
-        }
+        let tracks = tracks(project: project, bars: bars)
         let markers = resolved.schedule.events
             .filter { Tick($0.bar) * project.meter.ticksPerBar < total }
             .map { (at: Tick($0.bar) * project.meter.ticksPerBar,
                     label: "HARM:\($0.degreeOffset >= 0 ? "+" : "")\($0.degreeOffset)") }
         return SMFWriter.encode(bpm: project.bpm, meter: project.meter,
                                 tracks: tracks, length: total, markers: markers)
+    }
+
+    /// One track per voice. Arranged projects render through `LiveEngine`
+    /// (one SM drives all voices, as in `renderNotes`) so the export plays
+    /// what the app plays (audit #5); unarranged ones keep the per-voice
+    /// path (goldens).
+    static func tracks(project: Project, bars: Int) -> [SMFTrack] {
+        let total = Tick(bars) * project.meter.ticksPerBar
+        var arranged: (notes: [RenderedNote], ccs: [RenderedCC])? = nil
+        if project.arrangement?.enabled == true {
+            var live = LiveEngine(project: project)
+            let notes = live.render(range: 0..<total)
+            arranged = (notes, live.renderCC(range: 0..<total))
+        }
+        return project.voices.map { config in
+            let notes: [RenderedNote]
+            let ccs: [RenderedCC]
+            if let arranged {
+                notes = arranged.notes.filter { $0.voiceID == config.id }
+                ccs = arranged.ccs.filter { $0.voiceID == config.id }
+            } else {
+                notes = renderVoice(config, project: project, total: total)
+                ccs = ModulationEngine.render(
+                    lanes: config.ccLanes ?? [], ccMap: config.ccMap ?? [:],
+                    voiceID: config.id, in: 0..<total, meter: project.meter,
+                    seed: SeedStream.derive(master: project.masterSeed,
+                                            "voice", config.id, "cc"))
+            }
+            let hint = DelayHint.compute(role: config.role, bpm: project.bpm)
+            return SMFTrack(
+                name: "\(config.id) | ch\(config.channel + 1) | \(config.role.rawValue) | delay: \(hint.division.label)",
+                channel: config.channel,
+                notes: notes,
+                ccs: ccs
+            )
+        }
     }
 
     /// Note-level render across all voices (test/inspection surface).

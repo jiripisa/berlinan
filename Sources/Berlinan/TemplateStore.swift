@@ -18,7 +18,7 @@ enum TemplateStore {
             .appendingPathComponent("Berlinan/templates")
     }
 
-    /// User templates, sorted by name. Unreadable files are skipped.
+    /// User templates, sorted by name. Unreadable or invalid files are skipped.
     static func userTemplates() -> [(name: String, project: Project)] {
         let directory = userTemplatesDirectory()
         guard let urls = try? FileManager.default.contentsOfDirectory(
@@ -28,7 +28,8 @@ enum TemplateStore {
             .compactMap { url in
                 guard let data = try? Data(contentsOf: url),
                       let project = try? JSONDecoder().decode(Project.self,
-                                                              from: data)
+                                                              from: data),
+                      (try? project.validate()) != nil
                 else { return nil }
                 return (url.deletingPathExtension().lastPathComponent, project)
             }

@@ -59,3 +59,37 @@ struct TemplateLoadTests {
         #expect(transport.snapshot()?.voices.count == 3)
     }
 }
+
+/// Phase 45 (audit #4): every play restarted ticks at 0 on the same capture
+/// buffer, so a second take landed on top of the first.
+@Suite("Capture across takes", .serialized)
+struct CaptureTakesTests {
+
+    @Test("A second take continues the capture timeline after the first")
+    func takesDoNotOverlap() throws {
+        let midi = try MIDIService(clientName: "BerlinanTakesTest",
+                                   sourceName: "Berlinan Takes Test Out")
+        var project = Project.demo
+        project.bpm = 220
+        let transport = Transport(project: project, midi: midi)
+
+        transport.play()
+        Thread.sleep(forTimeInterval: 1.5)
+        transport.stop()
+        let firstHead = transport.captureBuffer.head
+        #expect(firstHead > 0)
+
+        transport.play()
+        Thread.sleep(forTimeInterval: 0.6)
+        transport.stop()
+        let capture = transport.captureBuffer
+        #expect(capture.head > firstHead, "the timeline moves on")
+        let ticks = capture.allNotes.map(\.at)
+        #expect(ticks == ticks.sorted(), "takes must not overlap on the timeline")
+        let bar = project.meter.ticksPerBar
+        let secondTake = capture.allNotes.filter { $0.at >= firstHead }
+        #expect(!secondTake.isEmpty)
+        #expect(secondTake.allSatisfy { $0.at >= (firstHead + bar - 1) / bar * bar },
+                "a take starts on a bar line")
+    }
+}
