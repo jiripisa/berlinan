@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Fixes from a project audit:
+  - Stop, mute and switching the MIDI output now silence long notes (a
+    drone kept sounding until its planned end).
+  - EXT clock and Link keep working after a project change or template
+    load (EXT could stop following until the app was restarted).
+  - Capture export after a second, shorter take no longer returns the old
+    take or a mix of both.
+  - Opening a broken document (two voices with the same id, impossible
+    meter or tempo) shows why instead of crashing the app.
+  - `berlinan-cli render` of a project with the arranger on now exports
+    what the app plays (voice entries, B-part, ending).
 - MIDI output device (user request): the output label in the transport
   bar is now a menu — keep the virtual source "Berlinan Out" or send notes,
   CC and clock straight to a connected device (DIN interface, USB synth,
