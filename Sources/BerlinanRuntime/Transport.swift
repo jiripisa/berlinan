@@ -190,6 +190,12 @@ public final class Transport: @unchecked Sendable {
 
     // MARK: - Capture export (FR-IO-7 + FR-IO-6a)
 
+    /// The rolling capture (test/inspection surface).
+    var captureBuffer: CaptureBuffer {
+        lock.lock(); defer { lock.unlock() }
+        return capture
+    }
+
     /// The last `lastBars` whole bars of the capture as an SMF, or nil when
     /// nothing has been captured yet. Callable any time, including mid-play.
     public func exportCapture(lastBars: Int) -> [UInt8]? {
@@ -328,6 +334,12 @@ public final class Transport: @unchecked Sendable {
         }
         var renderHead: Tick = 0
         var origin: Tick = 0                         // engine tick 0 in transport ticks
+        // Each take continues the capture timeline on the next bar line
+        // after the previous one (audit #4) — transport ticks restart at 0.
+        lock.lock()
+        let captureBase = (capture.head + project.meter.ticksPerBar - 1)
+            / project.meter.ticksPerBar * project.meter.ticksPerBar
+        lock.unlock()
         var barTicks = project.meter.ticksPerBar
 
         while true {
@@ -476,7 +488,11 @@ public final class Transport: @unchecked Sendable {
                 // Capture what the engine PLAYED (pre-mute — muting is a
                 // monitor decision, the jam is recorded whole; FR-IO-7).
                 lock.lock()
-                capture.append(rendered, upTo: target)
+                capture.append(rendered.map { note -> RenderedNote in
+                    var placed = note
+                    placed.at += captureBase
+                    return placed
+                }, upTo: target + captureBase)
                 lock.unlock()
                 renderHead = target
             }
