@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.4 — 2026-10-22
 
 - Fixes from a project audit:
   - Stop, mute and switching the MIDI output now silence long notes (a
