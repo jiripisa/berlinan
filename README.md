@@ -43,6 +43,8 @@ from ~225 hours of synthesist interviews and breakdowns:
    synths directly. In Ableton Live: create MIDI tracks, set input to **Berlinan Out**,
    channels 1–3 (Pluck 1, Pluck 2, Bass — the built-in ensemble; your own
    projects can add pad, lead, rhythm voices), arm + monitor In.
+   Each voice's channel is the **ch N** label in its lane — click it to
+   pick another one (saved with the project, works while playing).
 3. Jam surface:
    - **Degrees 1–7** — diatonic transposition at the next bar.
    - **Dice** — new seed, new universe (undoable, ⌘Z).
@@ -88,7 +90,7 @@ macOS 14+.
 ./run.sh              # build + launch
 ./build.sh release    # optimized bundle
 ./build.sh dist       # release + codesign + notarized DMG (needs Developer ID)
-swift test            # 330 tests
+swift test            # 333 tests
 swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 ```
 

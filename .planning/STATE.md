@@ -32,9 +32,13 @@
 - 2026-10-22 — v1.2.4 RELEASED (phase 46): templates menu fix, MIDI output
   device, audit fixes; notarized DMG, GitHub Release, website. No phase
   open. Next entry point: M7.
+- 2026-10-24 — user decision: per-voice output routing NOT wanted now (one
+  output device is enough); instead each voice's MIDI channel selectable.
+- Phase 47 (per-voice MIDI channel, user request) DONE 2026-10-24 — 333
+  tests. Unreleased (CHANGELOG). No phase open. Next entry point: M7.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
-  (PRIVATE for now; user-confirmed push of main + tags v0.1.0–v1.1.0).
-  Public release still pending user decision.
+  (user-confirmed push of main + tags v0.1.0–v1.1.0). Made PUBLIC
+  2026-10-21 (see above).
 - 2026-07-18 — `examples/full_ensemble.berlinan` showcase added (6 voices:
   chord layer, bassMelody, heartbeat, lead for promotion).
 - Pending human checks (26-31): see the phase VERIFICATIONs — AUTO arc,
