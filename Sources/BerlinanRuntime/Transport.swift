@@ -295,6 +295,27 @@ public final class Transport: @unchecked Sendable {
         }
     }
 
+    /// Move a voice to another MIDI channel (phase 47) — from the next wake
+    /// (≤ 25 ms), stopped or playing. What still sounds on the old channel
+    /// is silenced; a pending project load carries the change over the swap.
+    public func setChannel(_ voiceID: String, _ channel: UInt8) {
+        lock.lock()
+        let old = channelMap[voiceID]
+        guard old != nil, old != channel else { lock.unlock(); return }
+        channelMap[voiceID] = channel
+        if let index = project.voices.firstIndex(where: { $0.id == voiceID }) {
+            project.voices[index].channel = channel
+        }
+        if let index = pendingProject?.voices.firstIndex(where: { $0.id == voiceID }) {
+            pendingProject?.voices[index].channel = channel
+        }
+        let wasRunning = running
+        lock.unlock()
+        if wasRunning, let old {
+            midi.flush(channel: old)
+        }
+    }
+
     // MARK: - Scheduler loop (dedicated thread)
 
     private func schedulerLoop() {
