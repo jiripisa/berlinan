@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Per-voice MIDI channel (user request): click the **ch N** label in a
+  voice lane and pick channel 1–16 — also while playing (what still sounds
+  on the old channel is silenced). Channels already used by another voice
+  show its name. Saved with the project; capture export follows.
+
 ## 1.2.4 — 2026-10-22
 
 - Fixes from a project audit:

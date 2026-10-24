@@ -44,9 +44,12 @@ struct VoiceLaneView: View {
                     .tracking(AppTracking.label)
                     .foregroundStyle(isMuted ? AppColor.ink4 : AppColor.ink)
                     .textCase(.uppercase)
-                Text("ch \(channel) · \(loopSteps) steps")
-                    .font(AppFont.monoCaption)
-                    .foregroundStyle(AppColor.ink3)
+                HStack(spacing: 0) {
+                    channelMenu
+                    Text(" · \(loopSteps) steps")
+                        .font(AppFont.monoCaption)
+                        .foregroundStyle(AppColor.ink3)
+                }
                 LifecycleDotsView(lifecycle: voice.pattern.lifecycle,
                                   locked: voice.pattern.locked)
             }
@@ -153,6 +156,36 @@ struct VoiceLaneView: View {
         .background(AppColor.bgPanel2)
         .clipShape(RoundedRectangle(cornerRadius: 4))
         .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.lineSoft, lineWidth: 1))
+    }
+
+    /// MIDI channel picker (phase 47) — also while playing; a channel shared
+    /// with another voice names it.
+    private var channelMenu: some View {
+        Menu {
+            ForEach(0..<16, id: \.self) { index in
+                let others = ui.voicesOnChannel(UInt8(index), except: voice.id)
+                let title = "Channel \(index + 1)"
+                    + (others.isEmpty ? "" : " — " + others.joined(separator: ", "))
+                Button {
+                    ui.setChannel(UInt8(index), for: voice.id)
+                } label: {
+                    if index + 1 == channel {
+                        Label(title, systemImage: "checkmark")
+                    } else {
+                        Text(title)
+                    }
+                }
+            }
+        } label: {
+            Text("ch \(channel)")
+                .font(AppFont.monoCaption)
+                .foregroundStyle(AppColor.ink3)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .padding(.horizontal, -3.5)       // the borderless menu insets its label
+        .help("MIDI channel of this voice — set your synth or DAW track to receive on it")
     }
 
     /// Deterministic voices (drone, heartbeat) have nothing to re-roll.
