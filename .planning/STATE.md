@@ -35,7 +35,9 @@
 - 2026-10-24 — user decision: per-voice output routing NOT wanted now (one
   output device is enough); instead each voice's MIDI channel selectable.
 - Phase 47 (per-voice MIDI channel, user request) DONE 2026-10-24 — 333
-  tests. Unreleased (CHANGELOG). No phase open. Next entry point: M7.
+  tests.
+- 2026-10-24 — v1.2.5 RELEASED (phase 48): per-voice MIDI channel;
+  notarized DMG, GitHub Release, website. No phase open. Next entry point: M7.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (user-confirmed push of main + tags v0.1.0–v1.1.0). Made PUBLIC
   2026-10-21 (see above).

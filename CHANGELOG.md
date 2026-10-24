@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.5 — 2026-10-24
 
 - Per-voice MIDI channel (user request): click the **ch N** label in a
   voice lane and pick channel 1–16 — also while playing (what still sounds
