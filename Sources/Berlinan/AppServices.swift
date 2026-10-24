@@ -99,6 +99,20 @@ final class AppServices {
         }
     }
 
+    /// The voice's MIDI channel (phase 47). Playing → the running transport
+    /// switches at its next wake; stopped → rebuild.
+    func setVoiceChannel(_ voiceID: String, channel: UInt8) {
+        guard let idx = project.voices.firstIndex(where: { $0.id == voiceID }),
+              channel <= 15 else { return }
+        project.voices[idx].channel = channel
+        if transport?.isPlaying == true {
+            transport?.setChannel(voiceID, channel)
+            transportStale = true
+        } else {
+            rebuildTransport()
+        }
+    }
+
     /// Arrangement autopilot toggle (FR-A-6). Playing → live action at the
     /// next bar (adopts the running ensemble); stopped → project config +
     /// transport rebuild (play starts in Intro/Build).

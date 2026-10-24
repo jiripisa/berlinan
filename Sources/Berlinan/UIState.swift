@@ -197,6 +197,19 @@ final class UIState {
         refresh()
     }
 
+    /// Per-voice MIDI channel (phase 47); `channel` is 0-based.
+    func setChannel(_ channel: UInt8, for voiceID: String) {
+        services.setVoiceChannel(voiceID, channel: channel)
+        refresh()
+    }
+
+    /// The other voices on a channel, by name ("Bass") — for the lane menu.
+    func voicesOnChannel(_ channel: UInt8, except voiceID: String) -> [String] {
+        project.voices
+            .filter { $0.channel == channel && $0.id != voiceID }
+            .map { voiceName($0.id) }
+    }
+
     // MARK: - Drag & drop (FR-IO-9 subset)
 
     /// A bar-aligned single-track .mid of the voice's CURRENT pattern —
