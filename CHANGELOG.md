@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.8 — 2026-10-25
 
 - Automatic updates: at launch Berlinan checks whether a new version is
   out and offers it with its release notes; after you click **Install

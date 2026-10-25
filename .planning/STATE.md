@@ -52,7 +52,9 @@
 - Phase 54 (bilingual site, EN + CS) DONE 2026-10-25 — every site change
   now goes into both docs/*.html and docs/cs/*.html.
 - Phase 55 (legibility, user report) DONE 2026-10-25.
-- Phase 56 (auto-update, Sparkle, FR-UX-8) DONE 2026-10-25 — unreleased.
+- Phase 56 (auto-update, Sparkle, FR-UX-8) DONE 2026-10-25.
+- 2026-10-25 — v1.2.8 RELEASED (phase 57): first self-updating version;
+  appcast live on GitHub Pages.
   1.2.8 = first self-updating version; every release now commits
   docs/appcast.xml (build.sh dist writes it). Sparkle EdDSA private key is
   in the developer's login Keychain only. No phase open. Remaining M7
