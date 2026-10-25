@@ -37,7 +37,7 @@ struct PatternEditorSheet: View {
             HStack(spacing: 8) {
                 Text("LOOP")
                     .font(AppFont.fieldLabel).tracking(AppTracking.field)
-                    .foregroundStyle(AppColor.ink4)
+                    .foregroundStyle(AppColor.ink3)
                 Stepper("\(lengthSteps) steps", value: $lengthSteps, in: 2...64)
                     .font(AppFont.monoCaption)
                     .foregroundStyle(AppColor.ink2)
@@ -89,7 +89,7 @@ struct PatternEditorSheet: View {
         }
         .font(AppFont.fieldLabel)
         .tracking(AppTracking.field)
-        .foregroundStyle(AppColor.ink4)
+        .foregroundStyle(AppColor.ink3)
     }
 
     private func row(_ note: Binding<EditNote>) -> some View {

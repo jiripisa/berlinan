@@ -12,7 +12,7 @@ struct HarmonyStripView: View {
             Text("HARMONY")
                 .font(AppFont.fieldLabel)
                 .tracking(AppTracking.field)
-                .foregroundStyle(AppColor.ink4)
+                .foregroundStyle(AppColor.ink3)
 
             Menu {
                 Button("Manual schedule (demo walk)") { services.setHarmonyMode(nil) }
@@ -42,7 +42,7 @@ struct HarmonyStripView: View {
                         .foregroundStyle(ui.isPlaying ? AppColor.ink3 : AppColor.ink)
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.system(size: 8))
-                        .foregroundStyle(AppColor.ink4)
+                        .foregroundStyle(AppColor.ink3)
                 }
                 .padding(.horizontal, 8)
                 .frame(height: 22)

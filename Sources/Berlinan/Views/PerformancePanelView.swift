@@ -9,12 +9,70 @@ struct PerformancePanelView: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
+        // One row when the window is wide enough, two rows otherwise — a
+        // squeezed row used to truncate labels (AUTO went blank).
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 16) {
+                jamControls
+                divider
+                arrangerControls
+                Spacer(minLength: 16)
+                ioControls
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 16) {
+                    jamControls
+                    Spacer(minLength: 0)
+                }
+                HStack(spacing: 16) {
+                    arrangerControls
+                    Spacer(minLength: 16)
+                    ioControls
+                }
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 16) {
+                    degreeAndSnapshotControls
+                    Spacer(minLength: 0)
+                }
+                HStack(spacing: 16) {
+                    moveControls
+                    Spacer(minLength: 0)
+                }
+                HStack(spacing: 16) {
+                    arrangerControls
+                    Spacer(minLength: 16)
+                    ioControls
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(AppColor.bgPanel)
+    }
+
+    private var divider: some View {
+        Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
+    }
+
+    /// Degrees, snapshots, re-roll, B-part, tension, scenes.
+    private var jamControls: some View {
+        HStack(spacing: 16) {
+            degreeAndSnapshotControls
+            divider
+            moveControls
+        }
+    }
+
+    /// Degree buttons and snapshot slots.
+    private var degreeAndSnapshotControls: some View {
         HStack(spacing: 16) {
             HStack(spacing: 4) {
                 Text("DEG")
                     .font(AppFont.fieldLabel)
                     .tracking(AppTracking.field)
-                    .foregroundStyle(AppColor.ink4)
+                    .foregroundStyle(AppColor.ink3)
+                    .fixedSize()
                 ForEach(1...7, id: \.self) { degree in
                     degreeButton(degree)
                 }
@@ -28,14 +86,18 @@ struct PerformancePanelView: View {
                 Text("SNAP")
                     .font(AppFont.fieldLabel)
                     .tracking(AppTracking.field)
-                    .foregroundStyle(AppColor.ink4)
+                    .foregroundStyle(AppColor.ink3)
+                    .fixedSize()
                 ForEach(0..<6, id: \.self) { slot in
                     snapshotButton(slot)
                 }
             }
+        }
+    }
 
-            Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
-
+    /// Re-roll, B-part, tension, scenes.
+    private var moveControls: some View {
+        HStack(spacing: 16) {
             Button {
                 ui.perform(.rerollUnlocked)
             } label: {
@@ -111,16 +173,20 @@ struct PerformancePanelView: View {
                 .disabled(!ui.isPlaying)
                 .help("CC scenes: morph all mapped controllers toward the named timbre over 8 bars")
             }
+        }
+    }
 
-            Rectangle().fill(AppColor.line).frame(width: 1, height: 20)
-
+    /// Arranger autopilot, ambient mode, density.
+    private var arrangerControls: some View {
+        HStack(spacing: 16) {
             // Arranger autopilot (FR-A-1/6): advisory — AUTO toggles it,
             // ">>" fires the next change at the next bar.
             HStack(spacing: 4) {
                 Text("ARR")
                     .font(AppFont.fieldLabel)
                     .tracking(AppTracking.field)
-                    .foregroundStyle(AppColor.ink4)
+                    .foregroundStyle(AppColor.ink3)
+                    .fixedSize()
 
                 Button {
                     ui.setArrangerEnabled(ui.arrangement == nil)
@@ -200,7 +266,8 @@ struct PerformancePanelView: View {
                     Text("DENS")
                         .font(AppFont.fieldLabel)
                         .tracking(AppTracking.field)
-                        .foregroundStyle(AppColor.ink4)
+                        .foregroundStyle(AppColor.ink3)
+                        .fixedSize()
                     Slider(value: Binding(get: { ui.density },
                                           set: { ui.setDensity($0) }),
                            in: 0...1)
@@ -214,9 +281,12 @@ struct PerformancePanelView: View {
                 }
                 .help("Density: caps notes per loop (accents survive first); the arranger raises it at payoff and thins on the way out")
             }
+        }
+    }
 
-            Spacer()
-
+    /// MIDI learn and capture export.
+    private var ioControls: some View {
+        HStack(spacing: 16) {
             Button {
                 ui.toggleLearnMode()
             } label: {
@@ -260,9 +330,6 @@ struct PerformancePanelView: View {
             .fixedSize()
             .help("Export the last N whole bars of everything played (.mid), or open Takes — every play → stop pass")
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(AppColor.bgPanel)
     }
 
     private func phaseLabel(_ phase: ArrangementPhase) -> String {

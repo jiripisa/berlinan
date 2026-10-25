@@ -215,7 +215,7 @@ struct TransportBarView: View {
             Text(label)
                 .font(AppFont.fieldLabel)
                 .tracking(AppTracking.field)
-                .foregroundStyle(AppColor.ink4)
+                .foregroundStyle(AppColor.ink3)
             content()
         }
     }

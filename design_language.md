@@ -42,8 +42,15 @@ Visual design system for the Berlinan app. Derived from **Sampio**'s proven stud
 |---|---|---|
 | `ink` | `#e7ecf2` | primary text, big numerals |
 | `ink2` | `#aab2bd` | secondary labels |
-| `ink3` | `#6b727c` | tertiary, inactive step cells |
-| `ink4` | `#4a5159` | disabled / ghosted |
+| `ink3` | `#7e8692` | tertiary: field labels (POS, HARMONY, LCM…), hints, captions |
+| `ink4` | `#606973` | disabled / ghosted states only — never for labels or hints |
+
+**Contrast floor** (raised 2026-10-25 after labels proved hard to read):
+every text colour must reach **4.5:1** on all four panel backgrounds —
+`ink3` measures 4.6–5.1:1, `ink2` 8.0–8.8:1. `ink4` (3.1–3.4:1) is reserved
+for disabled or empty controls, where WCAG's text minimum does not apply,
+and still stays readable. The originals (`#6b727c` 3.5:1, `#4a5159` 2.1:1)
+were too dark for 9–10 pt labels.
 
 ### 2.4 Accents — the Berlinan differentiation
 

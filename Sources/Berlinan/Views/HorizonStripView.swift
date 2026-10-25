@@ -12,7 +12,7 @@ struct HorizonStripView: View {
             Text("HORIZON")
                 .font(AppFont.fieldLabel)
                 .tracking(AppTracking.field)
-                .foregroundStyle(AppColor.ink4)
+                .foregroundStyle(AppColor.ink3)
 
             if let template = ui.pendingTemplateName {
                 chip(icon: "square.grid.2x2",
@@ -42,7 +42,7 @@ struct HorizonStripView: View {
                 && ui.upcomingEvents.isEmpty && nearestMutation() == nil {
                 Text("steady — nothing scheduled")
                     .font(AppFont.monoCaption)
-                    .foregroundStyle(AppColor.ink4)
+                    .foregroundStyle(AppColor.ink3)
             }
 
             Spacer()

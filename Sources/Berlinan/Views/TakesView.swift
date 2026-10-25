@@ -37,7 +37,7 @@ struct TakesView: View {
                 if store.liveTake == nil && store.takes.isEmpty {
                     Text("Press play — each pass is recorded as a take.")
                         .font(AppFont.monoCaption)
-                        .foregroundStyle(AppColor.ink4)
+                        .foregroundStyle(AppColor.ink3)
                 }
             }
         }
