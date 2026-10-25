@@ -48,7 +48,9 @@
   notarized DMG, GitHub Release, website.
 - Phase 53 (HTML manual with marked screenshots) DONE 2026-10-25 — docs
   only; new screenshots must be retaken when the UI changes (marks are
-  percent coordinates). No phase open. Remaining M7
+  percent coordinates).
+- Phase 54 (bilingual site, EN + CS) DONE 2026-10-25 — every site change
+  now goes into both docs/*.html and docs/cs/*.html. No phase open. Remaining M7
   candidates:
   tie editing in the pattern editor, undo for configuration edits; runtime
   meter stays backlog.

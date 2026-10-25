@@ -12,6 +12,7 @@ at its channels. Audio never touches it.
 
 Website and download: https://jiripisa.github.io/berlinan/ ·
 manual: https://jiripisa.github.io/berlinan/manual.html
+(česky: https://jiripisa.github.io/berlinan/cs/)
 
 ![Berlinan](Resources/AppIcon.png)
 
