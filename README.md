@@ -79,7 +79,10 @@ from ~225 hours of synthesist interviews and breakdowns:
    a multi-track `.mid`, or drag a lane's pattern strip straight into a Live
    clip slot. **Window ▸ Takes** lists every play → stop pass (kept on disk
    until you delete it): rename it, save it as `.mid` or drag it into Live.
-7. Hands off the laptop: **LEARN** binds controller CCs/notes (aim them at
+7. Updates: Berlinan checks for a new version at launch and offers it —
+   nothing installs without your OK. Turn it off in **Berlinan ▸ Settings…**
+   (⌘,), or use **Check for Updates…** in the app menu.
+8. Hands off the laptop: **LEARN** binds controller CCs/notes (aim them at
    the **Berlinan Control** input) to play/stop, degrees, dice, re-roll and
    slots.
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Automatic updates: at launch Berlinan checks whether a new version is
+  out and offers it with its release notes; after you click **Install
+  Update** it downloads, verifies and installs it and restarts. Switch the
+  check off in **Berlinan ▸ Settings…** (⌘,); **Check for Updates…** in the
+  app menu checks by hand.
+- Readability: labels are brighter (contrast at least 4.5:1) and the
+  performance panel wraps onto two or three rows instead of cutting
+  controls short in narrower windows.
+
 ## 1.2.7 — 2026-10-25
 
 - The app and the built-in templates now start in A minor (was C minor).

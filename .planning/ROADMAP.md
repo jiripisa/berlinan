@@ -88,6 +88,8 @@ Deferred to M7: capture browser (done as phase 49 — Takes), runtime meter chan
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 56-autoupdate | Sparkle auto-update: launch check (default on, Settings ⌘, toggle), signed appcast from build.sh dist via scripts/make_appcast.py, no silent installs | FR-UX-8 (new) | ✅ |
+| 55-legibility | Contrast floor ink3/ink4, labels off ink4, performance panel wraps (1/2/3 rows); manual images visible in Safari | — (user report) | ✅ |
 | 54-bilingual-site | Website + manual in English and Czech (docs/cs/), EN/CS switch + hreflang; shared assets/site.css, manual.css, phasing.js (texts from data-*) | — (user request) | ✅ |
 | 53-manual | HTML manual on the website (docs/manual.html) with CSS-marked screenshots of every control; linked from index + README | — (user request) | ✅ |
 | 52-v1.2.7-release | Version 1.2.7 (A minor default + unpublished 1.2.6 Takes), notarized DMG, website — tagged 2026-10-25 | — | ✅ |

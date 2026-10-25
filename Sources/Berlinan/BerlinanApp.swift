@@ -6,6 +6,7 @@ struct BerlinanApp: App {
 
     @State private var services: AppServices
     @State private var ui: UIState
+    @State private var updates = UpdateService()
 
     init() {
         // Studio-dark only in v1 (design_language.md §6) — the app does not
@@ -23,6 +24,11 @@ struct BerlinanApp: App {
         }
         .windowStyle(.automatic)
         .commands {
+            // Auto-update (FR-UX-8): manual check next to About.
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { updates.checkNow() }
+                    .disabled(!updates.canCheck)
+            }
             // Undo over generative actions (FR-UX-5): restores the state
             // snapshot taken before the last regenerate / re-roll / recall.
             CommandGroup(replacing: .undoRedo) {
@@ -52,6 +58,11 @@ struct BerlinanApp: App {
             DelayCheatSheetView(services: services)
         }
         .windowResizability(.contentSize)
+
+        // App settings (⌘,) — machine-wide; the project has its own sheet.
+        Settings {
+            AppSettingsView(updates: updates)
+        }
 
         // Every Play→Stop pass (FR-IO-11) — appears in the Window menu.
         Window("Takes", id: "takes") {

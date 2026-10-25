@@ -16,6 +16,11 @@ let package = Package(
         // The pure, deterministic engine (spec §5.1) — no Apple-framework deps.
         .library(name: "BerlinanEngine", targets: ["BerlinanEngine"]),
     ],
+    dependencies: [
+        // Auto-update (phase 56): the standard updater for apps outside the
+        // App Store; EdDSA-signed appcast on GitHub Pages.
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.4"),
+    ],
     targets: [
         .target(
             name: "BerlinanEngine",
@@ -48,8 +53,15 @@ let package = Package(
         ),
         .executableTarget(
             name: "Berlinan",
-            dependencies: ["BerlinanEngine", "BerlinanRuntime"],
-            path: "Sources/Berlinan"
+            dependencies: [
+                "BerlinanEngine", "BerlinanRuntime",
+                .product(name: "Sparkle", package: "Sparkle"),
+            ],
+            path: "Sources/Berlinan",
+            linkerSettings: [
+                // Sparkle.framework ships in Contents/Frameworks (build.sh).
+                .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"]),
+            ]
         ),
         .testTarget(
             name: "BerlinanEngineTests",
