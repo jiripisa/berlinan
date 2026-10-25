@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Berlinan — generativní sekvencer Berlínské školy pro macOS</title>
+<meta name="description" content="Generativní MIDI sekvencer pro macOS v tradici Berlínské školy. Hlasy se opakují, rozcházejí se ve fázi a změny si postupně zaslouží. Zdarma a open source.">
+<meta property="og:title" content="Berlinan">
+<meta property="og:description" content="Generativní MIDI sekvencer pro macOS v tradici Berlínské školy. Zdarma a open source.">
+<meta property="og:image" content="https://jiripisa.github.io/berlinan/assets/berlinan-window.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="cs_CZ">
+<meta name="theme-color" content="#131418">
+<link rel="alternate" hreflang="en" href="https://jiripisa.github.io/berlinan/">
+<link rel="alternate" hreflang="cs" href="https://jiripisa.github.io/berlinan/cs/">
+<link rel="alternate" hreflang="x-default" href="https://jiripisa.github.io/berlinan/">
+<link rel="icon" href="../assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="wrap masthead">
+  <a class="brand" href="#top"><img src="../assets/icon.png" alt="" width="32" height="32">Berlinan</a>
+  <nav aria-label="Stránka">
+    <a href="#how">Jak funguje</a>
+    <a href="manual.html">Manuál</a>
+    <a href="#get">Stáhnout</a>
+    <a href="https://github.com/jiripisa/berlinan">GitHub</a>
+    <a class="lang" href="../" hreflang="en" lang="en">English</a>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <h1>Berlinan</h1>
+    <p class="lede">
+      Generativní MIDI sekvencer pro macOS v tradici Berlínské školy, tedy
+      Tangerine Dream a Klause Schulzeho. Pouští malý soubor sekvencerových
+      hlasů, které se opakují, rozcházejí se ve fázi a změny si zaslouží
+      postupně, stejně jako při jamu na modulárním systému.
+    </p>
+    <div class="actions">
+      <a class="button" href="https://github.com/jiripisa/berlinan/releases/download/v1.2.7/Berlinan-1.2.7.dmg">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 3v10m0 0-4-4m4 4 4-4M4 16h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Stáhnout pro macOS
+      </a>
+      <span class="meta">Verze 1.2.7 pro macOS 14 a novější. Zdarma a <a href="https://github.com/jiripisa/berlinan">open source</a>. <a href="manual.html">Přečtěte si manuál</a>.</span>
+    </div>
+
+    <div class="machine" aria-label="Animovaná ukázka tří sekvencerových hlasů, které se rozcházejí ve fázi"
+         data-aligned="všechny tři se sešly" data-aligned-in="znovu se sejdou za {n} kroků"
+         data-play="Spustit" data-pause="Pozastavit">
+      <div class="lane" data-voice="0"><span class="lane-name">7 kroků</span><div class="cells"></div></div>
+      <div class="lane" data-voice="1"><span class="lane-name">5 kroků</span><div class="cells"></div></div>
+      <div class="lane" data-voice="2"><span class="lane-name">6 kroků</span><div class="cells"></div></div>
+      <div class="machine-foot">
+        <span>Tři smyčky různé délky. Stále stejné tóny, ale nikdy stejná kombinace, dokud se znovu nesejdou.</span>
+        <span>
+          <span class="counter" id="counter" aria-live="off">znovu se sejdou za 210 kroků</span>
+          <button type="button" id="toggle" aria-pressed="false">Pozastavit</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap shot">
+    <figure>
+      <img src="../assets/berlinan-window.png" width="2800" height="1280"
+           alt="Okno Berlinanu při hraní: tři řádky hlasů (dva plucky a bas) s notami a ukazateli přehrávání, transport bar s pozicí, tempem a tóninou, harmonický plán a horizont, který ohlašuje, že Pluck 1 může brzy mutovat.">
+      <figcaption>
+        Dva plucky o délce 16 a 15 kroků nad šestnáctikrokovým basem. Horizont
+        ukazuje, co se chystá změnit, takže vás uprostřed setu nic nezaskočí.
+      </figcaption>
+    </figure>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>Drží se pravidel žánru</h2>
+      <p class="intro">
+        Engine vychází ze stylového manuálu, který vznikl z asi 225 hodin
+        rozhovorů a rozborů se syntezátoristy Berlínské školy. Většinu práce
+        odvedou čtyři jeho zákony.
+      </p>
+      <dl class="laws">
+        <div>
+          <dt>Opakování si změnu zaslouží</dt>
+          <dd>Pattern několikrát zazní beze změny, než smí mutovat, a každá mutace si své místo musí znovu vysloužit.</dd>
+        </div>
+        <div>
+          <dt>Jedna stupnice pro všechny</dt>
+          <dd>Všechny hlasy sdílejí stupnici. Transpozice se posouvá po stupních, takže celý soubor mění harmonii společně.</dd>
+        </div>
+        <div>
+          <dt>Fázování, ne náhoda</dt>
+          <dd>Hlasy hrají smyčky různé délky a pomalu se vůči sobě posouvají. Právě tohle chvění je zvuk žánru.</dd>
+        </div>
+        <div>
+          <dt>Změna na taktu</dt>
+          <dd>Žádné házení kostkou na každém kroku a žádný swing. Každá změna je naplánovaná a přijde na začátku taktu.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap routing">
+      <div>
+        <h2>Hraje na vaše syntezátory</h2>
+        <p class="intro">
+          Berlinan je MIDI nástroj, ne DAW. Stopy v Ableton Live nasměrujte na jeho
+          virtuální výstup <b>Berlinan Out</b>, nebo vyberte připojené MIDI zařízení
+          a hrajte přímo na hardwarové syntezátory. Zvuk jím nikdy neprochází.
+        </p>
+        <div class="sync">
+          <p><b>INT</b> Berlinan je zdrojem hodin (clock master).</p>
+          <p><b>EXT</b> Řídí se MIDI clockem z Live nebo z hardwarového sekvenceru.</p>
+          <p><b>LINK</b> Ableton Link po vaší síti, tempo i fáze taktu sladěné oběma směry.</p>
+        </div>
+      </div>
+      <figure class="routing-example">
+        <figcaption>
+          <b>Šablona Full ensemble</b>, jeden hlas na MIDI kanál. Výchozí soubor
+          hraje Pluck 1, Pluck 2 a Bass na kanálech 1 až 3; kliknutím na kanál
+          hlasu v aplikaci ho přesunete na libovolný kanál od 1 do 16.
+        </figcaption>
+        <ul class="flow">
+          <li><span><span class="dot" style="--c: var(--cyan)"></span>Pluck 1</span><span class="ch">ch 1</span></li>
+          <li><span><span class="dot" style="--c: #5F9EC9"></span>Pluck 2</span><span class="ch">ch 2</span></li>
+          <li><span><span class="dot" style="--c: var(--amber)"></span>Bass</span><span class="ch">ch 3</span></li>
+          <li><span><span class="dot" style="--c: var(--violet)"></span>Pad</span><span class="ch">ch 4</span></li>
+          <li><span><span class="dot" style="--c: #D9DDE3"></span>Lead</span><span class="ch">ch 5</span></li>
+          <li><span><span class="dot" style="--c: #C96F6F"></span>Heartbeat</span><span class="ch">ch 10</span></li>
+        </ul>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Stavěný pro živé hraní</h2>
+      <p class="intro">
+        Stisknete play a soubor hned začne hrát, pokaždé z nového seedu. Odtud je
+        každý tah jedno stisknutí a přijde na začátku dalšího taktu.
+      </p>
+      <ul class="features">
+        <li><b>Tlačítka stupňů</b>Přesunou celý soubor na jiný stupeň stupnice.</li>
+        <li><b>B-díl</b>Nová progrese a nová basová linka jedním stiskem, klasický druhý díl skladby.</li>
+        <li><b>Autopilot aranžéra</b>Staví skladbu hlas po hlasu, obměňuje ji, vrací téma a ukončí ji. Jen radí; každý krok můžete přebít.</li>
+        <li><b>Hustota a ambientní režim</b>Prořeďte nebo zahustěte celý mix, nebo zpomalte změny zhruba na jednu za minutu.</li>
+        <li><b>Extrakce melodie</b>Vytáhne ze sekvence pár akcentovaných tónů a nechá z nich vyrůst melodickou linku.</li>
+        <li><b>Scény</b>Plynule přetočí namapované ovladače syntezátorů k pojmenovanému zvuku během osmi taktů.</li>
+        <li><b>Záznam</b>Každý průchod od play do stop se uloží jako take. Nejlepší pojmenujte, uložte jako vícestopé MIDI nebo je přetáhněte rovnou do Live.</li>
+        <li><b>MIDI learn</b>Namapujte play, stupně, nový seed a snapshoty na svůj kontroler a nechte notebook být.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="get" id="get">
+    <div class="wrap">
+      <h2>Získejte Berlinan</h2>
+      <div class="get-grid">
+        <div>
+          <h3>Stažení</h3>
+          <p>
+            Obraz disku je podepsaný a notarizovaný Applem, takže se otevře bez
+            bezpečnostních varování. Přetáhněte Berlinan do Aplikací a stiskněte play.
+          </p>
+          <div class="actions" style="margin-top: 1.25rem">
+            <a class="button" href="https://github.com/jiripisa/berlinan/releases/download/v1.2.7/Berlinan-1.2.7.dmg">Stáhnout verzi 1.2.7</a>
+          </div>
+          <p style="margin-top: 1.25rem"><a href="manual.html">Manuál</a>: každý ovládací prvek vysvětlený, s vyznačenými screenshoty.</p>
+          <p><a href="https://github.com/jiripisa/berlinan/releases">Poznámky k vydání a starší verze</a> (anglicky)</p>
+        </div>
+        <div>
+          <h3>Sestavení ze zdrojového kódu</h3>
+          <p>
+            Berlinan je svobodný software pod licencí GPL 2.0 nebo novější.
+            Potřebujete nástroje příkazové řádky Xcode; projekt Xcode není potřeba.
+          </p>
+<pre><code>git clone --recursive https://github.com/jiripisa/berlinan.git
+cd berlinan
+./run.sh</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Berlinan, autor Jiří Píša. GPL-2.0-or-later.</span>
+    <span><a href="manual.html">Manuál</a> · <a href="https://github.com/jiripisa/berlinan">Zdrojový kód na GitHubu</a></span>
+  </div>
+</footer>
+
+<script src="../assets/phasing.js"></script>
+</body>
+</html>
