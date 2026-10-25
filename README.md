@@ -75,7 +75,8 @@ from ~225 hours of synthesist interviews and breakdowns:
    local network; tempo and bar phase lock both ways).
 6. **Capture**: the last hour is always recorded — export the last N bars as
    a multi-track `.mid`, or drag a lane's pattern strip straight into a Live
-   clip slot.
+   clip slot. **Window ▸ Takes** lists every play → stop pass (kept on disk
+   until you delete it): rename it, save it as `.mid` or drag it into Live.
 7. Hands off the laptop: **LEARN** binds controller CCs/notes (aim them at
    the **Berlinan Control** input) to play/stop, degrees, dice, re-roll and
    slots.
@@ -90,7 +91,7 @@ macOS 14+.
 ./run.sh              # build + launch
 ./build.sh release    # optimized bundle
 ./build.sh dist       # release + codesign + notarized DMG (needs Developer ID)
-swift test            # 333 tests
+swift test            # 340 tests
 swift run berlinan-cli render examples/demo_project.json --bars 64 -o out.mid
 ```
 

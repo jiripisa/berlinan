@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Takes (capture browser): every play → stop pass is recorded as a take.
+  **Window ▸ Takes** (also in the Export Capture menu) lists them newest
+  first, the one being recorded on top. Rename a take, save it as a
+  multi-track `.mid`, drag it into Live or Finder, or delete it. Takes are
+  kept on disk (saved every 10 s while recording) and survive quitting.
+  A template loaded while playing starts a new take at its bar line.
+
 ## 1.2.5 — 2026-10-24
 
 - Per-voice MIDI channel (user request): click the **ch N** label in a

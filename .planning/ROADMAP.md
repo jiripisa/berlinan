@@ -81,13 +81,14 @@ musician + UX designer review (user-approved).
 | 36-template-gallery | Startup template picker (Demo / Full ensemble / Ambient), save-as-template | FR-UX (new) | ✅ |
 | 37-v1.2-release | CHANGELOG, README, version 1.2.0, tag | — | ✅ |
 
-Deferred to M7: capture browser, runtime meter changes (backlog).
+Deferred to M7: capture browser (done as phase 49 — Takes), runtime meter changes (backlog).
 
 ## Interim (post-1.2 user feedback)
 
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 49-takes | Takes (M7 capture browser): one take per Play→Stop pass (split on live template load), TakeLibrary on disk + autosave, Takes window — rename, save .mid, drag, delete | FR-IO-11 (new), FR-IO-9 | ✅ |
 | 48-v1.2.5-release | Version 1.2.5 (per-voice MIDI channel), notarized DMG, website — tagged 2026-10-24 | — | ✅ |
 | 47-voice-channel | Per-voice MIDI channel picked in the lane ("ch N" menu), live: Transport.setChannel flushes the old channel, carries a pending template load, updates capture export; stored in the project | FR-IO-1 (channel part) | ✅ |
 | 46-v1.2.4-release | Version 1.2.4 (templates menu fix, MIDI output device, audit fixes), notarized DMG, website — tagged 2026-10-22 | — | ✅ |

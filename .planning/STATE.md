@@ -37,7 +37,11 @@
 - Phase 47 (per-voice MIDI channel, user request) DONE 2026-10-24 — 333
   tests.
 - 2026-10-24 — v1.2.5 RELEASED (phase 48): per-voice MIDI channel;
-  notarized DMG, GitHub Release, website. No phase open. Next entry point: M7.
+  notarized DMG, GitHub Release, website.
+- Phase 49 (Takes — M7 capture browser, FR-IO-11) DONE 2026-10-25 — 340
+  tests. Unreleased (CHANGELOG). No phase open. Remaining M7 candidates:
+  tie editing in the pattern editor, undo for configuration edits; runtime
+  meter stays backlog.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (user-confirmed push of main + tags v0.1.0–v1.1.0). Made PUBLIC
   2026-10-21 (see above).

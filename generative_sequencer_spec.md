@@ -186,6 +186,7 @@ Requirements are numbered `FR-<group>-<n>`. Priority: **P1** = MVP (Milestone M1
 - **FR-IO-8 (P1)** — Note-off integrity: every Note On has a guaranteed matching Note Off across pattern swaps, transposition, mute, blank cycles, transport stop (all-notes-off + per-note tracking), and key changes.
 - **FR-IO-9 (P2)** — **Drag & drop**: any pattern, any voice's current composite, or the capture buffer can be dragged out as a `.mid` file (file promise) directly into Ableton's Session View. Clip metadata (suggested delay: "dotted 8th", role, key) goes into the SMF track name — the manual's delay is an audio effect the app cannot apply, so it ships as a **hint** [M §9.1].
 - **FR-IO-10 (P2)** — **MIDI learn**: all performance macros (FR-UX-3) mappable to incoming CC/notes on a control port.
+- **FR-IO-11 (P2, added 2026-10-25 from user request)** — **Takes**: every Play→Stop pass is kept as a take (one piece: a template loaded while playing starts a new take at its bar line) — notes as played (pre-mute), tempo at start, meter, voices with channel and name. A Takes window lists them newest first with the take in progress on top; each take can be renamed, saved as a type-1 SMF (one track per voice), dragged out as a `.mid`, and deleted. Takes persist on disk (Application Support, one JSON file each, autosaved while recording) until the user deletes them.
 
 ### 3.11 Producer UX & performance controls (UX)
 
