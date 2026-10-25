@@ -29,7 +29,7 @@ struct DelayCheatSheetView: View {
             Spacer(minLength: 12)
             Text("feedback ~50% · wet ~50% · ping-pong · low+high cut on repeats\nso echoes recede into the distance")
                 .font(AppFont.monoCaption)
-                .foregroundStyle(AppColor.ink4)
+                .foregroundStyle(AppColor.ink3)
         }
         .padding(16)
         .frame(minWidth: 460, minHeight: 260, alignment: .topLeading)
@@ -46,7 +46,7 @@ struct DelayCheatSheetView: View {
         }
         .font(AppFont.fieldLabel)
         .tracking(AppTracking.field)
-        .foregroundStyle(AppColor.ink4)
+        .foregroundStyle(AppColor.ink3)
         .padding(.vertical, 4)
         .overlay(Rectangle().fill(AppColor.line).frame(height: 1), alignment: .bottom)
     }

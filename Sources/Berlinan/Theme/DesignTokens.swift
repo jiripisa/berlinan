@@ -42,8 +42,10 @@ enum AppColor {
 
   static let ink   = Color(red: 0xe7/255.0, green: 0xec/255.0, blue: 0xf2/255.0)  // #e7ecf2 — primary
   static let ink2  = Color(red: 0xaa/255.0, green: 0xb2/255.0, blue: 0xbd/255.0)  // #aab2bd — secondary
-  static let ink3  = Color(red: 0x6b/255.0, green: 0x72/255.0, blue: 0x7c/255.0)  // #6b727c — tertiary
-  static let ink4  = Color(red: 0x4a/255.0, green: 0x51/255.0, blue: 0x59/255.0)  // #4a5159 — disabled
+  // Contrast floor (§2.3): ink3 ≥ 4.5:1 on every panel — labels and hints are
+  // ink3, never darker; ink4 ≥ 3:1, for disabled / ghosted states only.
+  static let ink3  = Color(red: 0x7e/255.0, green: 0x86/255.0, blue: 0x92/255.0)  // #7e8692 — tertiary, labels
+  static let ink4  = Color(red: 0x60/255.0, green: 0x69/255.0, blue: 0x73/255.0)  // #606973 — disabled
 
   // MARK: Accent — tangerine (primary, §2.4)
 

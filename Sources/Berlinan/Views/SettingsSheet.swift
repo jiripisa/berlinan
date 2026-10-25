@@ -85,7 +85,7 @@ struct SettingsSheet: View {
                  ? "playing: key + tempo bind at the next bar (meter needs stop)"
                  : "applying regenerates the patterns in the new key/meter\n(seeds unchanged — the material stays recognizable)")
                 .font(AppFont.monoCaption)
-                .foregroundStyle(AppColor.ink4)
+                .foregroundStyle(AppColor.ink3)
 
             HStack {
                 Spacer()
@@ -132,7 +132,7 @@ struct SettingsSheet: View {
             Text(label)
                 .font(AppFont.fieldLabel)
                 .tracking(AppTracking.field)
-                .foregroundStyle(AppColor.ink4)
+                .foregroundStyle(AppColor.ink3)
             content()
         }
     }
