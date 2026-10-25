@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.7 — 2026-10-25
 
 - The app and the built-in templates now start in A minor (was C minor).
   Your own templates and saved projects keep their key.
