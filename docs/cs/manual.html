@@ -46,7 +46,7 @@
       <ol>
         <li><a href="#start">Začínáme</a></li>
         <li><a href="#window">Hlavní okno</a></li>
-        <li><a href="#transport">Transport bar</a>
+        <li><a href="#transport">Transportní lišta</a>
           <ol>
             <li><a href="#play">Play a údaje</a></li>
             <li><a href="#seed">Nový seed</a></li>
@@ -79,7 +79,7 @@
             <li><a href="#export">Export záznamu</a></li>
           </ol>
         </li>
-        <li><a href="#lcm">Patička konvergence</a></li>
+        <li><a href="#lcm">Patička LCM</a></li>
         <li><a href="#takes">Okno Takes</a></li>
         <li><a href="#delay">Delay Cheat Sheet</a></li>
         <li><a href="#updates">Aktualizace</a></li>
@@ -96,26 +96,27 @@
       <!-- ===================================================== -->
       <section id="start">
         <h2>Začínáme</h2>
-        <p>Berlinan je generativní MIDI sekvencer pro macOS 14 a novější. Pouští
-        malý soubor sekvencerových hlasů, které se opakují, rozcházejí se ve fázi
-        a změny si postupně zaslouží. Sám nevydává zvuk: posílá MIDI do Ableton
-        Live nebo do hardwarových syntezátorů.</p>
+        <p>Berlinan je generativní MIDI sekvencer pro macOS 14 a novější. Hraje
+        několik krátkých melodických smyček, které se opakují, kvůli různé délce se
+        vůči sobě pomalu posouvají a mění se jen po malých krocích. Sám nevydává
+        zvuk: posílá MIDI do Ableton Live nebo do hardwarových syntezátorů.</p>
         <ol>
           <li><a href="index.html#get">Stáhněte obraz disku</a>, otevřete ho a přetáhněte
           <b>Berlinan</b> do Aplikací. Aplikace je podepsaná a notarizovaná, takže se
           otevře bez bezpečnostních varování.</li>
           <li>Spusťte Berlinan. Otevře se s šablonou <b>Demo trio</b> (Pluck 1, Pluck 2
-          a Bass) v A moll, při každém spuštění z nového náhodného seedu.</li>
-          <li>Stiskněte <kbd>Space</kbd>. Soubor začne hrát.</li>
+          a Bass) v A moll, při každém spuštění z nového náhodného
+          <a href="#concepts">seedu</a>.</li>
           <li>Pošlete ho tam, kde ho uslyšíte: vyberte <a href="#output">MIDI výstup</a>
           a nastavte syntezátory podle kapitoly <a href="#connect">Připojení syntezátorů</a>.</li>
-          <li>Hrajte. Klávesami <kbd>1</kbd> až <kbd>7</kbd> přesunete celý soubor na
-          jiný stupeň stupnice, <kbd>N</kbd> dá úplně nový hudební svět a
+          <li>Stiskněte <kbd>Space</kbd>. Teď byste měli hlasy slyšet.</li>
+          <li>Hrajte. Klávesami <kbd>1</kbd> až <kbd>7</kbd> přesunete všechny hlasy na
+          jiný stupeň stupnice, <kbd>N</kbd> dá všem hlasům nové patterny a
           <a href="#horizon">horizont</a> vám řekne, co se chystá.</li>
         </ol>
-        <div class="note"><p>Každá změna přijde na začátku dalšího taktu, nikdy uprostřed.
-        Je to záměr: tak žánr funguje, a díky tomu můžete tlačítka mačkat s předstihem
-        a pořád do rytmu.</p></div>
+        <div class="note"><p>Hudební změny počkají na začátek dalšího taktu; nový pattern
+        jednoho hlasu počká na konec jeho smyčky. Tlačítko tak můžete stisknout o chvilku
+        dřív a změna stejně přijde do rytmu.</p></div>
       </section>
 
       <!-- ===================================================== -->
@@ -124,7 +125,7 @@
         <p>Okno je složené z vodorovných pásů, shora dolů.</p>
         <figure class="fig wide">
           <div class="view" style="--iw:2800;--ih:1280">
-            <img src="../assets/manual/main.png" alt="Hlavní okno Berlinanu při hraní s vyznačenými šesti pásy: transport bar, pás harmonie, horizont, řádky hlasů, hrací panel a patička konvergence.">
+            <img src="../assets/manual/main.png" alt="Hlavní okno Berlinanu při hraní s vyznačenými šesti pásy: transport bar, pás harmonie, horizont, řádky hlasů, hrací panel a patička LCM.">
             <span class="mark" style="--x:.4;--y:4.8;--w:99.2;--h:7.2"><b>1</b></span>
             <span class="mark" style="--x:.4;--y:13;--w:99.2;--h:4.3"><b>2</b></span>
             <span class="mark" style="--x:.4;--y:17.8;--w:99.2;--h:4"><b>3</b></span>
@@ -135,7 +136,7 @@
           <figcaption>Demo trio při hraní.</figcaption>
         </figure>
         <dl class="controls">
-          <dt><span class="n">1</span><a href="#transport">Transport bar</a></dt>
+          <dt><span class="n">1</span><a href="#transport">Transportní lišta</a></dt>
           <dd>Play/stop, pozice, tempo, tónina a stupeň; nový seed, šablony, nastavení, zdroj hodin a MIDI výstup.</dd>
           <dt><span class="n">2</span><a href="#harmony">Pás harmonie</a></dt>
           <dd>Jak se pohybuje harmonie a jaké harmonické změny přijdou.</dd>
@@ -145,7 +146,7 @@
           <dd>Jeden řádek na hlas, s patternem, ukazatelem přehrávání a ovládáním. Když se hlasy nevejdou, řádky se posouvají.</dd>
           <dt><span class="n">5</span><a href="#panel">Hrací panel</a></dt>
           <dd>Ovládání pro jam: stupně, snapshoty, B-díl, aranžér, hustota, MIDI learn a export.</dd>
-          <dt><span class="n">6</span><a href="#lcm">Patička konvergence</a></dt>
+          <dt><span class="n">6</span><a href="#lcm">Patička LCM</a></dt>
           <dd>Kdy se všechny smyčky znovu sejdou a verze enginu.</dd>
         </dl>
         <p>Když na ovládací prvek najedete myší, ukáže se krátká nápověda.</p>
@@ -153,7 +154,7 @@
 
       <!-- ===================================================== -->
       <section id="transport">
-        <h2>Transport bar</h2>
+        <h2>Transportní lišta</h2>
 
         <h3 id="play">Play a údaje</h3>
         <figure class="fig">
@@ -168,20 +169,21 @@
         </figure>
         <dl class="controls">
           <dt><span class="n">1</span>Play / Stop <kbd>Space</kbd></dt>
-          <dd>Spustí a zastaví soubor. Zastavení okamžitě utiší všechny tóny včetně
+          <dd>Spustí a zastaví přehrávání. Zastavení okamžitě utiší všechny tóny včetně
           dlouhých drónů. Každé spuštění začne skladbu od začátku; každý průchod
-          od play do stop se nahraje jako <a href="#takes">take</a>.</dd>
+          od play do stop se nahraje jako <a href="#takes">záznam (take)</a>.</dd>
           <dt><span class="n">2</span>POS</dt>
-          <dd>Pozice jako takt.doba během hraní, <span class="ui">–.–</span> po zastavení.</dd>
+          <dd>Pozice jako takt.doba během hraní, <span class="ui">—.—</span> po zastavení.</dd>
           <dt><span class="n">3</span>BPM</dt>
           <dd>Tempo. Mění se v <a href="#settings">nastavení projektu</a>; v režimu
           EXT nebo LINK se řídí externími hodinami.</dd>
           <dt><span class="n">4</span>KEY</dt>
-          <dd>Tónika a stupnice, které sdílejí všechny hlasy, například <span class="ui">A naturalMinor</span> (A přirozená moll).</dd>
+          <dd>Základní tón a stupnice, které sdílejí všechny hlasy, například <span class="ui">A naturalMinor</span> (A přirozená moll).</dd>
           <dt><span class="n">5</span>DEG</dt>
           <dd>Aktuální transpozice: <span class="ui">1</span> je výchozí poloha,
-          <span class="ui">+3</span> znamená, že soubor hraje o tři stupně výš.
-          Mimo výchozí polohu svítí oranžově.</dd>
+          <span class="ui">+3</span> znamená, že hlasy hrají o tři stupně výš.
+          Mimo výchozí polohu svítí oranžově. Tlačítko stupně 4 se tu ukáže jako
+          <span class="ui">+3</span>.</dd>
         </dl>
 
         <h3 id="seed">Nový seed, šablony, nastavení, synchronizace a výstup</h3>
@@ -197,9 +199,8 @@
         </figure>
         <dl class="controls">
           <dt><span class="n">1</span>Nový seed <kbd>N</kbd></dt>
-          <dd>Úplně nový hudební svět ze stejného nastavení: nové patterny pro všechny
-          hlasy. Během hraní nastoupí na začátku dalšího taktu. <kbd>⌘Z</kbd> vrátí
-          předchozí svět.</dd>
+          <dd>Nové patterny pro všechny hlasy ze stejného nastavení. Během hraní
+          nastoupí na začátku dalšího taktu. <kbd>⌘Z</kbd> vrátí ty předchozí.</dd>
           <dt><span class="n">2</span>Šablony</dt>
           <dd>Výchozí body. Viz <a href="#templates">Šablony</a>.</dd>
           <dt><span class="n">3</span>Nastavení projektu</dt>
@@ -220,14 +221,15 @@
         <p>Ikonou mřížky začnete ze šablony. Každá startuje z nového seedu, takže
         nikdy nedostanete dvakrát stejnou skladbu.</p>
         <ul>
-          <li><b>Demo trio</b>: dva plucky o délce 16 a 15 kroků nad šestnáctikrokovým
-          basem. Výchozí šablona po spuštění aplikace.</li>
-          <li><b>Full ensemble</b>: šest hlasů na kanálech 1 až 5 a 10: dva plucky,
-          basová melodie, akordový pad, lead připravený na převzetí melodie a
-          heartbeat kick.</li>
-          <li><b>Ambient drift</b>: postavený na drónu, změna zhruba jednou za minutu,
-          se zapnutým aranžérem a dvěma CC scénami (<i>closed</i> a <i>open</i>) pro
-          putování filtrem.</li>
+          <li><b>Demo trio</b>: dva pluck hlasy o délce 16 a 15 kroků nad
+          šestnáctikrokovým basem. Výchozí šablona po spuštění aplikace.</li>
+          <li><b>Full ensemble</b>: šest hlasů na kanálech 1 až 5 a 10: dva hlasy Pluck,
+          kráčející basová linka, akordový pad, lead (umí převzít vytaženou melodii,
+          viz <a href="#lane-menu">Menu řádku</a>) a pravidelný kopák (Heartbeat).</li>
+          <li><b>Ambient drift</b>: postavený na drženém drónu, zhruba jedna změna za
+          minutu, se zapnutým <a href="#arranger">aranžérem</a> a dvěma
+          <a href="#scenes">CC scénami</a> (<i>closed</i> a <i>open</i>), které pomalu
+          zavírají a otevírají filtry syntezátorů.</li>
         </ul>
         <p>Vestavěné šablony začínají v A moll. Šablony, které jste si uložili sami,
         jsou v části <b>My templates</b>. <b>Save as Template…</b> do ní uloží
@@ -248,19 +250,22 @@
         <p>Ozubeným kolem otevřete dialog, změňte hodnoty a stiskněte <b>Apply</b>.</p>
         <dl class="controls">
           <dt><span class="n">1</span>Root a Mode</dt>
-          <dd>Tónina. Módy: přirozená moll, dórský, frygický, mixolydický, lydický,
-          lydický dominantní, harmonická moll, mollová pentatonika, lokrický a dur.</dd>
+          <dd>Tónina. Módy: naturalMinor (přirozená moll), dorian (dórský), phrygian
+          (frygický), mixolydian (mixolydický), lydian (lydický), lydianDominant
+          (lydický dominantní), harmonicMinor (harmonická moll), minorPentatonic
+          (mollová pentatonika), locrian (lokrický) a major (dur).</dd>
           <dt><span class="n">2</span>BPM</dt>
           <dd>40 až 220 dob za minutu.</dd>
           <dt><span class="n">3</span>Meter</dt>
           <dd>4/4, 3/4, 6/8, 7/8 (4+3 nebo 3+4), 5/4 (3+2) a 5/8 (3+2).</dd>
           <dt><span class="n">4</span>Slides</dt>
-          <dd>Mutace smějí svázat kroky basu a leadu do glissanda. Tyto syntezátory
-          nastavte na mono s portamentem zhruba 60 až 120 ms.</dd>
+          <dd>Mutace smějí spojit sousední tóny basu a leadu plynulým sklouznutím
+          (slide). Tyto syntezátory nastavte na mono s portamentem zhruba 60 až 120 ms.</dd>
         </dl>
         <p>Během hraní se změna tóniny a tempa projeví na začátku dalšího taktu;
-        metrum a slidy vyžadují zastavení. Při zastavení se patterny přegenerují v nové
-        tónině či metru ze stejných seedů, takže materiál zůstane rozpoznatelný.</p>
+        metrum a slidy vyžadují zastavení. Když stisknete <b>Apply</b> při zastaveném
+        přehrávání, patterny se přegenerují v nové tónině či metru ze stejných seedů,
+        takže materiál zůstane rozpoznatelný.</p>
 
         <h3 id="sync">Synchronizace</h3>
         <figure class="fig">
@@ -276,7 +281,9 @@
           řídicího zařízení Berlinan spustí a zastaví a tempo se přizpůsobí. Dokud
           Start nepřijde, stav ukazuje <span class="ui">EXT — waiting for clock</span>.</li>
           <li><b>LINK</b>: Berlinan se připojí k relaci Ableton Link ve vaší síti.
-          Tempo i fáze taktu se sladí oběma směry; stav ukazuje počet účastníků.</li>
+          Tempo i první doba taktu se synchronizují oběma směry. Místo názvu výstupu
+          pak transportní lišta ukazuje, kolik dalších aplikací s Linkem je připojeno
+          (<span class="ui">LINK — 2 peers</span>).</li>
         </ul>
         <p>Zdroj hodin jde změnit jen při zastavení. Podrobné nastavení najdete v kapitole
         <a href="#connect">Připojení syntezátorů</a>.</p>
@@ -288,7 +295,7 @@
             <span class="mark" style="--x:63.6;--y:20.5;--w:35;--h:53.5"></span>
           </div>
         </figure>
-        <p>Klikněte na název výstupu na pravém konci transport baru (výchozí je
+        <p>Klikněte na název výstupu na pravém konci transportní lišty (výchozí je
         <span class="ui">Berlinan Out</span>) a vyberte:</p>
         <ul>
           <li><b>Berlinan Out (virtual)</b>: virtuální MIDI port, který Ableton Live
@@ -320,13 +327,13 @@
           <figcaption>Příští čtyři harmonické změny.</figcaption>
         </figure>
         <p>Pás ukazuje, jak se pohybuje harmonie. Kliknutím na název režimu (tady
-        <span class="ui">manual schedule</span>) zvolíte jiný; jde to při zastavení.</p>
+        <span class="ui">manual schedule</span>) zvolíte jiný (jen při zastavení).</p>
         <ul>
-          <li><b>Manual schedule (demo walk)</b>: pevná řada transpozic zapsaná v projektu.</li>
-          <li><b>Progression</b>: opakovaná akordová řada se čtyřmi takty na krok:
+          <li><b>Manual schedule (demo walk)</b>: pevná řada posunů tóniny uložená v projektu.</li>
+          <li><b>Progression</b>: smyčka přes stupně uvedené v názvu, čtyři takty na krok:
           i-iv-v-i, 1-7-6-5, 1-5-6-7, 1-6-4-7, 1-6-4-1, 7-5-6, 1-b7-6-#5 nebo 6-5-4-1.</li>
           <li><b>Weighted random (sweet/dark)</b>: překvapivý posun každých 8 až 16
-          taktů, vybraný ze „sladkých“ a „temných“ cílů typických pro žánr.</li>
+          taktů, vybraný ze stupňů, které znějí jasně (sweet) nebo temně (dark).</li>
           <li><b>Bass reharmonization</b>: horní hlasy zůstanou, kde jsou, a zvolenou
           progresí se pohybuje jen bas.</li>
         </ul>
@@ -357,10 +364,8 @@
           <dd>Hlas, jehož pattern bude smět mutovat nejdřív
           (<span class="ui">Drone may mutate · ~128 bars</span>).</dd>
         </dl>
-        <p>Další štítky se objeví pro všechno, co máte naplánované: změnu tóniny,
-        vyvolání snapshotu, hustotu, B-díl, zapnutí či vypnutí hlasu, střídání,
-        napěťový tón, předání melodie leadu, posun aranžéra, přechod scény nebo
-        načtení šablony. U každého je <span class="ui">next bar</span> (příští takt)
+        <p>Další štítky se objeví pro cokoli, co jste naplánovali ovládáním níže,
+        například změnu tóniny, vyvolání snapshotu, B-díl nebo scénu. U každého je <span class="ui">next bar</span> (příští takt)
         nebo <span class="ui">in N bars</span> (za N taktů). Když není nic naplánované,
         pás ukazuje <span class="ui">steady — nothing scheduled</span>.</p>
       </section>
@@ -375,7 +380,7 @@
         <div class="pair">
           <figure class="fig">
             <div class="view" style="--iw:2800;--ih:1280;--zx:.6;--zy:27.6;--zw:11;--zh:10.4">
-              <img src="../assets/manual/main.png" alt="Hlavička řádku Pluck 1: název, kanál a délka smyčky a tečky životního cyklu.">
+              <img src="../assets/manual/main.png" alt="Hlavička řádku Pluck 1: název, kanál a délka smyčky a tečky opakování.">
               <span class="mark" style="--x:2;--y:30.4;--w:4.4;--h:2.6"><b>1</b></span>
               <span class="mark" style="--x:2;--y:32.8;--w:2.6;--h:2.5"><b>2</b></span>
               <span class="mark" style="--x:4.8;--y:32.8;--w:4.6;--h:2.5"><b>3</b></span>
@@ -391,19 +396,20 @@
         </div>
         <dl class="controls">
           <dt><span class="n">1</span>Název</dt>
-          <dd>Hlas podle své role: Pluck 1, Pluck 2, Bass, Pad, Lead, Drone, Heartbeat.
-          Role použitá dvakrát dostane číslo.</dd>
+          <dd>Hlas podle role: Pluck 1 a Pluck 2 (krátké drnkavé sekvence), Bass, Pad
+          (měkké držené akordy), Lead, Drone (jeden držený hluboký tón) a Heartbeat
+          (pravidelný kopák). Role použitá dvakrát se čísluje.</dd>
           <dt><span class="n">2</span>MIDI kanál</dt>
           <dd>Kliknutím na <span class="ui">ch N</span> pošlete hlas na jiný kanál, 1 až 16.
           U kanálu, který už používá jiný hlas, je vidět jeho název. Funguje i během
           hraní; změna se uloží s projektem.</dd>
           <dt><span class="n">3</span>Délka smyčky</dt>
-          <dd>Délka patternu v šestnáctinových krocích. Právě různé délky způsobují,
-          že se hlasy vůči sobě posouvají.</dd>
-          <dt><span class="n">4</span>Tečky životního cyklu</dt>
-          <dd>Kolikrát ještě pattern zazní beze změny, než smí mutovat. Plné tečky jsou
-          zbývající průchody; všechny prázdné s tyrkysovým okrajem znamenají, že je
-          pattern usazený a smí se měnit. Jantarové tečky znamenají zamčený pattern.</dd>
+          <dd>Délka patternu v krocích. Právě různé délky způsobují, že se hlasy vůči
+          sobě posouvají.</dd>
+          <dt><span class="n">4</span>Tečky opakování</dt>
+          <dd>Kolikrát ještě pattern zazní beze změny, než smí mutovat, nejvýš čtyři
+          tečky. Všechny prázdné s azurovým kroužkem znamenají, že se teď smí změnit.
+          U zamčeného hlasu jsou plné tečky jantarové; jistotu dá tlačítko Lock.</dd>
         </dl>
 
         <h3 id="strip">Pattern</h3>
@@ -413,7 +419,7 @@
             <span class="mark" style="--x:10.7;--y:25;--w:49;--h:17.2"></span>
           </div>
         </figure>
-        <p>Pás ukazuje aktuální pattern hlasu v mřížce šestnáctin, doby jsou zvýrazněné.
+        <p>Pás ukazuje aktuální pattern hlasu v mřížce kroků, doby jsou zvýrazněné.
         Vyšší tóny jsou výš. Akcentované tóny mají oranžový okraj. Oranžová čára je
         vlastní ukazatel přehrávání hlasu: protože mají smyčky různou délku, ukazatele
         jednotlivých řádků se viditelně rozcházejí.</p>
@@ -447,7 +453,7 @@
         </figure>
         <dl class="controls">
           <dt><span class="n">1</span>Mute</dt>
-          <dd>Hlas okamžitě ztlumí. Engine běží dál a take ho dál nahrává, takže po
+          <dd>Hlas okamžitě ztlumí. Engine běží dál a záznam ho dál nahrává, takže po
           zrušení ztlumení hlas naváže tam, kde právě je.</dd>
           <dt><span class="n">2</span>Lock</dt>
           <dd>Zmrazí pattern: dál se opakuje a nikdy nemutuje.</dd>
@@ -478,14 +484,16 @@
         </figure>
         <p>Další možnosti otevřete pravým kliknutím na pattern:</p>
         <ul>
-          <li><b>CC Profile</b>: namapuje modulační linky hlasu na ovladače vašeho
-          syntezátoru (<i>Generic</i>, <i>Microfreak</i> nebo vaše vlastní profily).</li>
+          <li><b>CC Profile</b>: určí, která čísla ovladačů váš syntezátor používá
+          (například pro filtr), aby automatické pohyby knoflíků a scény hlasu došly
+          na správný ovladač (<i>Generic</i>, <i>Microfreak</i> nebo vlastní profily).
+          Změna během hraní se projeví po zastavení.</li>
           <li><b>Promote Melody to Lead</b>: objeví se, když je zapnutá extrakce melodie
           a projekt má lead; na začátku dalšího taktu předá vytaženou linku leadu.</li>
           <li><b>Alternate With</b>: tento a jiný hlas se střídají ve čtyřtaktových
           frázích, jako otázka a odpověď. <b>Stop Alternation</b> střídání ukončí.</li>
-          <li><b>Voice Off / Voice On (engine)</b>: na začátku dalšího taktu vyřadí hlas
-          ze souboru (nebo ho zařadí zpět); stejný přepínač používá aranžér.</li>
+          <li><b>Voice Off / Voice On (engine)</b>: na začátku dalšího taktu vypne hlas
+          (nebo ho zase zapne); stejný přepínač používá aranžér.</li>
         </ul>
 
         <h3 id="editor">Editor patternu</h3>
@@ -500,12 +508,15 @@
         <p>Tlačítko s tužkou otevře tabulku not patternu hlasu.</p>
         <dl class="controls">
           <dt><span class="n">1</span>Loop</dt>
-          <dd>Délka patternu, 2 až 64 šestnáctinových kroků.</dd>
+          <dd>Délka patternu, 2 až 64 kroků. Krok je šestnáctina (v taktech /8
+          dvaatřicetina).</dd>
           <dt><span class="n">2</span>Noty</dt>
-          <dd>Jeden řádek na notu: <b>krok</b>, na kterém začíná, její <b>stupeň</b>
-          ve stupnici (0 je tónika, 7 o oktávu výš), posun o <b>oktávu</b>,
-          <b>velocity</b> a zda je <b>akcentovaná</b>. Ikona koše notu odstraní. Stupně
-          se řídí tóninou a každou transpozicí.</dd>
+          <dd>Jeden řádek na tón: <span class="ui">STEP</span> (kde začíná),
+          <span class="ui">DEGREE</span> (místo ve stupnici, počítáno od 0: 0 je
+          základní tón, 7 základní tón o oktávu výš, v minorPentatonic 5; tlačítka
+          stupňů a DEG počítají od 1), <span class="ui">OCT</span> (posun o oktávy),
+          <span class="ui">VEL</span> (síla úhozu, 1–127) a <span class="ui">ACC</span>
+          (akcent). Ikona koše tón odstraní. Stupně sledují tóninu i každou transpozici.</dd>
           <dt><span class="n">3</span>Add note</dt>
           <dd>Přidá notu na první volný krok.</dd>
         </dl>
@@ -516,8 +527,8 @@
       <!-- ===================================================== -->
       <section id="panel">
         <h2>Hrací panel</h2>
-        <p>Pás pod řádky hlasů obsahuje ovládání, na které hrajete během setu. Všechno
-        tady se projeví na začátku dalšího taktu.</p>
+        <p>Pás pod řádky hlasů obsahuje ovládání, na které hrajete během setu. Hudební
+        tahy se projeví na začátku dalšího taktu.</p>
 
         <h3 id="degrees">Stupně <kbd>1</kbd>–<kbd>7</kbd></h3>
         <figure class="fig">
@@ -530,11 +541,11 @@
         <dl class="controls">
           <dt><span class="n">1</span>Tlačítka stupňů</dt>
           <dd>Přesunou všechny hlasy na stupeň 1 až 7 na začátku dalšího taktu. Protože
-          všechny hlasy sdílejí jednu stupnici, celý soubor mění harmonii společně.
+          všechny hlasy sdílejí jednu stupnici, všechny hlasy mění harmonii společně.
           Aktivní stupeň svítí; <span class="ui">1</span> je výchozí poloha.</dd>
-          <dt id="snapshots"><span class="n">2</span>Snapshoty</dt>
-          <dd><kbd>⌥</kbd>+klik na slot uloží celý aktuální stav (všechny patterny,
-          životní cykly a harmonii); obsazené sloty se zbarví tyrkysově. Kliknutím
+          <dt id="snapshots"><span class="n">2</span>SNAP (snapshoty)</dt>
+          <dd><kbd>⌥</kbd>+klik na slot uloží aktuální patterny, počty jejich opakování
+          a plán harmonických změn; obsazené sloty se zbarví tyrkysově. Kliknutím
           na obsazený slot ho vyvoláte na začátku dalšího taktu; <kbd>⌘Z</kbd> vyvolání
           vrátí. Snapshoty se ukládají s projektem.</dd>
         </dl>
@@ -550,17 +561,17 @@
           </div>
         </figure>
         <dl class="controls">
-          <dt><span class="n">1</span>Re-roll unlocked</dt>
+          <dt><span class="n">1</span>RE-ROLL UNLOCKED</dt>
           <dd>Přegeneruje každý hlas, který není zamčený, vždy od jeho další smyčky.
           <kbd>⌘Z</kbd> akci vrátí.</dd>
           <dt><span class="n">2</span>B</dt>
-          <dd>Tah B-dílu, klasického druhého dílu skladby, jedním stiskem: rozjede se
-          progrese, bas dostane novou linku a podklad vypadne. Funguje během hraní.</dd>
+          <dd>Jedním stiskem spustí kontrastní druhý díl: rozjede se akordová progrese
+          a bas dostane novou linku. Funguje během hraní.</dd>
           <dt><span class="n">3</span>T·n</dt>
-          <dd>Rozpočet napětí: zbývá <i>n</i> mimotonálních momentů pro tuto skladbu.
-          Každý stisk zahraje na začátku dalšího taktu jednu drženou malou sekundu proti
-          tónice. Použité střídmě je to koření žánru.</dd>
-          <dt id="scenes"><span class="n">4</span>Scene</dt>
+          <dd><i>n</i> je počet záměrně „falešných“ tónů, které skladbě zbývají. Každý
+          stisk na začátku dalšího taktu podrží tón o půltón nad základním tónem: ostrý
+          střet, který přidá napětí. Šetřete je na vrchol skladby.</dd>
+          <dt id="scenes"><span class="n">4</span>SCENE</dt>
           <dd>Ukáže se, jen když projekt má CC scény (Ambient drift má dvě). Vyberte
           scénu a všechny namapované ovladače se během osmi taktů plynule přesunou
           k jejímu zvuku. Funguje během hraní.</dd>
@@ -578,15 +589,16 @@
           </div>
         </figure>
         <dl class="controls">
-          <dt><span class="n">1</span>AUTO</dt>
+          <dt><span class="n">1</span>ARR · AUTO</dt>
           <dd>Zapne nebo vypne autopilota aranžéra. Ten staví skladbu hlas po hlasu
           (pokud je v projektu drón, otevírá ji), nechá ji usadit, obměňuje ji, spustí
-          B-díl, v pointě vrátí téma, proředí ji a skončí taktem jen se základními tóny.
-          Pouze radí: každý jeho tah je zároveň ovládací prvek, který můžete použít
-          sami, a kdykoli ho můžete přebít.</dd>
+          B-díl, ve vrcholu vrátí úvodní téma, proředí ji a skončí taktem jen se
+          základními tóny. Tahy dělá sám, ale každý z nich je zároveň ovládací prvek,
+          který můžete použít sami, a kdykoli ho můžete přebít.</dd>
           <dt><span class="n">2</span>Fáze</dt>
-          <dd>Aktuální fáze a kolik taktů trvá: BUILD (stavba), BED (podklad), VAR
-          (variace), B-PART, PAYOFF (pointa), SUBTR (ubírání) nebo END (konec).</dd>
+          <dd>Aktuální fáze a kolik taktů trvá: BUILD (hlasy nastupují), BED (všechny
+          hlasy se usadí), VAR (obměna), B-PART (kontrastní díl), PAYOFF (vrchol: vrátí
+          se úvodní téma), SUBTR (hlasy ubývají) nebo END.</dd>
           <dt><span class="n">3</span>Posun</dt>
           <dd>Spustí další změnu aranžéra hned na začátku dalšího taktu, místo čekání.</dd>
           <dt id="density"><span class="n">4</span>Ambientní režim</dt>
@@ -594,7 +606,7 @@
           16krát, než smějí mutovat. Nastavuje se při zastavení.</dd>
           <dt><span class="n">5</span>DENS</dt>
           <dd>Proředí nebo zahustí celý mix: omezí, kolik not každá smyčka zahraje, a
-          akcenty vydrží nejdéle. Aranžér hustotu v pointě zvedá a ke konci snižuje.</dd>
+          akcenty vydrží nejdéle. Aranžér hustotu ve vrcholu zvedá a ke konci snižuje.</dd>
         </dl>
         <figure class="fig" style="max-width:36rem">
           <div class="view spot" style="--iw:1120;--ih:600">
@@ -616,14 +628,16 @@
             <span class="mark" style="--x:88.5;--y:90.2;--w:10.4;--h:5.2"><b>2</b></span>
           </div>
         </figure>
-        <p>Namapujte knoby a pady svého kontroleru na Berlinan a nechte notebook být.</p>
+        <p>Namapujte knoflíky a pady svého kontroleru na Berlinan a nechte notebook být.</p>
         <ol>
-          <li>Nasměrujte kontroler na MIDI vstup <b>Berlinan Control</b>.</li>
+          <li>Nasměrujte kontroler na virtuální MIDI vstup <b>Berlinan Control</b>.
+          Samotné připojení nestačí; v Live k tomu poslouží například MIDI stopa, která
+          má <b>MIDI From</b> nastavené na váš kontroler a <b>MIDI To</b> na Berlinan Control a <b>Monitor</b> na <b>In</b>.</li>
           <li>Klikněte na <span class="ui">LEARN</span> <span class="n mono">1</span>. Zobrazí se <span class="ui">LEARN: PICK A CONTROL</span>.</li>
           <li>Klikněte na prvek, který chcete namapovat: play/stop, tlačítko stupně,
           nový seed, re-roll, slot snapshotu, B nebo posun aranžéra. Zobrazí se
           <span class="ui">MOVE A KNOB…</span>.</li>
-          <li>Otočte knobem nebo stiskněte pad. Mapování se uloží a přežije restart.</li>
+          <li>Otočte knoflíkem nebo stiskněte pad. Mapování se uloží a přežije restart.</li>
           <li>Stejně namapujte další prvky a nakonec znovu klikněte na <span class="ui">LEARN</span>.</li>
         </ol>
         <p>Počítá se jen stisk: note-on nebo hodnota ovladače 64 a víc, takže pad,
@@ -646,7 +660,7 @@
 
       <!-- ===================================================== -->
       <section id="lcm">
-        <h2>Patička konvergence</h2>
+        <h2>Patička LCM</h2>
         <figure class="fig">
           <div class="view spot" style="--iw:2800;--ih:1280;--zx:0;--zy:95.6;--zw:36;--zh:4.4">
             <img src="../assets/manual/main.png" alt="Patička: LCM 15 taktů, asi 40 sekund.">
@@ -654,7 +668,7 @@
           </div>
         </figure>
         <p><span class="ui">LCM</span> říká, po kolika taktech a sekundách se všechny
-        smyčky znovu sejdou: je to nejmenší společný násobek délek smyček. Do té doby
+        smyčky znovu sejdou (LCM: nejmenší společný násobek délek smyček). Do té doby
         je každý takt kombinací, kterou jste ještě neslyšeli. Vpravo je verze enginu.</p>
       </section>
 
@@ -669,20 +683,20 @@
             <span class="mark" style="--x:95;--y:21.6;--w:4;--h:7.4"><b>3</b></span>
           </div>
         </figure>
-        <p>Každý průchod od play do stop se uloží jako take, na disk, dokud ho nesmažete.
-        Okno otevřete přes <b>Window ▸ Takes</b> nebo <b>Export Capture ▸ Takes…</b>.
-        Nejnovější take je nahoře; ten, který se právě nahrává, má červenou tečku a roste.</p>
+        <p>Každý průchod od play do stop se uloží jako záznam (take), na disk, dokud ho
+        nesmažete. Okno otevřete přes <b>Window ▸ Takes</b> nebo <b>Export Capture ▸ Takes…</b>.
+        Nejnovější záznam je nahoře; ten, který se právě nahrává, má červenou tečku a roste.</p>
         <dl class="controls">
-          <dt><span class="n">1</span>Take</dt>
+          <dt><span class="n">1</span>Záznam</dt>
           <dd>Kliknutím na název ho přejmenujete, potvrďte klávesou <kbd>Return</kbd>.
           Pod názvem je, kdy vznikl, jeho délka v taktech a minutách, tempo a hlasy.
-          <b>Přetažením takeu</b> do Live nebo do složky ve Finderu dostanete MIDI soubor.</dd>
+          <b>Přetažením záznamu</b> do Live nebo do složky ve Finderu dostanete MIDI soubor.</dd>
           <dt><span class="n">2</span>Uložit jako .mid</dt>
           <dd>Uloží vícestopý MIDI soubor, jedna stopa na hlas na jeho kanálu.</dd>
           <dt><span class="n">3</span>Smazat</dt>
-          <dd>Po potvrzení take smaže z disku.</dd>
+          <dd>Po potvrzení záznam smaže z disku.</dd>
         </dl>
-        <p>Šablona načtená během hraní začne na svém taktu nový take. Rozpracovaný take
+        <p>Šablona načtená během hraní začne na svém taktu nový záznam. Rozpracovaný záznam
         se ukládá každých 10 sekund, takže při pádu aplikace přijdete nanejvýš o tyto sekundy.</p>
       </section>
 
@@ -695,9 +709,10 @@
             <span class="mark" style="--x:1.3;--y:20.4;--w:97.4;--h:24.4"></span>
           </div>
         </figure>
-        <p>Delay je pro tento žánr tím, čím je jinde dozvuk. <b>Window ▸ Delay Cheat Sheet</b>
-        ukáže pro každý hlas dělení a čas zvukového delaye při aktuálním tempu:
-        tečkované osminy pro plucky, osminy pro bas, čtvrtinové noty pro držené hlasy.
+        <p>Delay synchronizovaný s tempem patří ke zvuku žánru, vedle dozvuku.
+        <b>Window ▸ Delay Cheat Sheet</b> ukazuje pro každý hlas dělení a čas delaye
+        při tempu projektu: tečkované osminy pro pluck hlasy a Heartbeat, osminy pro
+        bas a drón, čtvrťové noty pro pad a lead.
         Tlačítko kopírování dá nastavení do schránky. Feedback a podíl efektu nastavte
         zhruba na 50 %, použijte ping-pong a u opakování ořízněte basy i výšky.</p>
         <p>Když má některý řádek zapnutý MIDI delay, přehled vás upozorní, že ozvěny
@@ -743,8 +758,8 @@
           <li>Nastavte <b>Monitor</b> na <b>In</b> (nebo stopu zapněte k nahrávání) a
           spusťte Berlinan.</li>
         </ol>
-        <p>Nahrávat můžete přímo v Live, nebo jednoduše potom vyexportujte
-        <a href="#takes">take</a> a přetáhněte ho do projektu.</p>
+        <p>Pro nahrávání v Live zapněte stopy k nahrávání (arm), nebo po hraní
+        vyexportujte <a href="#takes">záznam (take)</a> a přetáhněte ho do projektu.</p>
 
         <h3>Hardwarové syntezátory</h3>
         <ol>
@@ -760,7 +775,7 @@
         <h3>Řízení tempem z Live</h3>
         <ul>
           <li><b>Ableton Link</b> (nejjednodušší): přepněte Berlinan na <span class="ui">LINK</span>
-          a v Live zapněte Link. Tempo i fáze taktu se sdílejí oběma směry; Berlinan
+          a v Live zapněte Link. Tempo i první doba taktu se sdílejí oběma směry; Berlinan
           spustíte klávesou <kbd>Space</kbd>.</li>
           <li><b>MIDI clock</b>: přepněte Berlinan na <span class="ui">EXT</span>. V
           nastavení MIDI v Live zapněte <b>Sync</b> pro výstupní port, který Berlinan
@@ -776,9 +791,9 @@
           <li><b>File ▸ Save Project As…</b> <kbd>⇧⌘S</kbd> uloží soubor <code>.berlinan</code>
           s celým nastavením: hlasy, kanály, tónina, tempo, harmonický režim, ručně
           upravené patterny, seed a sloty snapshotů.</li>
-          <li><b>File ▸ Open Project…</b> <kbd>⌘O</kbd> ho otevře (při zastavení). Uložený
-          projekt si drží vlastní seed i tóninu, takže se vrátí přesně tak, jak jste ho
-          opustili. Poškozený soubor aplikace odmítne s vysvětlením, místo aby ho načetla.</li>
+          <li><b>File ▸ Open Project…</b> <kbd>⌘O</kbd> ho otevře (při zastavení). Otevření
+          obnoví uložené nastavení a seed. Obměnu, která se vám líbí, před uložením
+          uložte do slotu snapshotu. Poškozený soubor aplikace odmítne s vysvětlením, místo aby ho načetla.</li>
           <li><b>Templates ▸ Save as Template…</b> uloží aktuální nastavení jako šablonu;
           pak se objeví v části <b>My templates</b>. Na rozdíl od projektu začíná šablona
           vždy z nového seedu.</li>
@@ -792,9 +807,9 @@
           <thead><tr><th>Klávesa</th><th>Akce</th></tr></thead>
           <tbody>
             <tr><td><kbd>Space</kbd></td><td>Play / stop</td></tr>
-            <tr><td><kbd>1</kbd> – <kbd>7</kbd></td><td>Přesunout soubor na daný stupeň na začátku dalšího taktu</td></tr>
+            <tr><td><kbd>1</kbd> – <kbd>7</kbd></td><td>Přesunout všechny hlasy na daný stupeň na začátku dalšího taktu</td></tr>
             <tr><td><kbd>N</kbd></td><td>Nový seed</td></tr>
-            <tr><td><kbd>⌘Z</kbd></td><td>Vrátit poslední přegenerování, re-roll, vyvolání snapshotu nebo nový seed</td></tr>
+            <tr><td><kbd>⌘Z</kbd></td><td>Vrátit poslední přegenerování, re-roll, vyvolání snapshotu, úpravu patternu nebo nový seed</td></tr>
             <tr><td><kbd>⌥</kbd>+klik na slot</td><td>Uložit snapshot</td></tr>
             <tr><td><kbd>⌘O</kbd></td><td>Otevřít projekt</td></tr>
             <tr><td><kbd>⇧⌘S</kbd></td><td>Uložit projekt jako…</td></tr>
@@ -808,9 +823,10 @@
         <h2>Pojmy</h2>
         <dl class="controls">
           <dt>Opakování si změnu zaslouží</dt>
-          <dd>Nový materiál zazní čtyřikrát beze změny, než smí mutovat (v ambientním
-          režimu šestnáctkrát), a každá mutace si své místo musí znovu vysloužit. Tečky
-          životního cyklu ukazují, kde který hlas je.</dd>
+          <dd>Nový materiál zazní čtyřikrát beze změny (v ambientním režimu
+          šestnáctkrát), než smí mutovat. Mutace je malá změna: pár tónů se posune na
+          jiný stupeň, jeden tón se mírně posune v čase nebo se přesunou akcenty. Po
+          každé mutaci se počítá znovu. Tečky opakování ukazují, kde který hlas je.</dd>
           <dt>Stupně, ne noty</dt>
           <dd>Patterny jsou zapsané ve stupních stupnice. Transpozice posune všechny
           hlasy o stejný počet stupňů uvnitř stupnice, takže harmonie zůstane v tónině.</dd>
@@ -821,8 +837,8 @@
           <dd>Číslo, které rozhoduje o všech náhodných volbách. Stejný projekt se stejným
           seedem dá vždy stejnou hudbu; nový seed dá ze stejného nastavení novou skladbu.</dd>
           <dt>Další takt</dt>
-          <dd>Změny nikdy nepřijdou uprostřed taktu. Změny patternu jednoho hlasu počkají
-          na jeho další smyčku.</dd>
+          <dd>Změny harmonie a aranžmá přijdou na začátku dalšího taktu. Nový pattern
+          jednoho hlasu začne, až dojede jeho smyčka. Mute a Stop reagují okamžitě.</dd>
         </dl>
       </section>
 
@@ -842,8 +858,10 @@
         řádku: u kanálu, který používá jiný hlas, je vidět jeho název.</p>
         <h4>Menu nebo tlačítko je zašedlé</h4>
         <p>Některá nastavení jdou měnit jen při zastavení: zdroj hodin, harmonický režim,
-        metrum, slidy, ambientní režim a forma aranžéra. B, posun aranžéra, napětí a scény
-        naopak fungují jen během hraní.</p>
+        metrum, slidy, ambientní režim a <b>File ▸ Open Project…</b>. Formu aranžéra
+        (pravý klik na <span class="ui">AUTO</span>) také jen při zastavení; během hraní
+        se volba ignoruje. B, posun aranžéra, napětí a scény naopak fungují jen během
+        hraní.</p>
         <h4>Nějaký tón nepřestává znít</h4>
         <p>Stiskněte stop: Berlinan pošle note-off a All Notes Off na všechny kanály,
         které použil.</p>

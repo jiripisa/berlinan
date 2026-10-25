@@ -136,7 +136,7 @@ struct TransportBarView: View {
             .menuStyle(.borderlessButton)
             .fixedSize()
             .disabled(ui.isPlaying)
-            .help("Clock source (FR-IO-4/5). EXT: Berlinan follows Start/Stop and tempo of incoming MIDI clock (enable Sync OUT to Berlinan in Ableton). LINK: tempo and bar phase lock to the Ableton Link session on the local network")
+            .help("Clock source (FR-IO-4/5). EXT: Berlinan follows Start/Stop and tempo of incoming MIDI clock (in Live, turn on Sync for an output Berlinan can hear, e.g. an IAC bus). LINK: tempo and the downbeat follow the Ableton Link session on the local network")
 
             // The status dot stays outside the menu: macOS menu labels render
             // their text only.

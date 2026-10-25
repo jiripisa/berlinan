@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Berlinan — generativní sekvencer Berlínské školy pro macOS</title>
-<meta name="description" content="Generativní MIDI sekvencer pro macOS v tradici Berlínské školy. Hlasy se opakují, rozcházejí se ve fázi a změny si postupně zaslouží. Zdarma a open source.">
+<meta name="description" content="Generativní MIDI sekvencer pro macOS ve stylu Berlínské školy. Hraje několik krátkých melodických smyček, které se opakují, pomalu se vůči sobě posouvají a mění se jen po malých krocích. Zdarma a open source.">
 <meta property="og:title" content="Berlinan">
 <meta property="og:description" content="Generativní MIDI sekvencer pro macOS v tradici Berlínské školy. Zdarma a open source.">
 <meta property="og:image" content="https://jiripisa.github.io/berlinan/assets/berlinan-window.png">
@@ -37,10 +37,10 @@
   <div class="wrap hero">
     <h1>Berlinan</h1>
     <p class="lede">
-      Generativní MIDI sekvencer pro macOS v tradici Berlínské školy, tedy
-      Tangerine Dream a Klause Schulzeho. Pouští malý soubor sekvencerových
-      hlasů, které se opakují, rozcházejí se ve fázi a změny si zaslouží
-      postupně, stejně jako při jamu na modulárním systému.
+      Generativní MIDI sekvencer pro macOS ve stylu Berlínské školy, tedy
+      Tangerine Dream a Klause Schulzeho ze 70. let. Hraje několik krátkých
+      melodických smyček, které se opakují, pomalu se vůči sobě posouvají
+      a mění se jen po malých krocích.
     </p>
     <div class="actions">
       <a class="button" href="https://github.com/jiripisa/berlinan/releases/download/v1.2.8/Berlinan-1.2.8.dmg">
@@ -50,7 +50,7 @@
       <span class="meta">Verze 1.2.8 pro macOS 14 a novější. Zdarma a <a href="https://github.com/jiripisa/berlinan">open source</a>. <a href="manual.html">Přečtěte si manuál</a>.</span>
     </div>
 
-    <div class="machine" aria-label="Animovaná ukázka tří sekvencerových hlasů, které se rozcházejí ve fázi"
+    <div class="machine" aria-label="Animovaná ukázka tří smyček různé délky, které se vůči sobě pomalu posouvají"
          data-aligned="všechny tři se sešly" data-aligned-in="znovu se sejdou za {n} kroků"
          data-play="Spustit" data-pause="Pozastavit">
       <div class="lane" data-voice="0"><span class="lane-name">7 kroků</span><div class="cells"></div></div>
@@ -71,7 +71,7 @@
       <img src="../assets/berlinan-window.png" width="2800" height="1280"
            alt="Okno Berlinanu při hraní: tři řádky hlasů (dva plucky a bas) s notami a ukazateli přehrávání, transport bar s pozicí, tempem a tóninou, harmonický plán a horizont, který ohlašuje, že Pluck 1 může brzy mutovat.">
       <figcaption>
-        Dva plucky o délce 16 a 15 kroků nad šestnáctikrokovým basem. Horizont
+        Dva pluck hlasy o délce 16 a 15 kroků nad šestnáctikrokovým basem. Horizont
         ukazuje, co se chystá změnit, takže vás uprostřed setu nic nezaskočí.
       </figcaption>
     </figure>
@@ -81,9 +81,9 @@
     <div class="wrap">
       <h2>Drží se pravidel žánru</h2>
       <p class="intro">
-        Engine vychází ze stylového manuálu, který vznikl z asi 225 hodin
-        rozhovorů a rozborů se syntezátoristy Berlínské školy. Většinu práce
-        odvedou čtyři jeho zákony.
+        Engine vychází ze stylového manuálu sestaveného z asi 225 videolekcí
+        jednoho praktika Berlínské školy (YouTube kanál Synth Seeker). Většinu
+        práce odvedou čtyři jeho zákony.
       </p>
       <dl class="laws">
         <div>
@@ -92,15 +92,15 @@
         </div>
         <div>
           <dt>Jedna stupnice pro všechny</dt>
-          <dd>Všechny hlasy sdílejí stupnici. Transpozice se posouvá po stupních, takže celý soubor mění harmonii společně.</dd>
+          <dd>Všechny hlasy sdílejí stupnici. Transpozice se posouvá po stupních, takže všechny hlasy mění harmonii společně.</dd>
         </div>
         <div>
           <dt>Fázování, ne náhoda</dt>
-          <dd>Hlasy hrají smyčky různé délky a pomalu se vůči sobě posouvají. Právě tohle chvění je zvuk žánru.</dd>
+          <dd>Hlasy hrají smyčky různé délky a pomalu se vůči sobě posouvají. Právě tohle pomalé posouvání je jedním z typických efektů žánru.</dd>
         </div>
         <div>
           <dt>Změna na taktu</dt>
-          <dd>Žádné házení kostkou na každém kroku a žádný swing. Každá změna je naplánovaná a přijde na začátku taktu.</dd>
+          <dd>Nic se nemění náhodně z noty na notu a nehraje se se swingem. Změny jsou naplánované a přijdou na začátku dalšího taktu nebo na konci smyčky hlasu, takže groove drží.</dd>
         </div>
       </dl>
     </div>
@@ -118,12 +118,12 @@
         <div class="sync">
           <p><b>INT</b> Berlinan je zdrojem hodin (clock master).</p>
           <p><b>EXT</b> Řídí se MIDI clockem z Live nebo z hardwarového sekvenceru.</p>
-          <p><b>LINK</b> Ableton Link po vaší síti, tempo i fáze taktu sladěné oběma směry.</p>
+          <p><b>LINK</b> Ableton Link po vaší síti, tempo i první doba taktu sladěné oběma směry.</p>
         </div>
       </div>
       <figure class="routing-example">
         <figcaption>
-          <b>Šablona Full ensemble</b>, jeden hlas na MIDI kanál. Výchozí soubor
+          <b>Šablona Full ensemble</b>, jeden hlas na MIDI kanál. Výchozí Demo trio
           hraje Pluck 1, Pluck 2 a Bass na kanálech 1 až 3; kliknutím na kanál
           hlasu v aplikaci ho přesunete na libovolný kanál od 1 do 16.
         </figcaption>
@@ -143,17 +143,17 @@
     <div class="wrap">
       <h2>Stavěný pro živé hraní</h2>
       <p class="intro">
-        Stisknete play a soubor hned začne hrát, pokaždé z nového seedu. Odtud je
+        Stisknete play a hlasy hned začnou hrát, pokaždé z nového seedu. Odtud je
         každý tah jedno stisknutí a přijde na začátku dalšího taktu.
       </p>
       <ul class="features">
-        <li><b>Tlačítka stupňů</b>Přesunou celý soubor na jiný stupeň stupnice.</li>
-        <li><b>B-díl</b>Nová progrese a nová basová linka jedním stiskem, klasický druhý díl skladby.</li>
-        <li><b>Autopilot aranžéra</b>Staví skladbu hlas po hlasu, obměňuje ji, vrací téma a ukončí ji. Jen radí; každý krok můžete přebít.</li>
+        <li><b>Tlačítka stupňů</b>Přesunou všechny hlasy na jiný stupeň stupnice.</li>
+        <li><b>B-díl</b>Kontrastní druhý díl jedním stiskem: nová akordová progrese a nová basová linka.</li>
+        <li><b>Autopilot aranžéra</b>Staví skladbu hlas po hlasu, obměňuje ji, vrací téma a ukončí ji. Běží sám; každý krok můžete přebít.</li>
         <li><b>Hustota a ambientní režim</b>Prořeďte nebo zahustěte celý mix, nebo zpomalte změny zhruba na jednu za minutu.</li>
         <li><b>Extrakce melodie</b>Vytáhne ze sekvence pár akcentovaných tónů a nechá z nich vyrůst melodickou linku.</li>
-        <li><b>Scény</b>Plynule přetočí namapované ovladače syntezátorů k pojmenovanému zvuku během osmi taktů.</li>
-        <li><b>Záznam</b>Každý průchod od play do stop se uloží jako take. Nejlepší pojmenujte, uložte jako vícestopé MIDI nebo je přetáhněte rovnou do Live.</li>
+        <li><b>Scény</b>Jedním klikem pomalu změní zvuk syntezátorů, třeba otevřou filtr, během osmi taktů.</li>
+        <li><b>Záznam</b>Každý průchod od play do stop se uloží jako záznam (take). Nejlepší pojmenujte, uložte jako vícestopé MIDI nebo je přetáhněte rovnou do Live.</li>
         <li><b>MIDI learn</b>Namapujte play, stupně, nový seed a snapshoty na svůj kontroler a nechte notebook být.</li>
       </ul>
     </div>

@@ -77,7 +77,7 @@
             <li><a href="#export">Export capture</a></li>
           </ol>
         </li>
-        <li><a href="#lcm">Convergence footer</a></li>
+        <li><a href="#lcm">LCM footer</a></li>
         <li><a href="#takes">Takes window</a></li>
         <li><a href="#delay">Delay Cheat Sheet</a></li>
         <li><a href="#updates">Updates</a></li>
@@ -94,28 +94,28 @@
       <!-- ===================================================== -->
       <section id="start">
         <h2>Getting started</h2>
-        <p>Berlinan is a generative MIDI sequencer for macOS 14 or later. It runs
-        a small ensemble of sequencer voices that repeat, drift out of phase and
-        earn their changes over time. It makes no sound itself: it sends MIDI to
-        Ableton Live or to hardware synths.</p>
+        <p>Berlinan is a generative MIDI sequencer for macOS 14 or later. It plays
+        several short melodic loops that repeat, slowly shift against each other
+        because their lengths differ, and change only a little at a time. It makes
+        no sound itself: it sends MIDI to Ableton Live or to hardware synths.</p>
         <ol>
           <li><a href="index.html#get">Download the disk image</a>, open it and drag
           <b>Berlinan</b> to Applications. The app is signed and notarized, so it
           opens without security warnings.</li>
           <li>Start Berlinan. It opens with the <b>Demo trio</b> (Pluck 1, Pluck 2
-          and Bass) in A minor, from a fresh random seed every session.</li>
-          <li>Press <kbd>Space</kbd>. The ensemble starts playing.</li>
+          and Bass) in A minor, from a fresh random <a href="#concepts">seed</a> every session.</li>
           <li>Send it somewhere you can hear it. Pick the
           <a href="#output">MIDI output</a> and set up your synths as described in
           <a href="#connect">Connecting synths</a>.</li>
+          <li>Press <kbd>Space</kbd>. You should now hear the voices.</li>
           <li>Play with it. Press <kbd>1</kbd> to <kbd>7</kbd> to move the whole
-          ensemble to another scale degree, <kbd>N</kbd> for a whole new musical
-          universe, and watch the <a href="#horizon">horizon strip</a> announce
+          ensemble to another scale degree, <kbd>N</kbd> for new patterns in every
+          voice, and watch the <a href="#horizon">horizon strip</a> announce
           what is about to change.</li>
         </ol>
-        <div class="note"><p>Every change you make lands on the next bar line, never in
-        the middle of one. That is deliberate: it is how the genre works, and it
-        means you can press buttons early and in time.</p></div>
+        <div class="note"><p>Musical changes wait for the next bar line; a single
+        voice's new pattern waits for the end of its own loop. So you can press a
+        button a little early and it still lands in time.</p></div>
       </section>
 
       <!-- ===================================================== -->
@@ -124,7 +124,7 @@
         <p>The window is built in horizontal bands, top to bottom.</p>
         <figure class="fig wide">
           <div class="view" style="--iw:2800;--ih:1280">
-            <img src="assets/manual/main.png" alt="The Berlinan main window while playing, with its six bands marked: transport bar, harmony strip, horizon strip, voice lanes, performance panel and convergence footer.">
+            <img src="assets/manual/main.png" alt="The Berlinan main window while playing, with its six bands marked: transport bar, harmony strip, horizon strip, voice lanes, performance panel and LCM footer.">
             <span class="mark" style="--x:.4;--y:4.8;--w:99.2;--h:7.2"><b>1</b></span>
             <span class="mark" style="--x:.4;--y:13;--w:99.2;--h:4.3"><b>2</b></span>
             <span class="mark" style="--x:.4;--y:17.8;--w:99.2;--h:4"><b>3</b></span>
@@ -145,7 +145,7 @@
           <dd>One lane per voice, with its pattern, playhead and controls. Scroll when there are more voices than fit.</dd>
           <dt><span class="n">5</span><a href="#panel">Performance panel</a></dt>
           <dd>The jam controls: degrees, snapshots, B-part, arranger, density, MIDI learn and export.</dd>
-          <dt><span class="n">6</span><a href="#lcm">Convergence footer</a></dt>
+          <dt><span class="n">6</span><a href="#lcm">LCM footer</a></dt>
           <dd>When all loops line up again, and the engine version.</dd>
         </dl>
         <p>Hold the pointer over any control to see a short tooltip.</p>
@@ -172,16 +172,16 @@
           including long drones. Every play starts the piece from its beginning;
           each play-to-stop pass is recorded as a <a href="#takes">take</a>.</dd>
           <dt><span class="n">2</span>POS</dt>
-          <dd>The position as bar.beat while playing, <span class="ui">–.–</span> when stopped.</dd>
+          <dd>The position as bar.beat while playing, <span class="ui">—.—</span> when stopped.</dd>
           <dt><span class="n">3</span>BPM</dt>
           <dd>The tempo. Change it in <a href="#settings">Project settings</a>; in
           EXT or LINK mode it follows the external clock.</dd>
           <dt><span class="n">4</span>KEY</dt>
-          <dd>The root and scale every voice shares, for example <span class="ui">A naturalMinor</span>.</dd>
+          <dd>The home note and scale every voice shares, for example <span class="ui">A naturalMinor</span>.</dd>
           <dt><span class="n">5</span>DEG</dt>
           <dd>The current transposition: <span class="ui">1</span> is home, <span class="ui">+3</span>
           means the ensemble plays three scale degrees up. It turns orange when you
-          are away from home.</dd>
+          are away from home. Degree button 4 shows here as <span class="ui">+3</span>.</dd>
         </dl>
 
         <h3 id="seed">New seed, templates, settings, sync and output</h3>
@@ -197,9 +197,8 @@
         </figure>
         <dl class="controls">
           <dt><span class="n">1</span>New seed <kbd>N</kbd></dt>
-          <dd>A whole new musical universe from the same setup: new patterns for
-          every voice. While playing it takes over at the next bar. <kbd>⌘Z</kbd>
-          brings the previous universe back.</dd>
+          <dd>New patterns for every voice from the same setup. While playing they
+          take over at the next bar. <kbd>⌘Z</kbd> brings the previous ones back.</dd>
           <dt><span class="n">2</span>Templates</dt>
           <dd>Starting points. See <a href="#templates">Templates</a>.</dd>
           <dt><span class="n">3</span>Project settings</dt>
@@ -223,10 +222,13 @@
           <li><b>Demo trio</b>: two plucks of 16 and 15 steps over a 16-step bass.
           The default when the app starts.</li>
           <li><b>Full ensemble</b>: six voices on channels 1 to 5 and 10: two plucks,
-          a bass-melody walk, a chord-layer pad, a lead ready for melody
-          promotion and a heartbeat kick.</li>
-          <li><b>Ambient drift</b>: drone-led, about one change a minute, with the
-          arranger switched on and two CC scenes (<i>closed</i> and <i>open</i>) for a filter journey.</li>
+          a walking bass line, a chord pad, a lead (it can take over an extracted
+          melody, see <a href="#lane-menu">Lane menu</a>) and a steady kick drum
+          (Heartbeat).</li>
+          <li><b>Ambient drift</b>: built on a held drone, about one change a minute,
+          with the <a href="#arranger">arranger</a> switched on and two
+          <a href="#scenes">CC scenes</a> (<i>closed</i> and <i>open</i>) that slowly
+          close and open the synths' filters.</li>
         </ul>
         <p>The built-in templates start in A minor. Templates you saved yourself
         appear under <b>My templates</b>. <b>Save as Template…</b> stores the
@@ -247,8 +249,8 @@
         <p>Click the gear to open the sheet, change values and press <b>Apply</b>.</p>
         <dl class="controls">
           <dt><span class="n">1</span>Root and Mode</dt>
-          <dd>The key. Modes: natural minor, dorian, phrygian, mixolydian, lydian,
-          lydian dominant, harmonic minor, minor pentatonic, locrian and major.</dd>
+          <dd>The key. Modes: naturalMinor, dorian, phrygian, mixolydian, lydian,
+          lydianDominant, harmonicMinor, minorPentatonic, locrian and major.</dd>
           <dt><span class="n">2</span>BPM</dt>
           <dd>40 to 220 beats per minute.</dd>
           <dt><span class="n">3</span>Meter</dt>
@@ -276,8 +278,9 @@
           from the master start and stop Berlinan, and the tempo follows. The
           status reads <span class="ui">EXT — waiting for clock</span> until Start arrives.</li>
           <li><b>LINK</b>: Berlinan joins the Ableton Link session on your
-          network. Tempo and bar phase lock both ways; the status shows the
-          number of peers.</li>
+          network. Tempo and the downbeat stay in sync both ways. In place of the
+          output name, the transport bar then shows how many other Link apps are
+          connected (<span class="ui">LINK — 2 peers</span>).</li>
         </ul>
         <p>The clock source can only be changed while stopped. Setup details are in
         <a href="#connect">Connecting synths</a>.</p>
@@ -322,14 +325,14 @@
             <figcaption>The next four harmonic changes.</figcaption>
           </figure>
         <p>The strip shows how the harmony moves. Click the mode name (here
-        <span class="ui">manual schedule</span>) to pick another mode; this
-        works while stopped.</p>
+        <span class="ui">manual schedule</span>) to pick another mode (only
+        while stopped).</p>
         <ul>
-          <li><b>Manual schedule (demo walk)</b>: a fixed walk of transpositions written into the project.</li>
-          <li><b>Progression</b>: a looped chord walk of four bars per step:
+          <li><b>Manual schedule (demo walk)</b>: a fixed sequence of key shifts stored in the project.</li>
+          <li><b>Progression</b>: a looped walk through the scale degrees in its name, four bars per step:
           i-iv-v-i, 1-7-6-5, 1-5-6-7, 1-6-4-7, 1-6-4-1, 7-5-6, 1-b7-6-#5 or 6-5-4-1.</li>
           <li><b>Weighted random (sweet/dark)</b>: a surprise move every 8 to 16
-          bars, drawn from the genre's sweet and dark targets.</li>
+          bars, picked from scale degrees that sound bright (sweet) or dark.</li>
           <li><b>Bass reharmonization</b>: the upper voices stay where they are and
           only the bass moves through the chosen progression.</li>
         </ul>
@@ -360,10 +363,8 @@
           <dd>The voice whose pattern will be allowed to mutate soonest
           (<span class="ui">Drone may mutate · ~128 bars</span>).</dd>
         </dl>
-        <p>Other chips appear for anything you have queued: a key change, a
-        snapshot recall, density, the B-part, a voice switched on or off,
-        alternation, a tension stab, a melody promoted to the lead, an arranger
-        advance, a scene morph or a template load. Each says <span class="ui">next bar</span>
+        <p>Other chips appear for anything you have queued with the controls
+        below, such as a key change, a snapshot recall, the B-part or a scene. Each says <span class="ui">next bar</span>
         or <span class="ui">in N bars</span>. With nothing scheduled the strip reads
         <span class="ui">steady — nothing scheduled</span>.</p>
       </section>
@@ -378,7 +379,7 @@
         <div class="pair">
           <figure class="fig">
             <div class="view" style="--iw:2800;--ih:1280;--zx:.6;--zy:27.6;--zw:11;--zh:10.4">
-              <img src="assets/manual/main.png" alt="The header of the Pluck 1 lane: the name, the channel and loop length, and the lifecycle dots.">
+              <img src="assets/manual/main.png" alt="The header of the Pluck 1 lane: the name, the channel and loop length, and the play-count dots.">
               <span class="mark" style="--x:2;--y:30.4;--w:4.4;--h:2.6"><b>1</b></span>
               <span class="mark" style="--x:2;--y:32.8;--w:2.6;--h:2.5"><b>2</b></span>
               <span class="mark" style="--x:4.8;--y:32.8;--w:4.6;--h:2.5"><b>3</b></span>
@@ -394,20 +395,21 @@
         </div>
         <dl class="controls">
           <dt><span class="n">1</span>Name</dt>
-          <dd>The voice by its role: Pluck 1, Pluck 2, Bass, Pad, Lead, Drone,
-          Heartbeat. A role used twice is numbered.</dd>
+          <dd>The voice by its role: Pluck 1 and Pluck 2 (short plucked sequences),
+          Bass, Pad (soft held chords), Lead, Drone (one held low note) and
+          Heartbeat (a steady kick drum). A role used twice is numbered.</dd>
           <dt><span class="n">2</span>MIDI channel</dt>
           <dd>Click <span class="ui">ch N</span> to send the voice on another channel,
           1 to 16. A channel already used by another voice shows that voice's
           name. Works while playing; the change is saved with the project.</dd>
           <dt><span class="n">3</span>Loop length</dt>
-          <dd>The pattern's length in sixteenth steps. Different lengths are what
+          <dd>The pattern's length in steps. Different lengths are what
           make the voices drift against each other.</dd>
-          <dt><span class="n">4</span>Lifecycle dots</dt>
+          <dt><span class="n">4</span>Play-count dots</dt>
           <dd>How many more times the pattern plays unchanged before it may
-          mutate. Filled dots are plays left; all empty with a cyan ring means
-          the pattern is established and may change. Amber dots mean the
-          pattern is locked.</dd>
+          mutate, up to four dots. All empty with a cyan ring means it may change
+          now. On a locked voice the filled dots are amber; the Lock button tells
+          you for sure.</dd>
         </dl>
 
         <h3 id="strip">Pattern strip</h3>
@@ -417,7 +419,7 @@
             <span class="mark" style="--x:10.7;--y:25;--w:49;--h:17.2"></span>
           </div>
         </figure>
-        <p>The strip shows the voice's current pattern on a sixteenth grid with
+        <p>The strip shows the voice's current pattern on a step grid with
         stronger lines on the beats. Higher notes sit higher. Accented notes have
         an orange outline. The orange line is the voice's own playhead: since
         loops differ in length, the playheads of the lanes visibly drift apart.</p>
@@ -482,12 +484,14 @@
         </figure>
         <p>Right-click a pattern strip for more:</p>
         <ul>
-          <li><b>CC Profile</b>: map the voice's modulation lanes to your synth's
-          controllers (<i>Generic</i>, <i>Microfreak</i>, or your own profiles).</li>
+          <li><b>CC Profile</b>: tells Berlinan which controller numbers your synth
+          uses (for example for its filter), so the voice's automatic knob movements
+          and scenes reach the right control (<i>Generic</i>, <i>Microfreak</i>, or
+          your own profiles). A change made while playing applies after you stop.</li>
           <li><b>Promote Melody to Lead</b>: appears while melody extraction is on and the
           project has a lead voice; hands the extracted line to the lead at the next bar.</li>
           <li><b>Alternate With</b>: this voice and another play in alternating
-          four-bar phrases, call and answer. <b>Stop Alternation</b> ends it.</li>
+          four-bar phrases, call and response. <b>Stop Alternation</b> ends it.</li>
           <li><b>Voice Off / Voice On (engine)</b>: switches the voice out of (or into)
           the ensemble at the next bar; the arranger uses the same switch.</li>
         </ul>
@@ -504,12 +508,14 @@
         <p>The pencil button opens a note table for the voice's pattern.</p>
         <dl class="controls">
           <dt><span class="n">1</span>Loop</dt>
-          <dd>The pattern length, 2 to 64 sixteenth steps.</dd>
+          <dd>The pattern length, 2 to 64 steps. A step is a sixteenth note (a
+          thirty-second in /8 meters).</dd>
           <dt><span class="n">2</span>Notes</dt>
-          <dd>One row per note: the <b>step</b> it starts on, its scale
-          <b>degree</b> (0 is the root, 7 an octave up), an <b>octave</b> shift,
-          the <b>velocity</b> and whether it is <b>accented</b>. The trash icon
-          removes a note. Degrees follow the key and every transposition.</dd>
+          <dd>One row per note: <span class="ui">STEP</span> (where it starts), <span class="ui">DEGREE</span> (its place in the
+          scale, counted from 0: 0 is the home note, 7 the home note an octave up,
+          or 5 in minorPentatonic; the degree buttons and DEG count from 1), <span class="ui">OCT</span>
+          (octave shift), <span class="ui">VEL</span> (how hard it is played, 1–127) and <span class="ui">ACC</span> (accent). The
+          trash icon removes a note. Degrees follow the key and every transposition.</dd>
           <dt><span class="n">3</span>Add note</dt>
           <dd>Adds a note on the first free step.</dd>
         </dl>
@@ -522,7 +528,7 @@
       <section id="panel">
         <h2>Performance panel</h2>
         <p>The band under the lanes holds the controls you play during a set.
-        Everything here lands on the next bar.</p>
+        Musical moves land on the next bar.</p>
 
         <h3 id="degrees">Degrees <kbd>1</kbd>–<kbd>7</kbd></h3>
         <figure class="fig">
@@ -537,9 +543,9 @@
           <dd>Move every voice to scale degree 1 to 7 at the next bar. Because all
           voices share one scale, the whole ensemble changes harmony together. The
           active degree is lit; <span class="ui">1</span> is home.</dd>
-          <dt id="snapshots"><span class="n">2</span>Snapshots</dt>
-          <dd><kbd>⌥</kbd>-click a slot to store the complete current state (all
-          patterns, lifecycles and harmony); filled slots turn cyan. Click a filled
+          <dt id="snapshots"><span class="n">2</span>SNAP (snapshots)</dt>
+          <dd><kbd>⌥</kbd>-click a slot to store the current patterns, their play
+          counts and the harmony schedule; filled slots turn cyan. Click a filled
           slot to recall it at the next bar; <kbd>⌘Z</kbd> undoes a recall.
           Snapshots are saved with the project.</dd>
         </dl>
@@ -555,18 +561,17 @@
           </div>
         </figure>
         <dl class="controls">
-          <dt><span class="n">1</span>Re-roll unlocked</dt>
+          <dt><span class="n">1</span>RE-ROLL UNLOCKED</dt>
           <dd>Regenerates every voice that is not locked, each at its next loop.
           <kbd>⌘Z</kbd> undoes it.</dd>
           <dt><span class="n">2</span>B</dt>
-          <dd>The B-part move, the genre's classic second section, in one press: a
-          progression starts, the bass gets a new line and the bed drops out.
-          Available while playing.</dd>
+          <dd>Starts a contrasting second section in one press: a chord progression
+          begins and the bass gets a new line. Available while playing.</dd>
           <dt><span class="n">3</span>T·n</dt>
-          <dd>The tension budget: <i>n</i> out-of-key moments left for this piece.
-          Each press plays one sustained minor second against the root at the
-          next bar. Used sparingly, it is the genre's spice.</dd>
-          <dt id="scenes"><span class="n">4</span>Scene</dt>
+          <dd><i>n</i> is how many deliberately wrong notes this piece has left.
+          Each press holds one note a half step above the home note at the next
+          bar: a sharp clash that adds bite. Save them for a high point.</dd>
+          <dt id="scenes"><span class="n">4</span>SCENE</dt>
           <dd>Only shown when the project has CC scenes (Ambient drift has two).
           Pick a scene and all mapped controllers glide toward that timbre over
           eight bars. Available while playing.</dd>
@@ -584,15 +589,17 @@
           </div>
         </figure>
         <dl class="controls">
-          <dt><span class="n">1</span>AUTO</dt>
+          <dt><span class="n">1</span>ARR · AUTO</dt>
           <dd>Switches the arranger autopilot on or off. It builds the piece voice by
           voice (a drone opens it when there is one), lets it settle, varies it,
-          fires the B-part, brings the theme back at the payoff, thins it out and
-          ends on a roots-only bar. It only advises: every move it makes is also
-          a control you can use yourself, and you can override it at any time.</dd>
+          fires the B-part, brings the opening theme back at the climax, thins it out
+          and ends on a roots-only bar. It plays these moves by itself, but each one
+          is also a control you can use yourself, and you can override it at any time.</dd>
           <dt><span class="n">2</span>Phase</dt>
           <dd>The current phase and how many bars it has lasted:
-          BUILD, BED, VAR, B-PART, PAYOFF, SUBTR or END.</dd>
+          BUILD (voices enter one by one), BED (all voices settle), VAR (variation),
+          B-PART (contrasting section), PAYOFF (the climax: the opening theme
+          returns), SUBTR (voices drop out) or END.</dd>
           <dt><span class="n">3</span>Advance</dt>
           <dd>Fires the arranger's next change at the next bar instead of waiting.</dd>
           <dt id="density"><span class="n">4</span>Ambient mode</dt>
@@ -601,7 +608,7 @@
           <dt><span class="n">5</span>DENS</dt>
           <dd>Thins out or fills the whole mix: it caps how many notes each loop
           plays, and accents survive longest. The arranger raises density at the
-          payoff and lowers it on the way out.</dd>
+          climax and lowers it on the way out.</dd>
         </dl>
         <figure class="fig" style="max-width:36rem">
           <div class="view spot" style="--iw:1120;--ih:600">
@@ -625,7 +632,9 @@
         </figure>
         <p>Map your controller's knobs and pads to Berlinan and leave the laptop alone.</p>
         <ol>
-          <li>Send your controller to the MIDI input <b>Berlinan Control</b>.</li>
+          <li>Route your controller to the virtual MIDI input <b>Berlinan Control</b>.
+          Plugging it in is not enough; for example, in Live use a MIDI track with
+          <b>MIDI From</b> set to your controller and <b>MIDI To</b> set to Berlinan Control, and <b>Monitor</b> set to <b>In</b>.</li>
           <li>Click <span class="ui">LEARN</span> <span class="n mono">1</span>. It reads <span class="ui">LEARN: PICK A CONTROL</span>.</li>
           <li>Click the control to map: play/stop, a degree button, new seed,
           re-roll, a snapshot slot, B or advance. It reads <span class="ui">MOVE A KNOB…</span>.</li>
@@ -647,12 +656,12 @@
         as a multitrack MIDI file, one track per voice, ready to drop into Live.
         <b>Takes…</b> opens the <a href="#takes">Takes window</a>.</p>
         <p>The capture records what the engine played, including muted voices, so
-        a voice you muted for the room is still there in the file.</p>
+        a voice you muted only while listening is still there in the file.</p>
       </section>
 
       <!-- ===================================================== -->
       <section id="lcm">
-        <h2>Convergence footer</h2>
+        <h2>LCM footer</h2>
         <figure class="fig">
           <div class="view spot" style="--iw:2800;--ih:1280;--zx:0;--zy:95.6;--zw:36;--zh:4.4">
             <img src="assets/manual/main.png" alt="The footer: LCM 15 bars, about 40 seconds.">
@@ -660,8 +669,8 @@
           </div>
         </figure>
         <p><span class="ui">LCM</span> tells you after how many bars, and how many
-        seconds, all loops line up again: the least common multiple of the loop
-        lengths. Until then every bar is a combination you have not heard yet.
+        seconds, all loops line up again (LCM: least common multiple of the loop
+        lengths). Until then every bar is a combination you have not heard yet.
         The right end shows the engine version.</p>
       </section>
 
@@ -704,10 +713,10 @@
             <span class="mark" style="--x:1.3;--y:20.4;--w:97.4;--h:24.4"></span>
           </div>
         </figure>
-        <p>Delay is the genre's reverb. <b>Window ▸ Delay Cheat Sheet</b> lists, for
-        every voice, the audio delay division and time at the current tempo:
-        dotted eighths for plucks, eighths for the bass, quarters for sustained
-        voices. The copy button puts the settings on the clipboard. Set feedback
+        <p>Tempo-synced delay is part of the genre's sound, next to reverb.
+        <b>Window ▸ Delay Cheat Sheet</b> lists, for every voice, the audio delay
+        division and time at the project tempo: dotted eighths for plucks and
+        Heartbeat, eighths for bass and drone, quarters for pad and lead. The copy button puts the settings on the clipboard. Set feedback
         and wet to about 50 %, use ping-pong and cut lows and highs on the repeats.</p>
         <p>When a lane's MIDI delay is on, the sheet warns you that the echoes are
         already in the MIDI.</p>
@@ -767,7 +776,7 @@
         <h3>Following Live's tempo</h3>
         <ul>
           <li><b>Ableton Link</b> (easiest): switch Berlinan to <span class="ui">LINK</span>
-          and turn Link on in Live. Tempo and bar phase are shared both ways; start
+          and turn Link on in Live. Tempo and the downbeat are shared both ways; start
           Berlinan with <kbd>Space</kbd>.</li>
           <li><b>MIDI clock</b>: switch Berlinan to <span class="ui">EXT</span>. In
           Live's MIDI settings, turn on <b>Sync</b> for an output port Berlinan can
@@ -784,8 +793,8 @@
           file with the whole setup: voices, channels, key, tempo, harmony mode,
           hand-edited patterns, the seed and the snapshot slots.</li>
           <li><b>File ▸ Open Project…</b> <kbd>⌘O</kbd> opens one (while stopped).
-          A saved project keeps its own seed and key, so it comes back exactly as you
-          left it. A damaged file is refused with an explanation instead of being loaded.</li>
+          Opening restores the saved setup and seed. To keep a variation you like,
+          store it in a snapshot slot before saving. A damaged file is refused with an explanation instead of being loaded.</li>
           <li><b>Templates ▸ Save as Template…</b> stores the current setup as a
           template; it then appears under <b>My templates</b>. Unlike a project, a
           template always starts from a fresh seed.</li>
@@ -801,7 +810,7 @@
             <tr><td><kbd>Space</kbd></td><td>Play / stop</td></tr>
             <tr><td><kbd>1</kbd> – <kbd>7</kbd></td><td>Move the ensemble to that scale degree at the next bar</td></tr>
             <tr><td><kbd>N</kbd></td><td>New seed</td></tr>
-            <tr><td><kbd>⌘Z</kbd></td><td>Undo the last regenerate, re-roll, snapshot recall or new seed</td></tr>
+            <tr><td><kbd>⌘Z</kbd></td><td>Undo the last regenerate, re-roll, snapshot recall, pattern edit or new seed</td></tr>
             <tr><td><kbd>⌥</kbd>-click a slot</td><td>Store a snapshot</td></tr>
             <tr><td><kbd>⌘O</kbd></td><td>Open a project</td></tr>
             <tr><td><kbd>⇧⌘S</kbd></td><td>Save the project as…</td></tr>
@@ -815,9 +824,11 @@
         <h2>Concepts</h2>
         <dl class="controls">
           <dt>Repetition earns change</dt>
-          <dd>New material plays verbatim four times before it may mutate (sixteen in
-          ambient mode), and each mutation has to earn its place again. The lifecycle
-          dots show where each voice stands.</dd>
+          <dd>New material plays unchanged four times (sixteen in ambient mode) before
+          it may mutate. A mutation is a small change: a few notes move to other
+          scale degrees, one note shifts slightly in time or the accents move. After
+          each mutation the count starts again. The play-count dots show where each
+          voice stands.</dd>
           <dt>Degrees, not notes</dt>
           <dd>Patterns are written in scale degrees. Transposing moves every voice by
           the same number of degrees within the scale, so harmony stays in key.</dd>
@@ -828,8 +839,9 @@
           <dd>A number that decides every random choice. The same project and seed
           always give the same music; a new seed gives a new piece from the same setup.</dd>
           <dt>Next bar</dt>
-          <dd>Changes never land mid-bar. Pattern changes for a single voice wait for
-          that voice's next loop.</dd>
+          <dd>Harmony and arrangement changes land on the next bar line. A single
+          voice's new pattern starts when its own loop comes round. Mute and Stop
+          act at once.</dd>
         </dl>
       </section>
 
@@ -849,8 +861,10 @@
         a channel used by another voice shows its name.</p>
         <h4>A menu or button is greyed out</h4>
         <p>Some settings only change while stopped: clock source, harmony mode,
-        meter, slides, ambient mode and the arranger form. B, advance, tension and
-        scenes work while playing.</p>
+        meter, slides, ambient mode and <b>File ▸ Open Project…</b>. The arranger
+        form (right-click AUTO) also changes only while stopped; while playing the
+        choice is ignored. B, advance, tension and scenes are the opposite: they
+        only work while playing.</p>
         <h4>A note keeps sounding</h4>
         <p>Press stop: Berlinan sends note-offs and All Notes Off on every channel it used.</p>
       </section>
