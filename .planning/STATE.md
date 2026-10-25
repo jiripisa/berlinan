@@ -43,7 +43,9 @@
 - 2026-10-25 — v1.2.6 RELEASED (phase 50): Takes; notarized DMG, GitHub
   Release, website (tag local only — superseded by 1.2.7 before publishing).
 - Phase 51 (default key A minor, user request) DONE 2026-10-25 — app-level
-  default; engine Key.default stays C minor. No phase open. Remaining M7
+  default; engine Key.default stays C minor.
+- 2026-10-25 — v1.2.7 RELEASED (phase 52): Takes + A minor default;
+  notarized DMG, GitHub Release, website. No phase open. Remaining M7
   candidates:
   tie editing in the pattern editor, undo for configuration edits; runtime
   meter stays backlog.
