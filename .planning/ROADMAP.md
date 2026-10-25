@@ -88,6 +88,7 @@ Deferred to M7: capture browser (done as phase 49 — Takes), runtime meter chan
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 50-v1.2.6-release | Version 1.2.6 (Takes), notarized DMG, website — tagged 2026-10-25 | — | ✅ |
 | 49-takes | Takes (M7 capture browser): one take per Play→Stop pass (split on live template load), TakeLibrary on disk + autosave, Takes window — rename, save .mid, drag, delete | FR-IO-11 (new), FR-IO-9 | ✅ |
 | 48-v1.2.5-release | Version 1.2.5 (per-voice MIDI channel), notarized DMG, website — tagged 2026-10-24 | — | ✅ |
 | 47-voice-channel | Per-voice MIDI channel picked in the lane ("ch N" menu), live: Transport.setChannel flushes the old channel, carries a pending template load, updates capture export; stored in the project | FR-IO-1 (channel part) | ✅ |

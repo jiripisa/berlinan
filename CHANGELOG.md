@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.6 — 2026-10-25
 
 - Takes (capture browser): every play → stop pass is recorded as a take.
   **Window ▸ Takes** (also in the Export Capture menu) lists them newest
