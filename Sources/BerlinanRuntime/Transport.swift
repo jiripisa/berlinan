@@ -34,6 +34,9 @@ public final class Transport: @unchecked Sendable {
     private var engineOrigin: Tick = 0
     private var liveBPM: Double
     public private(set) var sendsClock = true
+    /// The take being recorded (phase 49) and who receives finished ones.
+    private var currentTake: Take? = nil
+    private var takeHandler: (@Sendable (Take) -> Void)? = nil
 
     // MARK: - Sync mode (FR-IO-4/5)
 
@@ -222,6 +225,29 @@ public final class Transport: @unchecked Sendable {
                                 tracks: tracks, length: length)
     }
 
+    // MARK: - Takes (FR-IO-11)
+
+    /// Receives every finished take (on the scheduler thread or the caller
+    /// of `stop()`); takes without notes are dropped.
+    public func setTakeHandler(_ handler: @escaping @Sendable (Take) -> Void) {
+        lock.lock(); defer { lock.unlock() }
+        takeHandler = handler
+    }
+
+    /// The take in progress, nil when stopped.
+    public func liveTake() -> Take? {
+        lock.lock(); defer { lock.unlock() }
+        return currentTake
+    }
+
+    private func deliver(_ take: Take?) {
+        lock.lock()
+        let handler = takeHandler
+        lock.unlock()
+        guard let take, !take.notes.isEmpty else { return }
+        handler?(take)
+    }
+
     // MARK: - Transport controls
 
     public func play() {
@@ -362,6 +388,19 @@ public final class Transport: @unchecked Sendable {
             / project.meter.ticksPerBar * project.meter.ticksPerBar
         lock.unlock()
         var barTicks = project.meter.ticksPerBar
+        // Take recording (phase 49): one take per pass, split where a loaded
+        // project takes over; finished whichever way the loop ends.
+        var takeOrigin: Tick = 0
+        lock.lock()
+        currentTake = Take.start(project: project, bpm: clock.bpm)
+        lock.unlock()
+        defer {
+            lock.lock()
+            let finished = currentTake
+            currentTake = nil
+            lock.unlock()
+            deliver(finished)
+        }
 
         while true {
             lock.lock()
@@ -395,6 +434,9 @@ public final class Transport: @unchecked Sendable {
                             anchorTick: boundary)
                     }
                     lock.lock()
+                    let finishedTake = currentTake
+                    currentTake = Take.start(project: newProject, bpm: clock.bpm)
+                    takeOrigin = boundary
                     project = newProject
                     channelMap = Dictionary(uniqueKeysWithValues:
                         newProject.voices.map { ($0.id, $0.channel) })
@@ -407,6 +449,7 @@ public final class Transport: @unchecked Sendable {
                         pendingBPM = nil
                     }
                     lock.unlock()
+                    deliver(finishedTake)
                 } else {
                     projectBoundary = boundary
                 }
@@ -514,6 +557,12 @@ public final class Transport: @unchecked Sendable {
                     placed.at += captureBase
                     return placed
                 }, upTo: target + captureBase)
+                currentTake?.notes += rendered.map { note -> RenderedNote in
+                    var placed = note
+                    placed.at -= takeOrigin
+                    return placed
+                }
+                currentTake?.extend(to: target - takeOrigin)
                 lock.unlock()
                 renderHead = target
             }

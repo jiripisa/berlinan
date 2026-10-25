@@ -48,7 +48,7 @@ public struct TranspositionSchedule: Codable, Equatable, Sendable {
 /// A MIDI-ready note: the output of the completed pitch pipeline
 /// (degrees → transpose → resolve → register fold). Consumed by SMF export
 /// (phase 08) and, later, the live scheduler (M2).
-public struct RenderedNote: Equatable, Sendable {
+public struct RenderedNote: Codable, Equatable, Sendable {
     public var voiceID: String
     public var at: Tick
     public var midiNote: UInt8
