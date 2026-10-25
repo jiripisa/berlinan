@@ -52,5 +52,10 @@ struct BerlinanApp: App {
             DelayCheatSheetView(services: services)
         }
         .windowResizability(.contentSize)
+
+        // Every Play→Stop pass (FR-IO-11) — appears in the Window menu.
+        Window("Takes", id: "takes") {
+            TakesView(store: services.takes)
+        }
     }
 }

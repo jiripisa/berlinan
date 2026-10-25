@@ -6,6 +6,7 @@ import BerlinanEngine
 /// diatonic transposition (binds at the next bar), re-roll, capture export.
 struct PerformancePanelView: View {
     let ui: UIState
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         HStack(spacing: 16) {
@@ -238,6 +239,8 @@ struct PerformancePanelView: View {
                 ForEach([8, 16, 32, 64], id: \.self) { bars in
                     Button("Last \(bars) bars…") { ui.exportCapture(lastBars: bars) }
                 }
+                Divider()
+                Button("Takes…") { openWindow(id: "takes") }
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "square.and.arrow.up")
@@ -255,7 +258,7 @@ struct PerformancePanelView: View {
             }
             .menuStyle(.borderlessButton)
             .fixedSize()
-            .help("Export the last N whole bars of everything played (.mid)")
+            .help("Export the last N whole bars of everything played (.mid), or open Takes — every play → stop pass")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)

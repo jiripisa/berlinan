@@ -25,6 +25,9 @@ final class AppServices {
     /// keeps its materialized state; rebuilt on the next stop.
     private var transportStale = false
 
+    /// Takes (FR-IO-11): every Play→Stop pass, kept on disk.
+    let takes = TakeStore()
+
     /// Controller triggers land here on the main actor (FR-IO-10);
     /// UIState registers itself.
     var onControlTrigger: ((ControlTrigger) -> Void)?
@@ -57,6 +60,16 @@ final class AppServices {
             self.midi = nil
             self.midiStatus = "MIDI unavailable: \(error)"
             self.transport = nil
+        }
+        takes.liveSource = { [weak self] in self?.transport?.liveTake() }
+        if let transport { attachTakes(to: transport) }
+    }
+
+    /// Finished takes go to the store, whichever transport recorded them.
+    private func attachTakes(to transport: Transport) {
+        let store = takes
+        transport.setTakeHandler { take in
+            Task { @MainActor in store.finished(take) }
         }
     }
 
@@ -179,6 +192,7 @@ final class AppServices {
         let mode = transport?.currentSyncMode ?? .internalClock
         transport?.linkService?.enable(false)
         let rebuilt = Transport(project: project, midi: midi)
+        attachTakes(to: rebuilt)
         if mode != .internalClock {
             rebuilt.setSyncMode(mode)
             rebuilt.linkService?.enable(mode == .link)
