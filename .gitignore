@@ -17,3 +17,4 @@ docs/synthkeeper/
 
 # Claude Code runtime files
 .claude/scheduled_tasks.lock
+__pycache__/
