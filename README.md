@@ -1,10 +1,10 @@
 # Berlinan
 
-A generative MIDI sequencer for macOS in the **Berlin School** tradition —
-Tangerine Dream, Klaus Schulze, Michael Rother-era motorik patience. Berlinan
-does not play notes for you to audition; it runs a small ensemble of
-sequencer voices that repeat, phase against each other, and earn their
-mutations over time, exactly the way a hardware modular jam does.
+A generative MIDI sequencer for macOS in the style of the 1970s **Berlin
+School** — Tangerine Dream, Klaus Schulze. It plays several short melodic
+loops that repeat, slowly shift against each other because their lengths
+differ, and change only a little at a time, much like a jam on a hardware
+modular synth.
 
 Berlinan is a MIDI instrument, not a DAW: it publishes a virtual MIDI source
 (**Berlinan Out**) and you point synths — hardware or Ableton Live tracks —
@@ -18,63 +18,45 @@ manual: https://jiripisa.github.io/berlinan/manual.html
 
 ## The style laws (why it sounds right)
 
-The engine encodes the genre's rules from `berlin_school_manual.md`, distilled
-from ~225 hours of synthesist interviews and breakdowns:
+The engine encodes the genre's rules from `berlin_school_manual.md`, compiled
+from about 225 video lessons by a Berlin School practitioner (the Synth Seeker
+YouTube channel):
 
-- **Repetition legitimizes.** A pattern must play verbatim before it may
-  mutate; every mutation re-earns its place.
-- **Scale-lock.** All voices speak one scale; transposition is degree-based,
-  so harmony moves as a single organism.
-- **Phasing.** Voices run unequal loop lengths (7 vs 5 vs 6 steps) and drift
-  against each other, converging on the LCM — the "same but never the same"
-  shimmer.
-- **Sparseness, no dice-rolls.** No per-step probability, no swing. Change is
-  scheduled and quantized to bars, never random per note.
+- **Repetition earns change.** A pattern plays unchanged several times before
+  it may mutate, and every mutation has to earn its place again.
+- **One scale for everyone.** All voices share a scale and transpose by scale
+  degree, so the whole ensemble changes harmony together.
+- **Phasing, not randomness.** Voices run loops of different lengths (the Demo
+  trio: 16, 15 and 16 steps), so they drift apart and line up again only after
+  a while (the LCM in the footer).
+- **Change on the bar.** Nothing is left to chance note by note and there is no
+  swing; changes are planned and arrive at the next bar or at the end of a
+  voice's loop.
 
 ## Quick start (musician)
 
-1. `./run.sh` (or open the built app). Press **space / ▶**. Berlinan plays
-   its demo ensemble immediately — every session in a fresh musical universe.
-   The **templates menu** (grid icon) offers starting points: *Demo trio*,
-   *Full ensemble* (chord-layer pad, bass-melody walk, heartbeat kick, a
-   lead ready for melody promotion — channels 1–5 + 10) and *Ambient drift*
-   (drone-led, ~1 change/min, a filter journey mapped to the arranger).
-   Picked while playing, a template takes over at the next bar.
-2. Pick the output in the transport bar (top right): the virtual source
-   **Berlinan Out** for a DAW, or a connected MIDI device to play hardware
-   synths directly. In Ableton Live: create MIDI tracks, set input to **Berlinan Out**,
-   channels 1–3 (Pluck 1, Pluck 2, Bass — the built-in ensemble; your own
-   projects can add pad, lead, rhythm voices), arm + monitor In.
-   Each voice's channel is the **ch N** label in its lane — click it to
-   pick another one (saved with the project, works while playing).
-3. Jam surface:
-   - **Degrees 1–7** — diatonic transposition at the next bar.
-   - **Dice** — new seed, new universe (undoable, ⌘Z).
-   - **Re-roll** — regenerate every unlocked voice.
-   - **B** — the B-part move: progression + new bass (+ bed drop), one press.
-   - **T·n** — spend a tension allowance: one sustained out-of-key stab.
-   - **Slots 1–6** — snapshots (⌥-click saves, click recalls at next bar).
-   - **ARR · AUTO** — the arranger autopilot: builds the piece voice by
-     voice (a drone opens it when present), varies it, fires the B-part,
-     returns the theme at the payoff (reprise), subtracts, and ends on a
-     roots-only bar — advisory, so every move stays yours (">>" advances by
-     hand; right-click AUTO picks the form: classic arc / slow build /
-     ambient plateau). **DENS** thins or fills the whole mix; the moon
-     toggles ambient mode; **SCENE** morphs the mapped CCs toward a named
-     timbre over 8 bars.
-   - The **HORIZON strip** narrates what is coming — pending changes, the
-     arranger's countdown, the nearest mutation due; held-back lanes say
-     WAITS.
-   - Per lane: mute, lock, regenerate, blank cycle, pencil (hand edit),
-     echo (MIDI delay), **♪ melody extraction** (3–4 curated accents that
-     evolve; right-click promotes the line to a lead voice, or sets two
-     voices alternating in 4-bar call-and-answer).
-4. **Delay is the genre's reverb**: open the **Delay Cheat Sheet** (Window
+1. Download Berlinan from the website, drag it to Applications and open it.
+   It starts with the **Demo trio** (Pluck 1, Pluck 2, Bass on channels 1–3).
+   The **templates menu** (grid icon) also offers *Full ensemble* (adds Pad,
+   Lead and Heartbeat on channels 4, 5 and 10) and *Ambient drift* (a slow
+   drone piece, about one change a minute).
+2. Pick the output at the right end of the transport bar: **Berlinan Out** for
+   a DAW, or a connected MIDI device. In Ableton Live, create one MIDI track per
+   voice with an instrument on it, set MIDI From to **Berlinan Out**, the
+   channel to the voice's **ch N** label, and Monitor to In. Then press
+   **Space**.
+3. Play: **1–7** shift the whole ensemble to another scale degree, the
+   **dice** gives every voice new patterns (⌘Z undoes), **B** starts a
+   contrasting second section, and **AUTO** lets the arranger build and end
+   the piece by itself. Every control is explained in the
+   [manual](docs/manual.html).
+4. Tempo-synced delay is part of the sound: open the **Delay Cheat Sheet** (Window
    menu) and set your audio delays to the printed times, or toggle the lane's
    echo button for engine-side MIDI echoes — the sheet warns when both stack.
-5. Sync: **INT** (Berlinan is clock master), **EXT** (follows MIDI clock —
-   enable Live's Sync OUT to Berlinan), or **LINK** (Ableton Link over the
-   local network; tempo and bar phase lock both ways).
+5. Sync: **INT** (Berlinan is clock master), **EXT** (follows MIDI clock: in
+   Live's MIDI settings turn on Sync for an output Berlinan can hear, such as
+   the IAC Driver bus), or **LINK** (Ableton Link over the local network; tempo
+   and the downbeat stay in sync both ways).
 6. **Capture**: the last hour is always recorded — export the last N bars as
    a multi-track `.mid`, or drag a lane's pattern strip straight into a Live
    clip slot. **Window ▸ Takes** lists every play → stop pass (kept on disk
@@ -82,9 +64,9 @@ from ~225 hours of synthesist interviews and breakdowns:
 7. Updates: Berlinan checks for a new version at launch and offers it —
    nothing installs without your OK. Turn it off in **Berlinan ▸ Settings…**
    (⌘,), or use **Check for Updates…** in the app menu.
-8. Hands off the laptop: **LEARN** binds controller CCs/notes (aim them at
-   the **Berlinan Control** input) to play/stop, degrees, dice, re-roll and
-   slots.
+8. Hands off the laptop: **LEARN** binds controller CCs/notes (route them
+   into the virtual **Berlinan Control** input) to play/stop, degrees, new
+   seed, re-roll, snapshot slots, B and advance.
 
 ## Build & run (no Xcode IDE)
 

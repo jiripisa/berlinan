@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Berlinan — generative Berlin School sequencer for macOS</title>
-<meta name="description" content="A generative MIDI sequencer for macOS in the Berlin School tradition. Voices repeat, drift out of phase and earn their changes over time. Free and open source.">
+<meta name="description" content="A generative MIDI sequencer for macOS in the Berlin School style. It plays several short melodic loops that repeat, slowly shift against each other and change only a little at a time. Free and open source.">
 <meta property="og:title" content="Berlinan">
 <meta property="og:description" content="A generative MIDI sequencer for macOS in the Berlin School tradition. Free and open source.">
 <meta property="og:image" content="https://jiripisa.github.io/berlinan/assets/berlinan-window.png">
@@ -36,10 +36,10 @@
   <div class="wrap hero">
     <h1>Berlinan</h1>
     <p class="lede">
-      A generative MIDI sequencer for macOS in the Berlin School tradition of
-      Tangerine Dream and Klaus Schulze. It runs a small ensemble of
-      sequencer voices that repeat, drift out of phase and earn their changes
-      over time, the way a modular jam does.
+      A generative MIDI sequencer for macOS in the Berlin School style of
+      1970s Tangerine Dream and Klaus Schulze. It plays several short melodic
+      loops that repeat, slowly shift against each other and change only a
+      little at a time.
     </p>
     <div class="actions">
       <a class="button" href="https://github.com/jiripisa/berlinan/releases/download/v1.2.8/Berlinan-1.2.8.dmg">
@@ -49,7 +49,7 @@
       <span class="meta">Version 1.2.8 for macOS 14 or later. Free and <a href="https://github.com/jiripisa/berlinan">open source</a>. <a href="manual.html">Read the manual</a>.</span>
     </div>
 
-    <div class="machine" aria-label="Animated example of three sequencer voices phasing against each other">
+    <div class="machine" aria-label="Animated example of three loops of different lengths slowly shifting against each other">
       <div class="lane" data-voice="0"><span class="lane-name">7 steps</span><div class="cells"></div></div>
       <div class="lane" data-voice="1"><span class="lane-name">5 steps</span><div class="cells"></div></div>
       <div class="lane" data-voice="2"><span class="lane-name">6 steps</span><div class="cells"></div></div>
@@ -78,9 +78,9 @@
     <div class="wrap">
       <h2>It follows the rules of the genre</h2>
       <p class="intro">
-        The engine encodes a style manual distilled from about 225 hours of
-        interviews and breakdowns with Berlin School synthesists. Four of its
-        laws do most of the work.
+        The engine follows a style manual compiled from about 225 video lessons
+        by a Berlin School practitioner (the Synth Seeker YouTube channel). Four
+        of its laws do most of the work.
       </p>
       <dl class="laws">
         <div>
@@ -93,11 +93,11 @@
         </div>
         <div>
           <dt>Phasing, not randomness</dt>
-          <dd>Voices run loops of different lengths and drift against each other. That slow shimmer is the sound of the genre.</dd>
+          <dd>Voices run loops of different lengths and drift against each other. That slow shifting is one of the genre's signature effects.</dd>
         </div>
         <div>
           <dt>Change on the bar</dt>
-          <dd>No per-step dice rolls and no swing. Every change is scheduled and lands on a bar line.</dd>
+          <dd>Nothing is left to chance note by note, and there is no swing. Changes are planned and arrive at the next bar or at the end of a voice's loop, so the groove stays steady.</dd>
         </div>
       </dl>
     </div>
@@ -115,13 +115,13 @@
         <div class="sync">
           <p><b>INT</b> Berlinan is the clock master.</p>
           <p><b>EXT</b> It follows MIDI clock from Live or a hardware sequencer.</p>
-          <p><b>LINK</b> Ableton Link over your network, tempo and bar phase locked both ways.</p>
+          <p><b>LINK</b> Ableton Link over your network, tempo and downbeat locked both ways.</p>
         </div>
       </div>
       <figure class="routing-example">
         <figcaption>
           <b>Full ensemble template</b>, one voice per MIDI channel. The
-          default ensemble plays Pluck 1, Pluck 2 and Bass on channels 1 to 3;
+          Demo trio, the default, plays Pluck 1, Pluck 2 and Bass on channels 1 to 3;
           click a voice's channel in the app to move it anywhere from 1 to 16.
         </figcaption>
         <ul class="flow">
@@ -145,11 +145,11 @@
       </p>
       <ul class="features">
         <li><b>Degree buttons</b>Move the whole ensemble to another scale degree.</li>
-        <li><b>The B-part</b>A new progression and a new bass line in one press, the classic second section.</li>
-        <li><b>Arranger autopilot</b>Builds a piece voice by voice, varies it, returns the theme and ends it. It only advises; you can override any step.</li>
+        <li><b>The B-part</b>A contrasting second section in one press: a new chord progression and a new bass line.</li>
+        <li><b>Arranger autopilot</b>Builds a piece voice by voice, varies it, returns the theme and ends it. It runs on its own; you can override any step.</li>
         <li><b>Density and ambient mode</b>Thin out or fill the whole mix, or slow changes down to about one a minute.</li>
         <li><b>Melody extraction</b>Pulls a few accented notes out of a sequence and grows them into a lead line.</li>
-        <li><b>Scenes</b>Morph your synths’ mapped controls toward a named timbre over eight bars.</li>
+        <li><b>Scenes</b>Slowly change your synths’ sound, for example open the filter, over eight bars with one click.</li>
         <li><b>Capture</b>Every play-to-stop pass is kept as a take. Name your best ones, save them as multitrack MIDI files or drag them straight into Live.</li>
         <li><b>MIDI learn</b>Map play, degrees, new seed and snapshots to your controller and leave the laptop alone.</li>
       </ul>
