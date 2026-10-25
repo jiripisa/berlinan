@@ -94,10 +94,10 @@ public struct TakeLibrary: Sendable {
         self.directory = directory
     }
 
-    /// `~/Library/Application Support/Berlinan/Takes`.
+    /// `~/Library/Application Support/Berlinan/takes` (next to `templates`).
     public static func defaultDirectory() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Berlinan/Takes", isDirectory: true)
+            .appendingPathComponent("Berlinan/takes", isDirectory: true)
     }
 
     /// All takes, newest first.

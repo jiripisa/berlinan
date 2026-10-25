@@ -28,7 +28,7 @@ capture ▸ Last N bars". That stays as it is.
 - Tempo changes inside a take: the SMF carries the tempo at take start
   (notes keep their musical positions; same as the existing export).
 - Storage: `TakeLibrary` (runtime, Foundation, testable) — one JSON file
-  per take in `~/Library/Application Support/Berlinan/Takes/`. The app's
+  per take in `~/Library/Application Support/Berlinan/takes/` (next to `templates/`). The app's
   `TakeStore` (@Observable) wraps it, names new takes "Take N", saves the
   live take every 10 s (crash safety) and on finish.
 - `.mid` export: type 1, one track per voice ("bass | ch3 | bass | delay:
