@@ -36,7 +36,7 @@ final class AppServices {
         // Seed freshness (FR-UX-6, phase 20b): every app session starts the
         // built-in project in a NEW musical universe. Saved documents keep
         // their stored seed — reproducibility on demand, not by accident.
-        var fresh = Project.demo
+        var fresh = TemplateStore.builtIns[0].project      // Demo trio, A minor
         fresh.masterSeed = UInt64.random(in: UInt64.min...UInt64.max)
         self.project = fresh
 

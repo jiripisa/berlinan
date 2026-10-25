@@ -6,11 +6,22 @@ import BerlinanEngine
 /// seed (FR-UX-6 — a template is a setup, not a recording).
 enum TemplateStore {
 
+    /// The key the app and the built-in templates start in (user request,
+    /// phase 51). The engine's `Key.default` stays C minor — its golden
+    /// masters are built on it.
+    static let defaultKey = Key(root: 9, scale: .preset(.naturalMinor))   // A minor
+
     static let builtIns: [(name: String, project: Project)] = [
-        ("Demo trio", .demo),
-        ("Full ensemble", .fullEnsemble),
-        ("Ambient drift", .ambientDrift),
+        ("Demo trio", inDefaultKey(.demo)),
+        ("Full ensemble", inDefaultKey(.fullEnsemble)),
+        ("Ambient drift", inDefaultKey(.ambientDrift)),
     ]
+
+    private static func inDefaultKey(_ project: Project) -> Project {
+        var project = project
+        project.key = defaultKey
+        return project
+    }
 
     static func userTemplatesDirectory() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory,
