@@ -114,6 +114,10 @@ struct TakeRecordingTests {
         #expect(takes[0].voices.count == 3)
         #expect(takes[1].voices.count == 6)
         #expect(takes[0].length == Project.demo.meter.ticksPerBar, "one bar of demo")
+        let bar = Project.fullEnsemble.meter.ticksPerBar
+        let first = try #require(takes[1].notes.map(\.at).min())
+        #expect(first < bar, "the second take starts at its own tick 0")
+        #expect(takes[1].notes.allSatisfy { $0.at < takes[1].length })
     }
 }
 
