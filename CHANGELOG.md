@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- The app and the built-in templates now start in A minor (was C minor).
+  Your own templates and saved projects keep their key.
+
 ## 1.2.6 — 2026-10-25
 
 - Takes (capture browser): every play → stop pass is recorded as a take.

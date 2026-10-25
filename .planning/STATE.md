@@ -41,7 +41,10 @@
 - Phase 49 (Takes — M7 capture browser, FR-IO-11) DONE 2026-10-25 — 340
   tests.
 - 2026-10-25 — v1.2.6 RELEASED (phase 50): Takes; notarized DMG, GitHub
-  Release, website. No phase open. Remaining M7 candidates:
+  Release, website (tag local only — superseded by 1.2.7 before publishing).
+- Phase 51 (default key A minor, user request) DONE 2026-10-25 — app-level
+  default; engine Key.default stays C minor. No phase open. Remaining M7
+  candidates:
   tie editing in the pattern editor, undo for configuration edits; runtime
   meter stays backlog.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
