@@ -50,7 +50,12 @@
   only; new screenshots must be retaken when the UI changes (marks are
   percent coordinates).
 - Phase 54 (bilingual site, EN + CS) DONE 2026-10-25 — every site change
-  now goes into both docs/*.html and docs/cs/*.html. No phase open. Remaining M7
+  now goes into both docs/*.html and docs/cs/*.html.
+- Phase 55 (legibility, user report) DONE 2026-10-25.
+- Phase 56 (auto-update, Sparkle, FR-UX-8) DONE 2026-10-25 — unreleased.
+  1.2.8 = first self-updating version; every release now commits
+  docs/appcast.xml (build.sh dist writes it). Sparkle EdDSA private key is
+  in the developer's login Keychain only. No phase open. Remaining M7
   candidates:
   tie editing in the pattern editor, undo for configuration edits; runtime
   meter stays backlog.

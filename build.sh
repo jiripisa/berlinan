@@ -60,6 +60,25 @@ cp "$SPM_BUILD_DIR/$SPM_CONFIG/$APP_NAME" "$APP_BUNDLE/Contents/MacOS/"
 # Copy Info.plist
 cp "Resources/Info.plist" "$APP_BUNDLE/Contents/"
 
+# Embed Sparkle (auto-update, phase 56). The app is unsandboxed, so the XPC
+# services (only needed by sandboxed apps) are left out.
+SPARKLE_SRC=".build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+SPARKLE_FW="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
+mkdir -p "$APP_BUNDLE/Contents/Frameworks"
+ditto "$SPARKLE_SRC" "$SPARKLE_FW"
+rm -rf "$SPARKLE_FW/Versions/B/XPCServices" "$SPARKLE_FW/XPCServices"
+
+# Sign Sparkle's pieces inside-out, then the framework (identity "-" = ad-hoc).
+sign_sparkle() {
+    local identity="$1"; shift
+    for item in "$SPARKLE_FW/Versions/B/Autoupdate" \
+                "$SPARKLE_FW/Versions/B/Updater.app" \
+                "$SPARKLE_FW"; do
+        codesign --force "$@" --sign "$identity" "$item" 2>&1 \
+            | grep -v "replacing existing signature" || true
+    done
+}
+
 # Generate .icns from PNG source
 if [ -f "$ICON_SOURCE" ]; then
     echo "Generating app icon..."
@@ -89,6 +108,7 @@ xattr -cr "$APP_BUNDLE"
 
 # Ad-hoc sign with entitlements for debug/release (TCC needs entitlements
 # baked into the binary signature, not just present in the bundle).
+sign_sparkle -
 codesign --force --sign - \
     --entitlements "Resources/$APP_NAME.entitlements" \
     "$APP_BUNDLE" 2>&1 | grep -v "replacing existing signature" || true
@@ -111,6 +131,7 @@ fi
 
 echo "Signing with: $IDENTITY"
 
+sign_sparkle "$IDENTITY" --options runtime --timestamp
 codesign --force --options runtime --timestamp \
     --entitlements "Resources/$APP_NAME.entitlements" \
     --sign "$IDENTITY" \
@@ -150,6 +171,15 @@ xcrun notarytool submit "$DMG_PATH" --keychain-profile "$NOTARY_PROFILE" --wait
 
 echo "Stapling notarization ticket to the DMG..."
 xcrun stapler staple "$DMG_PATH"
+
+# --- Sparkle appcast (auto-update, phase 56) ---
+# Signs the final (stapled) DMG with the EdDSA key from the Keychain and
+# writes docs/appcast.xml for the GitHub Release that `gh release create`
+# publishes as Berlinan-<version>.dmg (same bytes, so length + signature hold).
+VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Resources/Info.plist)
+python3 scripts/make_appcast.py "$DMG_PATH" "$VERSION" \
+    "https://github.com/jiripisa/berlinan/releases/download/v$VERSION/$APP_NAME-$VERSION.dmg" \
+    docs/appcast.xml
 
 echo ""
 echo "Done! Signed and notarized DMG: $DMG_PATH"

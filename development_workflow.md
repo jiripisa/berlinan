@@ -96,7 +96,7 @@ Aligned with the MDPre pipeline (`../MDPre/build.sh`).
    security find-identity -v -p codesigning | grep "Developer ID Application"
    ```
    `dist` aborts with an error if it is absent (use `release` for an unsigned bundle).
-2. Sign with hardened runtime and a secure timestamp (notarization rejects signatures without one):
+2. Sign with hardened runtime and a secure timestamp (notarization rejects signatures without one). Sparkle (embedded in `Contents/Frameworks` by every build mode, XPC services removed — the app is unsandboxed) is signed first, inside-out: `Autoupdate`, `Updater.app`, `Sparkle.framework`; then the app:
    ```
    codesign --force --options runtime --timestamp --entitlements Resources/Berlinan.entitlements --sign "$IDENTITY" Berlinan.app
    ```
@@ -116,6 +116,10 @@ Aligned with the MDPre pipeline (`../MDPre/build.sh`).
    xcrun notarytool submit build/Berlinan.dmg --keychain-profile notary --wait
    xcrun stapler staple build/Berlinan.dmg
    ```
+
+7. Write the auto-update feed (phase 56): `scripts/make_appcast.py` signs the stapled DMG with Sparkle's `sign_update` (EdDSA private key from the login Keychain) and writes `docs/appcast.xml` — version, release notes from the CHANGELOG section, the GitHub Release download URL, length and signature. Commit it with the release; it goes live with the GitHub Pages deploy. Create the GitHub Release (DMG uploaded as `Berlinan-<version>.dmg`) **before** pushing the appcast, so the feed never points at a missing file.
+
+**Sparkle signing key (one-time, per developer):** `.build/artifacts/sparkle/Sparkle/bin/generate_keys` stores the EdDSA private key in the login Keychain and prints the public key that lives in `Info.plist` (`SUPublicEDKey`). Back it up (`generate_keys -x <file>`, keep the file offline): without it no update can ever be signed for existing installs again.
 
 A notarization `HTTP status code: 403. A required agreement is missing or has expired` is an account issue, not a script one: the Account Holder must accept the updated Apple Developer Program License Agreement at developer.apple.com/account.
 
