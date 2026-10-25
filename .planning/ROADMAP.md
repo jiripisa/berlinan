@@ -88,6 +88,7 @@ Deferred to M7: capture browser (done as phase 49 — Takes), runtime meter chan
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 53-manual | HTML manual on the website (docs/manual.html) with CSS-marked screenshots of every control; linked from index + README | — (user request) | ✅ |
 | 52-v1.2.7-release | Version 1.2.7 (A minor default + unpublished 1.2.6 Takes), notarized DMG, website — tagged 2026-10-25 | — | ✅ |
 | 51-default-a-minor | App + built-in templates start in A minor (TemplateStore.defaultKey); engine Key.default stays C minor (goldens) | — (user request) | ✅ |
 | 50-v1.2.6-release | Version 1.2.6 (Takes), notarized DMG, website — tagged 2026-10-25 | — | ✅ |

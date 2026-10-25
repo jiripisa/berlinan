@@ -45,7 +45,10 @@
 - Phase 51 (default key A minor, user request) DONE 2026-10-25 — app-level
   default; engine Key.default stays C minor.
 - 2026-10-25 — v1.2.7 RELEASED (phase 52): Takes + A minor default;
-  notarized DMG, GitHub Release, website. No phase open. Remaining M7
+  notarized DMG, GitHub Release, website.
+- Phase 53 (HTML manual with marked screenshots) DONE 2026-10-25 — docs
+  only; new screenshots must be retaken when the UI changes (marks are
+  percent coordinates). No phase open. Remaining M7
   candidates:
   tie editing in the pattern editor, undo for configuration edits; runtime
   meter stays backlog.

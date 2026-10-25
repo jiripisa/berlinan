@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Berlinan Manual</title>
+<meta name="description" content="The complete Berlinan manual: every control of the generative Berlin School sequencer, with marked screenshots, setup for Ableton Live and hardware synths, and keyboard shortcuts.">
+<meta property="og:title" content="Berlinan Manual">
+<meta property="og:description" content="Every control of Berlinan, with marked screenshots.">
+<meta property="og:image" content="https://jiripisa.github.io/berlinan/assets/berlinan-window.png">
+<meta name="theme-color" content="#131418">
+<link rel="icon" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #131418;
+    --panel: #1a1c21;
+    --panel-deep: #0f1115;
+    --line: #24272d;
+    --ink: #e7ecf2;
+    --ink2: #aab2bd;
+    --ink3: #6b727c;
+    --tangerine: #FF9E4A;
+    --tangerine-glow: rgba(255, 158, 74, .18);
+    --cyan: #5FB8C9;
+    --measure: 44rem;
+    --gutter: clamp(1rem, 4vw, 3rem);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 1.5rem; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink2);
+    font-family: "Archivo", system-ui, sans-serif;
+    font-variation-settings: "wdth" 100;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+  a { color: var(--tangerine); text-underline-offset: .2em; }
+  a:focus-visible { outline: 2px solid var(--tangerine); outline-offset: 3px; border-radius: 4px; }
+  code, kbd, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .9em; }
+  code { color: var(--ink); }
+  kbd {
+    display: inline-block; min-width: 1.6em; padding: 0 .4em;
+    border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px;
+    background: var(--panel); color: var(--ink); text-align: center; line-height: 1.5;
+  }
+  b, strong { color: var(--ink); font-weight: 600; }
+  .ui { color: var(--ink); font-family: "JetBrains Mono", monospace; font-size: .85em; font-weight: 500; letter-spacing: .02em; }
+  .wrap { max-width: 76rem; margin: 0 auto; padding: 0 var(--gutter); }
+
+  /* ---------- Masthead ---------- */
+  .masthead { display: flex; align-items: center; justify-content: space-between; padding-block: 1.5rem; }
+  .brand { display: flex; align-items: center; gap: .6rem; color: var(--ink); text-decoration: none; font-weight: 600; }
+  .brand img { width: 2rem; height: 2rem; }
+  .masthead nav a { color: var(--ink2); text-decoration: none; margin-left: 1.5rem; font-size: .95rem; }
+  .masthead nav a:hover, .masthead nav a[aria-current] { color: var(--ink); }
+
+  .title { padding-block: clamp(2rem, 6vw, 4rem) 1rem; }
+  .title h1 {
+    margin: 0; color: var(--ink);
+    font-size: clamp(2.8rem, 9vw, 6rem); line-height: .95; font-weight: 800;
+    font-variation-settings: "wdth" 125; letter-spacing: -.02em;
+  }
+  .title p { max-width: var(--measure); margin: 1.25rem 0 0; font-size: 1.2rem; }
+
+  /* ---------- Layout: contents + text ---------- */
+  .layout { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 4rem; align-items: start; padding-bottom: 5rem; }
+  .toc { position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .92rem; padding-right: .5rem; }
+  .toc p { margin: 0 0 .6rem; color: var(--ink); font-weight: 600; }
+  .toc ol { list-style: none; margin: 0; padding: 0; }
+  .toc li { margin: 0; }
+  .toc a { display: block; padding: .28rem 0 .28rem .8rem; color: var(--ink3); text-decoration: none; border-left: 1px solid var(--line); }
+  .toc a:hover { color: var(--ink); border-left-color: var(--ink3); }
+  .toc ol ol a { padding-left: 1.6rem; font-size: .88rem; }
+
+  article { min-width: 0; }
+  article > section { padding-top: 3.5rem; }
+  article > section:first-child { padding-top: 1rem; }
+  h2 {
+    margin: 0 0 1rem; color: var(--ink);
+    font-size: clamp(1.7rem, 3.6vw, 2.4rem); line-height: 1.1; font-weight: 750;
+    font-variation-settings: "wdth" 116; letter-spacing: -.01em;
+  }
+  h3 { margin: 2.5rem 0 .6rem; color: var(--ink); font-size: 1.2rem; font-weight: 700; font-variation-settings: "wdth" 110; }
+  h4 { margin: 1.6rem 0 .4rem; color: var(--ink); font-size: 1rem; font-weight: 650; }
+  article p, article li { max-width: var(--measure); }
+  article ul, article ol { padding-left: 1.2rem; }
+  article li + li { margin-top: .35rem; }
+  .note {
+    max-width: var(--measure); margin: 1.25rem 0; padding: .8rem 1rem;
+    border-left: 3px solid var(--cyan); background: var(--panel); border-radius: 0 6px 6px 0;
+  }
+  .note p { margin: 0; }
+
+  dl.controls { max-width: var(--measure); margin: 1rem 0; }
+  dl.controls dt { color: var(--ink); font-weight: 600; margin-top: 1rem; }
+  .n {
+    display: inline-block; min-width: 1.35rem; height: 1.35rem; margin-right: .5rem; border-radius: 999px;
+    background: var(--tangerine); color: #1a1209; font: 700 .72rem/1.35rem "JetBrains Mono", monospace; text-align: center;
+    vertical-align: .1em;
+  }
+  dl.controls dd { margin: .2rem 0 0; }
+
+  table { border-collapse: collapse; width: 100%; max-width: var(--measure); margin: 1rem 0; font-size: .95rem; }
+  th, td { text-align: left; padding: .55rem .75rem .55rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink3); font-weight: 500; font-size: .85rem; }
+
+  /* ---------- Marked screenshots ----------
+     A figure shows a region of a screenshot (--zx/--zy/--zw/--zh, percent
+     of the image) and marks controls on it (--x/--y/--w/--h, percent of
+     the whole image), so marks stay put whatever the zoom. */
+  .fig { margin: 1.5rem 0 1.75rem; max-width: 52rem; }
+  .fig.wide { max-width: none; }
+  .view {
+    --zx: 0; --zy: 0; --zw: 100; --zh: 100;
+    position: relative; overflow: hidden;
+    padding-top: calc(var(--zh) / var(--zw) * var(--ih) / var(--iw) * 100%);
+    background: var(--panel-deep);
+    border-radius: 10px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45), 0 0 0 1px var(--line);
+  }
+  .view img {
+    position: absolute; max-width: none; height: auto;
+    width: calc(10000% / var(--zw));
+    left: calc(var(--zx) * -100% / var(--zw));
+    top: calc(var(--zy) * -100% / var(--zh));
+  }
+  .mark {
+    position: absolute;
+    left: calc((var(--x) - var(--zx)) * 100% / var(--zw));
+    top: calc((var(--y) - var(--zy)) * 100% / var(--zh));
+    width: calc(var(--w) * 100% / var(--zw));
+    height: calc(var(--h) * 100% / var(--zh));
+    border: 2px solid var(--tangerine);
+    border-radius: 6px;
+    box-shadow: 0 0 0 3px rgba(255, 158, 74, .22), 0 0 18px rgba(255, 158, 74, .35);
+    pointer-events: none;
+  }
+  .view.spot .mark { box-shadow: 0 0 0 3px rgba(255, 158, 74, .22), 0 0 0 100vmax rgba(8, 9, 12, .42); }
+  .mark b {
+    position: absolute; top: -.75rem; left: -.75rem;
+    min-width: 1.4rem; height: 1.4rem; padding: 0 .3rem; border-radius: 999px;
+    background: var(--tangerine); color: #1a1209;
+    font: 700 .74rem/1.4rem "JetBrains Mono", monospace; text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.5);
+  }
+  .fig figcaption { margin-top: .9rem; color: var(--ink3); font-size: .92rem; max-width: var(--measure); }
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; max-width: 52rem; }
+  .pair .fig { margin: 1.5rem 0 0; }
+
+  footer { padding-block: 2.5rem 3rem; color: var(--ink3); font-size: .9rem; border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+  footer a { color: var(--ink2); }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    .toc { position: static; max-height: none; border: 1px solid var(--line); border-radius: 8px; padding: 1rem; }
+    .toc ol ol { display: none; }
+  }
+  @media (max-width: 640px) {
+    .pair { grid-template-columns: 1fr; }
+    .masthead nav a:not(:last-child) { display: none; }
+    .mark b { min-width: 1.1rem; height: 1.1rem; font-size: .62rem; line-height: 1.1rem; top: -.6rem; left: -.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap masthead">
+  <a class="brand" href="index.html"><img src="assets/icon.png" alt="" width="32" height="32">Berlinan</a>
+  <nav aria-label="Site">
+    <a href="index.html">Overview</a>
+    <a href="manual.html" aria-current="page">Manual</a>
+    <a href="index.html#get">Download</a>
+    <a href="https://github.com/jiripisa/berlinan">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap title">
+    <h1>Manual</h1>
+    <p>Every control of Berlinan 1.2.7, where to find it and what it does. The
+    orange frames in the screenshots mark the control the text talks about.</p>
+  </div>
+
+  <div class="wrap layout">
+    <nav class="toc" aria-label="Contents">
+      <p>Contents</p>
+      <ol>
+        <li><a href="#start">Getting started</a></li>
+        <li><a href="#window">The main window</a></li>
+        <li><a href="#transport">Transport bar</a>
+          <ol>
+            <li><a href="#play">Play and readouts</a></li>
+            <li><a href="#seed">New seed</a></li>
+            <li><a href="#templates">Templates</a></li>
+            <li><a href="#settings">Project settings</a></li>
+            <li><a href="#sync">Clock sync</a></li>
+            <li><a href="#output">MIDI output</a></li>
+          </ol>
+        </li>
+        <li><a href="#harmony">Harmony strip</a></li>
+        <li><a href="#horizon">Horizon strip</a></li>
+        <li><a href="#lanes">Voice lanes</a>
+          <ol>
+            <li><a href="#channel">Name and MIDI channel</a></li>
+            <li><a href="#strip">Pattern strip</a></li>
+            <li><a href="#lane-buttons">Lane buttons</a></li>
+            <li><a href="#lane-menu">Lane menu</a></li>
+            <li><a href="#editor">Pattern editor</a></li>
+          </ol>
+        </li>
+        <li><a href="#panel">Performance panel</a>
+          <ol>
+            <li><a href="#degrees">Degrees</a></li>
+            <li><a href="#snapshots">Snapshots</a></li>
+            <li><a href="#moves">Re-roll, B-part, tension</a></li>
+            <li><a href="#scenes">Scenes</a></li>
+            <li><a href="#arranger">Arranger</a></li>
+            <li><a href="#density">Density and ambient</a></li>
+            <li><a href="#learn">MIDI learn</a></li>
+            <li><a href="#export">Export capture</a></li>
+          </ol>
+        </li>
+        <li><a href="#lcm">Convergence footer</a></li>
+        <li><a href="#takes">Takes window</a></li>
+        <li><a href="#delay">Delay Cheat Sheet</a></li>
+        <li><a href="#connect">Connecting synths</a></li>
+        <li><a href="#projects">Projects and templates</a></li>
+        <li><a href="#keys">Keyboard shortcuts</a></li>
+        <li><a href="#concepts">Concepts</a></li>
+        <li><a href="#trouble">Troubleshooting</a></li>
+      </ol>
+    </nav>
+
+    <article>
+
+      <!-- ===================================================== -->
+      <section id="start">
+        <h2>Getting started</h2>
+        <p>Berlinan is a generative MIDI sequencer for macOS 14 or later. It runs
+        a small ensemble of sequencer voices that repeat, drift out of phase and
+        earn their changes over time. It makes no sound itself: it sends MIDI to
+        Ableton Live or to hardware synths.</p>
+        <ol>
+          <li><a href="index.html#get">Download the disk image</a>, open it and drag
+          <b>Berlinan</b> to Applications. The app is signed and notarized, so it
+          opens without security warnings.</li>
+          <li>Start Berlinan. It opens with the <b>Demo trio</b> (Pluck 1, Pluck 2
+          and Bass) in A minor, from a fresh random seed every session.</li>
+          <li>Press <kbd>Space</kbd>. The ensemble starts playing.</li>
+          <li>Send it somewhere you can hear it. Pick the
+          <a href="#output">MIDI output</a> and set up your synths as described in
+          <a href="#connect">Connecting synths</a>.</li>
+          <li>Play with it. Press <kbd>1</kbd> to <kbd>7</kbd> to move the whole
+          ensemble to another scale degree, <kbd>N</kbd> for a whole new musical
+          universe, and watch the <a href="#horizon">horizon strip</a> announce
+          what is about to change.</li>
+        </ol>
+        <div class="note"><p>Every change you make lands on the next bar line, never in
+        the middle of one. That is deliberate: it is how the genre works, and it
+        means you can press buttons early and in time.</p></div>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="window">
+        <h2>The main window</h2>
+        <p>The window is built in horizontal bands, top to bottom.</p>
+        <figure class="fig wide">
+          <div class="view" style="--iw:2800;--ih:1280">
+            <img src="assets/manual/main.png" alt="The Berlinan main window while playing, with its six bands marked: transport bar, harmony strip, horizon strip, voice lanes, performance panel and convergence footer." loading="lazy">
+            <span class="mark" style="--x:.4;--y:4.8;--w:99.2;--h:7.2"><b>1</b></span>
+            <span class="mark" style="--x:.4;--y:13;--w:99.2;--h:4.3"><b>2</b></span>
+            <span class="mark" style="--x:.4;--y:17.8;--w:99.2;--h:4"><b>3</b></span>
+            <span class="mark" style="--x:.4;--y:23.4;--w:99.2;--h:62.6"><b>4</b></span>
+            <span class="mark" style="--x:.4;--y:87.8;--w:99.2;--h:6.6"><b>5</b></span>
+            <span class="mark" style="--x:.4;--y:95.6;--w:99.2;--h:4"><b>6</b></span>
+          </div>
+          <figcaption>The Demo trio playing.</figcaption>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span><a href="#transport">Transport bar</a></dt>
+          <dd>Play/stop, position, tempo, key and degree; new seed, templates, settings, clock source and MIDI output.</dd>
+          <dt><span class="n">2</span><a href="#harmony">Harmony strip</a></dt>
+          <dd>How the harmony moves and the next harmonic changes.</dd>
+          <dt><span class="n">3</span><a href="#horizon">Horizon strip</a></dt>
+          <dd>A plain-language list of everything that is about to happen.</dd>
+          <dt><span class="n">4</span><a href="#lanes">Voice lanes</a></dt>
+          <dd>One lane per voice, with its pattern, playhead and controls. Scroll when there are more voices than fit.</dd>
+          <dt><span class="n">5</span><a href="#panel">Performance panel</a></dt>
+          <dd>The jam controls: degrees, snapshots, B-part, arranger, density, MIDI learn and export.</dd>
+          <dt><span class="n">6</span><a href="#lcm">Convergence footer</a></dt>
+          <dd>When all loops line up again, and the engine version.</dd>
+        </dl>
+        <p>Hold the pointer over any control to see a short tooltip.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="transport">
+        <h2>Transport bar</h2>
+
+        <h3 id="play">Play and readouts</h3>
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:0;--zy:4.6;--zw:26;--zh:7.6">
+            <img src="assets/manual/main.png" alt="The left end of the transport bar: the play/stop button and the POS, BPM, KEY and DEG readouts." loading="lazy">
+            <span class="mark" style="--x:.7;--y:6.1;--w:3.4;--h:5.3"><b>1</b></span>
+            <span class="mark" style="--x:5;--y:6.2;--w:4.9;--h:5.3"><b>2</b></span>
+            <span class="mark" style="--x:10.5;--y:6.2;--w:2.2;--h:5.3"><b>3</b></span>
+            <span class="mark" style="--x:13.3;--y:6.2;--w:6.7;--h:5.3"><b>4</b></span>
+            <span class="mark" style="--x:20.7;--y:6.2;--w:2;--h:5.3"><b>5</b></span>
+          </div>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span>Play / Stop <kbd>Space</kbd></dt>
+          <dd>Starts and stops the ensemble. Stopping silences every note at once,
+          including long drones. Every play starts the piece from its beginning;
+          each play-to-stop pass is recorded as a <a href="#takes">take</a>.</dd>
+          <dt><span class="n">2</span>POS</dt>
+          <dd>The position as bar.beat while playing, <span class="ui">–.–</span> when stopped.</dd>
+          <dt><span class="n">3</span>BPM</dt>
+          <dd>The tempo. Change it in <a href="#settings">Project settings</a>; in
+          EXT or LINK mode it follows the external clock.</dd>
+          <dt><span class="n">4</span>KEY</dt>
+          <dd>The root and scale every voice shares, for example <span class="ui">A naturalMinor</span>.</dd>
+          <dt><span class="n">5</span>DEG</dt>
+          <dd>The current transposition: <span class="ui">1</span> is home, <span class="ui">+3</span>
+          means the ensemble plays three scale degrees up. It turns orange when you
+          are away from home.</dd>
+        </dl>
+
+        <h3 id="seed">New seed, templates, settings, sync and output</h3>
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:74;--zy:4.6;--zw:26;--zh:7.6">
+            <img src="assets/manual/main.png" alt="The right end of the transport bar: new-seed dice, templates grid, settings gear, INT clock menu and the MIDI output menu." loading="lazy">
+            <span class="mark" style="--x:77.3;--y:6.3;--w:2.4;--h:5"><b>1</b></span>
+            <span class="mark" style="--x:80.5;--y:6.3;--w:2.6;--h:5"><b>2</b></span>
+            <span class="mark" style="--x:84;--y:6.3;--w:2.4;--h:5"><b>3</b></span>
+            <span class="mark" style="--x:87;--y:6.3;--w:3.1;--h:5"><b>4</b></span>
+            <span class="mark" style="--x:90.8;--y:6.3;--w:8.6;--h:5"><b>5</b></span>
+          </div>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span>New seed <kbd>N</kbd></dt>
+          <dd>A whole new musical universe from the same setup: new patterns for
+          every voice. While playing it takes over at the next bar. <kbd>⌘Z</kbd>
+          brings the previous universe back.</dd>
+          <dt><span class="n">2</span>Templates</dt>
+          <dd>Starting points. See <a href="#templates">Templates</a>.</dd>
+          <dt><span class="n">3</span>Project settings</dt>
+          <dd>Key, scale, tempo, meter and slides. See <a href="#settings">Project settings</a>.</dd>
+          <dt><span class="n">4</span>Clock source</dt>
+          <dd><span class="ui">INT</span>, <span class="ui">EXT</span> or <span class="ui">LINK</span>. See <a href="#sync">Clock sync</a>.</dd>
+          <dt><span class="n">5</span>MIDI output</dt>
+          <dd>Where the notes go. See <a href="#output">MIDI output</a>.</dd>
+        </dl>
+
+        <h3 id="templates">Templates</h3>
+        <figure class="fig">
+          <div class="view spot" style="--iw:1200;--ih:460">
+            <img src="assets/manual/menu-templates.png" alt="The templates menu open: Demo trio, Full ensemble, Ambient drift and Save as Template." loading="lazy">
+            <span class="mark" style="--x:55.4;--y:27.5;--w:23.8;--h:31.5"></span>
+          </div>
+        </figure>
+        <p>Click the grid icon to start from a template. Each one starts from a
+        fresh seed, so you never get the same piece twice.</p>
+        <ul>
+          <li><b>Demo trio</b>: two plucks of 16 and 15 steps over a 16-step bass.
+          The default when the app starts.</li>
+          <li><b>Full ensemble</b>: six voices on channels 1 to 5 and 10: two plucks,
+          a bass-melody walk, a chord-layer pad, a lead ready for melody
+          promotion and a heartbeat kick.</li>
+          <li><b>Ambient drift</b>: drone-led, about one change a minute, with the
+          arranger switched on and two CC scenes (<i>closed</i> and <i>open</i>) for a filter journey.</li>
+        </ul>
+        <p>The built-in templates start in A minor. Templates you saved yourself
+        appear under <b>My templates</b>. <b>Save as Template…</b> stores the
+        current setup there (see <a href="#projects">Projects and templates</a>).</p>
+        <p>Picked while playing, a template takes over at the next bar without
+        stopping the clock; the horizon shows <span class="ui">TEMPLATE … · next bar</span> until then.</p>
+
+        <h3 id="settings">Project settings</h3>
+        <figure class="fig" style="max-width:34rem">
+          <div class="view" style="--iw:900;--ih:560">
+            <img src="assets/manual/settings.png" alt="The Project Settings sheet: root and mode pickers, BPM stepper, meter picker, slides checkbox, Cancel and Apply." loading="lazy">
+            <span class="mark" style="--x:5.8;--y:16.8;--w:53.4;--h:15"><b>1</b></span>
+            <span class="mark" style="--x:5.8;--y:35.8;--w:16.4;--h:14.6"><b>2</b></span>
+            <span class="mark" style="--x:25.2;--y:35.8;--w:24.6;--h:14.6"><b>3</b></span>
+            <span class="mark" style="--x:5.4;--y:54.2;--w:82;--h:11.6"><b>4</b></span>
+          </div>
+        </figure>
+        <p>Click the gear to open the sheet, change values and press <b>Apply</b>.</p>
+        <dl class="controls">
+          <dt><span class="n">1</span>Root and Mode</dt>
+          <dd>The key. Modes: natural minor, dorian, phrygian, mixolydian, lydian,
+          lydian dominant, harmonic minor, minor pentatonic, locrian and major.</dd>
+          <dt><span class="n">2</span>BPM</dt>
+          <dd>40 to 220 beats per minute.</dd>
+          <dt><span class="n">3</span>Meter</dt>
+          <dd>4/4, 3/4, 6/8, 7/8 (4+3 or 3+4), 5/4 (3+2) and 5/8 (3+2).</dd>
+          <dt><span class="n">4</span>Slides</dt>
+          <dd>Lets mutations tie bass and lead steps into glides. Set those synths
+          to mono with portamento of about 60 to 120 ms.</dd>
+        </dl>
+        <p>While playing, key and tempo changes land on the next bar; meter and
+        slides need the transport stopped. Applied while stopped, the patterns
+        regenerate in the new key or meter from the same seeds, so the material
+        stays recognizable.</p>
+
+        <h3 id="sync">Clock sync</h3>
+        <figure class="fig">
+          <div class="view spot" style="--iw:1000;--ih:340">
+            <img src="assets/manual/menu-sync.png" alt="The clock source menu open: INT, EXT and LINK." loading="lazy">
+            <span class="mark" style="--x:48.6;--y:20.5;--w:50;--h:47.5"></span>
+          </div>
+        </figure>
+        <ul>
+          <li><b>INT</b>: Berlinan is the clock master and sends MIDI clock and
+          Start/Stop to its output, so arpeggiators and sequencers in your synths follow.</li>
+          <li><b>EXT</b>: Berlinan follows incoming MIDI clock. Start and Stop
+          from the master start and stop Berlinan, and the tempo follows. The
+          status reads <span class="ui">EXT — waiting for clock</span> until Start arrives.</li>
+          <li><b>LINK</b>: Berlinan joins the Ableton Link session on your
+          network. Tempo and bar phase lock both ways; the status shows the
+          number of peers.</li>
+        </ul>
+        <p>The clock source can only be changed while stopped. Setup details are in
+        <a href="#connect">Connecting synths</a>.</p>
+
+        <h3 id="output">MIDI output</h3>
+        <figure class="fig">
+          <div class="view spot" style="--iw:1000;--ih:340">
+            <img src="assets/manual/menu-output.png" alt="The MIDI output menu open: Berlinan Out (virtual) checked, and a connected device M4 under Devices." loading="lazy">
+            <span class="mark" style="--x:63.6;--y:20.5;--w:35;--h:53.5"></span>
+          </div>
+        </figure>
+        <p>Click the output name at the right end of the transport bar
+        (<span class="ui">Berlinan Out</span> by default) and choose:</p>
+        <ul>
+          <li><b>Berlinan Out (virtual)</b>: a virtual MIDI port that Ableton
+          Live and other apps see as an input.</li>
+          <li>A connected device under <b>Devices</b>: a USB synth, a DIN MIDI
+          interface or an IAC bus. Notes, CC and clock go straight to it.</li>
+        </ul>
+        <p>The choice is remembered. You can switch while playing; whatever still
+        sounds on the previous output is silenced first. The dot next to the name
+        is green when the output is reachable and red when the chosen device is
+        unplugged (the name then reads <span class="ui">disconnected</span>);
+        sending resumes when you plug it back in.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="harmony">
+        <h2>Harmony strip</h2>
+        <figure class="fig" style="max-width:40rem">
+            <div class="view spot" style="--iw:1120;--ih:660">
+              <img src="assets/manual/menu-harmony.png" alt="The harmony mode menu open: Manual schedule, Progression, Weighted random and Bass reharmonization." loading="lazy">
+              <span class="mark" style="--x:12.8;--y:9;--w:45;--h:32.5"></span>
+            </div>
+            <figcaption>Click the mode name to choose how the harmony moves.</figcaption>
+          </figure>
+          <figure class="fig" style="max-width:40rem">
+            <div class="view spot" style="--iw:2800;--ih:1280;--zx:76;--zy:12.4;--zw:24;--zh:5.6">
+              <img src="assets/manual/main.png" alt="The right end of the harmony strip with four upcoming transposition chips." loading="lazy">
+              <span class="mark" style="--x:86.6;--y:13.6;--w:13;--h:3.4"></span>
+            </div>
+            <figcaption>The next four harmonic changes.</figcaption>
+          </figure>
+        <p>The strip shows how the harmony moves. Click the mode name (here
+        <span class="ui">manual schedule</span>) to pick another mode; this
+        works while stopped.</p>
+        <ul>
+          <li><b>Manual schedule (demo walk)</b>: a fixed walk of transpositions written into the project.</li>
+          <li><b>Progression</b>: a looped chord walk of four bars per step:
+          i-iv-v-i, 1-7-6-5, 1-5-6-7, 1-6-4-7, 1-6-4-1, 7-5-6, 1-b7-6-#5 or 6-5-4-1.</li>
+          <li><b>Weighted random (sweet/dark)</b>: a surprise move every 8 to 16
+          bars, drawn from the genre's sweet and dark targets.</li>
+          <li><b>Bass reharmonization</b>: the upper voices stay where they are and
+          only the bass moves through the chosen progression.</li>
+        </ul>
+        <p>Next to the mode, cyan text counts down to the next change
+        (<span class="ui">→ +5 in 5 bars</span>). The chips on the right list the
+        next four changes as <i>degree@bar</i>: <span class="ui">+3@13</span>
+        means three degrees up at bar 13, <span class="ui">1@17</span> back home at bar 17.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="horizon">
+        <h2>Horizon strip</h2>
+        <figure class="fig">
+          <div class="view" style="--iw:3400;--ih:1280;--zx:0;--zy:16.6;--zw:40;--zh:6">
+            <img src="assets/manual/arranger.png" alt="The horizon strip with two chips: BUILD, change in about 6 bars, and Drone may mutate in about 120 bars." loading="lazy">
+            <span class="mark" style="--x:3.8;--y:17.6;--w:10.8;--h:4"><b>1</b></span>
+            <span class="mark" style="--x:14.6;--y:17.6;--w:11.6;--h:4"><b>2</b></span>
+          </div>
+          <figcaption>The Ambient drift template with the arranger running.</figcaption>
+        </figure>
+        <p>The horizon strip tells you, in words, what is about to happen, so
+        nothing surprises you mid-set. Each chip is one upcoming event:</p>
+        <dl class="controls">
+          <dt><span class="n">1</span>Arranger</dt>
+          <dd>The arranger's current phase and how far away its next change is
+          (<span class="ui">BUILD · change in ~6 bars</span>).</dd>
+          <dt><span class="n">2</span>Next mutation</dt>
+          <dd>The voice whose pattern will be allowed to mutate soonest
+          (<span class="ui">Drone may mutate · ~120 bars</span>).</dd>
+        </dl>
+        <p>Other chips appear for anything you have queued: a key change, a
+        snapshot recall, density, the B-part, a voice switched on or off,
+        alternation, a tension stab, a melody promoted to the lead, an arranger
+        advance, a scene morph or a template load. Each says <span class="ui">next bar</span>
+        or <span class="ui">in N bars</span>. With nothing scheduled the strip reads
+        <span class="ui">steady — nothing scheduled</span>.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="lanes">
+        <h2>Voice lanes</h2>
+        <p>Each voice has a lane: its name and channel on the left, the pattern in
+        the middle and its buttons on the right.</p>
+
+        <h3 id="channel">Name and MIDI channel</h3>
+        <div class="pair">
+          <figure class="fig">
+            <div class="view" style="--iw:2800;--ih:1280;--zx:.6;--zy:27.6;--zw:11;--zh:10.4">
+              <img src="assets/manual/main.png" alt="The header of the Pluck 1 lane: the name, the channel and loop length, and the lifecycle dots." loading="lazy">
+              <span class="mark" style="--x:2;--y:30.4;--w:4.4;--h:2.6"><b>1</b></span>
+              <span class="mark" style="--x:2;--y:32.8;--w:2.6;--h:2.5"><b>2</b></span>
+              <span class="mark" style="--x:4.8;--y:32.8;--w:4.6;--h:2.5"><b>3</b></span>
+              <span class="mark" style="--x:2;--y:35.2;--w:2.6;--h:1.8"><b>4</b></span>
+            </div>
+          </figure>
+          <figure class="fig">
+            <div class="view spot" style="--iw:920;--ih:1280">
+              <img src="assets/manual/menu-channel.png" alt="The channel menu of Pluck 1 open: Channel 1 checked, Channel 2 marked Pluck 2, Channel 3 marked Bass, channels 4 to 16." loading="lazy">
+              <span class="mark" style="--x:6;--y:36;--w:38.4;--h:62"></span>
+            </div>
+          </figure>
+        </div>
+        <dl class="controls">
+          <dt><span class="n">1</span>Name</dt>
+          <dd>The voice by its role: Pluck 1, Pluck 2, Bass, Pad, Lead, Drone,
+          Heartbeat. A role used twice is numbered.</dd>
+          <dt><span class="n">2</span>MIDI channel</dt>
+          <dd>Click <span class="ui">ch N</span> to send the voice on another channel,
+          1 to 16. A channel already used by another voice shows that voice's
+          name. Works while playing; the change is saved with the project.</dd>
+          <dt><span class="n">3</span>Loop length</dt>
+          <dd>The pattern's length in sixteenth steps. Different lengths are what
+          make the voices drift against each other.</dd>
+          <dt><span class="n">4</span>Lifecycle dots</dt>
+          <dd>How many more times the pattern plays unchanged before it may
+          mutate. Filled dots are plays left; all empty with a cyan ring means
+          the pattern is established and may change. Amber dots mean the
+          pattern is locked.</dd>
+        </dl>
+
+        <h3 id="strip">Pattern strip</h3>
+        <figure class="fig">
+          <div class="view spot" style="--iw:2800;--ih:1280;--zx:0;--zy:22;--zw:60;--zh:22">
+            <img src="assets/manual/main.png" alt="The Pluck 1 pattern strip with notes and the orange playhead." loading="lazy">
+            <span class="mark" style="--x:10.7;--y:25;--w:49;--h:17.2"></span>
+          </div>
+        </figure>
+        <p>The strip shows the voice's current pattern on a sixteenth grid with
+        stronger lines on the beats. Higher notes sit higher. Accented notes have
+        an orange outline. The orange line is the voice's own playhead: since
+        loops differ in length, the playheads of the lanes visibly drift apart.</p>
+        <ul>
+          <li><b>Drag the strip</b> into an Ableton Live clip slot to get the
+          current pattern as a MIDI clip, looped to a whole number of bars (up to 16).</li>
+          <li>The strip dims when the voice is muted or held back by the arranger,
+          and darkens for a blank cycle.</li>
+          <li>A <span class="ui">WAITS</span> badge means the arranger is holding the
+          voice back; it joins on a later bar.</li>
+        </ul>
+        <figure class="fig">
+          <div class="view spot" style="--iw:3400;--ih:1280;--zx:60;--zy:42;--zw:40;--zh:12">
+            <img src="assets/manual/arranger.png" alt="A WAITS badge at the top right of the Pluck 1 lane." loading="lazy">
+            <span class="mark" style="--x:91.4;--y:45.3;--w:3.3;--h:3.5"></span>
+          </div>
+        </figure>
+
+        <h3 id="lane-buttons">Lane buttons</h3>
+        <figure class="fig" style="max-width:20rem">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:92.6;--zy:23.8;--zw:7.2;--zh:19.4">
+            <img src="assets/manual/main.png" alt="The seven buttons of a voice lane." loading="lazy">
+            <span class="mark" style="--x:94.3;--y:25.2;--w:2;--h:3.7"><b>1</b></span>
+            <span class="mark" style="--x:96.6;--y:25.2;--w:2;--h:3.7"><b>2</b></span>
+            <span class="mark" style="--x:94.3;--y:29.6;--w:2;--h:3.8"><b>3</b></span>
+            <span class="mark" style="--x:96.6;--y:29.6;--w:2;--h:3.8"><b>4</b></span>
+            <span class="mark" style="--x:94.3;--y:33.9;--w:2;--h:3.9"><b>5</b></span>
+            <span class="mark" style="--x:96.6;--y:33.9;--w:2;--h:3.9"><b>6</b></span>
+            <span class="mark" style="--x:95.45;--y:38.2;--w:2;--h:4"><b>7</b></span>
+          </div>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span>Mute</dt>
+          <dd>Silences the voice at once. The engine keeps running and the take keeps
+          recording it, so unmuting brings it back in place.</dd>
+          <dt><span class="n">2</span>Lock</dt>
+          <dd>Freezes the pattern: it keeps repeating and never mutates.</dd>
+          <dt><span class="n">3</span>Regenerate</dt>
+          <dd>A new pattern for this voice at its next loop. A bass-melody voice gets a
+          new walk over the same harmony. The drone and heartbeat are fixed and
+          have nothing to regenerate. <kbd>⌘Z</kbd> undoes it.</dd>
+          <dt><span class="n">4</span>Blank cycle</dt>
+          <dd>The voice sits out one loop, then comes back. A classic way to make room.</dd>
+          <dt><span class="n">5</span>Edit</dt>
+          <dd>Opens the <a href="#editor">pattern editor</a>. The button stays amber
+          while the voice plays a hand-edited pattern.</dd>
+          <dt><span class="n">6</span>MIDI delay</dt>
+          <dd>Plays the voice's echoes as real MIDI notes, for setups without an
+          audio delay. Turn the audio delay down on that channel when it is on
+          (the <a href="#delay">Delay Cheat Sheet</a> warns you).</dd>
+          <dt><span class="n">7</span>Melody extraction</dt>
+          <dd>Mutes the voice except for three or four accented notes, which become a
+          melody that evolves every few bars. Turn it off to get the full pattern back.</dd>
+        </dl>
+
+        <h3 id="lane-menu">Lane menu</h3>
+        <figure class="fig" style="max-width:30rem">
+          <div class="view spot" style="--iw:840;--ih:460">
+            <img src="assets/manual/menu-lane.png" alt="The lane context menu: CC Profile, Alternate With and Voice Off (engine)." loading="lazy">
+            <span class="mark" style="--x:12;--y:10.4;--w:42;--h:35.6"></span>
+          </div>
+        </figure>
+        <p>Right-click a pattern strip for more:</p>
+        <ul>
+          <li><b>CC Profile</b>: map the voice's modulation lanes to your synth's
+          controllers (<i>Generic</i>, <i>Microfreak</i>, or your own profiles).</li>
+          <li><b>Promote Melody to Lead</b>: appears while melody extraction is on and the
+          project has a lead voice; hands the extracted line to the lead at the next bar.</li>
+          <li><b>Alternate With</b>: this voice and another play in alternating
+          four-bar phrases, call and answer. <b>Stop Alternation</b> ends it.</li>
+          <li><b>Voice Off / Voice On (engine)</b>: switches the voice out of (or into)
+          the ensemble at the next bar; the arranger uses the same switch.</li>
+        </ul>
+
+        <h3 id="editor">Pattern editor</h3>
+        <figure class="fig" style="max-width:36rem">
+          <div class="view" style="--iw:1010;--ih:720">
+            <img src="assets/manual/editor.png" alt="The Edit Pluck 1 sheet: loop length, a table of notes with step, degree, octave, velocity and accent, Add note, Cancel and Apply." loading="lazy">
+            <span class="mark" style="--x:4.8;--y:18;--w:24;--h:9"><b>1</b></span>
+            <span class="mark" style="--x:4.4;--y:28;--w:91;--h:38.4"><b>2</b></span>
+            <span class="mark" style="--x:4.8;--y:86.8;--w:19.4;--h:7.4"><b>3</b></span>
+          </div>
+        </figure>
+        <p>The pencil button opens a note table for the voice's pattern.</p>
+        <dl class="controls">
+          <dt><span class="n">1</span>Loop</dt>
+          <dd>The pattern length, 2 to 64 sixteenth steps.</dd>
+          <dt><span class="n">2</span>Notes</dt>
+          <dd>One row per note: the <b>step</b> it starts on, its scale
+          <b>degree</b> (0 is the root, 7 an octave up), an <b>octave</b> shift,
+          the <b>velocity</b> and whether it is <b>accented</b>. The trash icon
+          removes a note. Degrees follow the key and every transposition.</dd>
+          <dt><span class="n">3</span>Add note</dt>
+          <dd>Adds a note on the first free step.</dd>
+        </dl>
+        <p><b>Apply</b> replaces the pattern and locks it, so it will not mutate.
+        While playing, the new pattern starts at the voice's next loop. The edit is
+        saved with the project.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="panel">
+        <h2>Performance panel</h2>
+        <p>The band under the lanes holds the controls you play during a set.
+        Everything here lands on the next bar.</p>
+
+        <h3 id="degrees">Degrees <kbd>1</kbd>–<kbd>7</kbd></h3>
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:0;--zy:86;--zw:36;--zh:9">
+            <img src="assets/manual/main.png" alt="The left end of the performance panel: degree buttons 1 to 7 and snapshot slots 1 to 6." loading="lazy">
+            <span class="mark" style="--x:.9;--y:88.4;--w:17.1;--h:5.4"><b>1</b></span>
+            <span class="mark" style="--x:19.8;--y:88.4;--w:13.6;--h:5.4"><b>2</b></span>
+          </div>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span>Degree buttons</dt>
+          <dd>Move every voice to scale degree 1 to 7 at the next bar. Because all
+          voices share one scale, the whole ensemble changes harmony together. The
+          active degree is lit; <span class="ui">1</span> is home.</dd>
+          <dt id="snapshots"><span class="n">2</span>Snapshots</dt>
+          <dd><kbd>⌥</kbd>-click a slot to store the complete current state (all
+          patterns, lifecycles and harmony); filled slots turn cyan. Click a filled
+          slot to recall it at the next bar; <kbd>⌘Z</kbd> undoes a recall.
+          Snapshots are saved with the project.</dd>
+        </dl>
+
+        <h3 id="moves">Re-roll, B-part and tension</h3>
+        <figure class="fig">
+          <div class="view" style="--iw:3400;--ih:1280;--zx:28;--zy:86;--zw:30;--zh:9">
+            <img src="assets/manual/arranger.png" alt="The middle of the performance panel: Re-roll unlocked, B, T·2 and Scene." loading="lazy">
+            <span class="mark" style="--x:30;--y:89.4;--w:9.4;--h:5"><b>1</b></span>
+            <span class="mark" style="--x:40.5;--y:89.4;--w:2;--h:5"><b>2</b></span>
+            <span class="mark" style="--x:43.2;--y:89.4;--w:2.4;--h:5"><b>3</b></span>
+            <span class="mark" style="--x:46.3;--y:89.4;--w:4.9;--h:5"><b>4</b></span>
+          </div>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span>Re-roll unlocked</dt>
+          <dd>Regenerates every voice that is not locked, each at its next loop.
+          <kbd>⌘Z</kbd> undoes it.</dd>
+          <dt><span class="n">2</span>B</dt>
+          <dd>The B-part move, the genre's classic second section, in one press: a
+          progression starts, the bass gets a new line and the bed drops out.
+          Available while playing.</dd>
+          <dt><span class="n">3</span>T·n</dt>
+          <dd>The tension budget: <i>n</i> out-of-key moments left for this piece.
+          Each press plays one sustained minor second against the root at the
+          next bar. Used sparingly, it is the genre's spice.</dd>
+          <dt id="scenes"><span class="n">4</span>Scene</dt>
+          <dd>Only shown when the project has CC scenes (Ambient drift has two).
+          Pick a scene and all mapped controllers glide toward that timbre over
+          eight bars. Available while playing.</dd>
+        </dl>
+
+        <h3 id="arranger">Arranger</h3>
+        <figure class="fig">
+          <div class="view" style="--iw:3400;--ih:1280;--zx:51.8;--zy:86;--zw:25;--zh:9">
+            <img src="assets/manual/arranger.png" alt="The arranger controls: AUTO lit, the phase readout BUILD 12, the advance button, the ambient moon and the density slider." loading="lazy">
+            <span class="mark" style="--x:54.3;--y:89.4;--w:3.6;--h:5"><b>1</b></span>
+            <span class="mark" style="--x:58;--y:89.4;--w:4.4;--h:5"><b>2</b></span>
+            <span class="mark" style="--x:62.6;--y:89.4;--w:1.6;--h:5"><b>3</b></span>
+            <span class="mark" style="--x:64.2;--y:89.4;--w:1.8;--h:5"><b>4</b></span>
+            <span class="mark" style="--x:66.1;--y:89.4;--w:8.6;--h:5"><b>5</b></span>
+          </div>
+        </figure>
+        <dl class="controls">
+          <dt><span class="n">1</span>AUTO</dt>
+          <dd>Switches the arranger autopilot on or off. It builds the piece voice by
+          voice (a drone opens it when there is one), lets it settle, varies it,
+          fires the B-part, brings the theme back at the payoff, thins it out and
+          ends on a roots-only bar. It only advises: every move it makes is also
+          a control you can use yourself, and you can override it at any time.</dd>
+          <dt><span class="n">2</span>Phase</dt>
+          <dd>The current phase and how many bars it has lasted:
+          BUILD, BED, VAR, B-PART, PAYOFF, SUBTR or END.</dd>
+          <dt><span class="n">3</span>Advance</dt>
+          <dd>Fires the arranger's next change at the next bar instead of waiting.</dd>
+          <dt id="density"><span class="n">4</span>Ambient mode</dt>
+          <dd>Slows everything down to about one change a minute; patterns play 16
+          times before they may mutate. Set it while stopped.</dd>
+          <dt><span class="n">5</span>DENS</dt>
+          <dd>Thins out or fills the whole mix: it caps how many notes each loop
+          plays, and accents survive longest. The arranger raises density at the
+          payoff and lowers it on the way out.</dd>
+        </dl>
+        <figure class="fig" style="max-width:36rem">
+          <div class="view spot" style="--iw:1120;--ih:600">
+            <img src="assets/manual/menu-auto.png" alt="The menu that opens when you right-click AUTO: Classic arc, Slow build and Ambient plateau." loading="lazy">
+            <span class="mark" style="--x:25.6;--y:70.4;--w:42;--h:27.4"></span>
+          </div>
+          <figcaption>Right-click AUTO to choose the form of the piece.</figcaption>
+        </figure>
+        <p>Right-click <span class="ui">AUTO</span> (while stopped) to choose a form:
+        <b>Classic arc</b> (phases of 8 to 16 bars, with a reprise), <b>Slow
+        build</b> (12 to 24 bars, with a reprise) or <b>Ambient plateau</b>
+        (about one change a minute).</p>
+
+        <h3 id="learn">MIDI learn</h3>
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:64;--zy:86;--zw:36;--zh:9">
+            <img src="assets/manual/main.png" alt="The right end of the performance panel: the density slider, LEARN and Export Capture." loading="lazy">
+            <span class="mark" style="--x:82.6;--y:88.6;--w:4.8;--h:5.2"><b>1</b></span>
+            <span class="mark" style="--x:88.2;--y:88.6;--w:11;--h:5.2"><b>2</b></span>
+          </div>
+        </figure>
+        <p>Map your controller's knobs and pads to Berlinan and leave the laptop alone.</p>
+        <ol>
+          <li>Send your controller to the MIDI input <b>Berlinan Control</b>.</li>
+          <li>Click <span class="ui">LEARN</span> <span class="n mono">1</span>. It reads <span class="ui">LEARN: PICK A CONTROL</span>.</li>
+          <li>Click the control to map: play/stop, a degree button, new seed,
+          re-roll, a snapshot slot, B or advance. It reads <span class="ui">MOVE A KNOB…</span>.</li>
+          <li>Move a knob or press a pad. The mapping is stored and survives restarts.</li>
+          <li>Map more controls the same way, then click <span class="ui">LEARN</span> again to finish.</li>
+        </ol>
+        <p>Only the press counts: a note-on, or a controller value of 64 or more,
+        so a pad that sends a value on release does not trigger twice.</p>
+
+        <h3 id="export">Export capture</h3>
+        <figure class="fig" style="max-width:36rem">
+          <div class="view spot" style="--iw:1000;--ih:600">
+            <img src="assets/manual/menu-export.png" alt="The Export Capture menu: Last 8, 16, 32 and 64 bars, and Takes." loading="lazy">
+            <span class="mark" style="--x:67.2;--y:31;--w:31;--h:47"></span>
+          </div>
+        </figure>
+        <p>Berlinan always records the last hour of what it played. <span class="ui">EXPORT CAPTURE</span>
+        <span class="n mono">2</span> saves the last 8, 16, 32 or 64 whole bars
+        as a multitrack MIDI file, one track per voice, ready to drop into Live.
+        <b>Takes…</b> opens the <a href="#takes">Takes window</a>.</p>
+        <p>The capture records what the engine played, including muted voices, so
+        a voice you muted for the room is still there in the file.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="lcm">
+        <h2>Convergence footer</h2>
+        <figure class="fig">
+          <div class="view spot" style="--iw:2800;--ih:1280;--zx:0;--zy:93;--zw:36;--zh:7">
+            <img src="assets/manual/main.png" alt="The footer: LCM 15 bars, about 40 seconds." loading="lazy">
+            <span class="mark" style="--x:.6;--y:95.8;--w:9;--h:3.4"></span>
+          </div>
+        </figure>
+        <p><span class="ui">LCM</span> tells you after how many bars, and how many
+        seconds, all loops line up again: the least common multiple of the loop
+        lengths. Until then every bar is a combination you have not heard yet.
+        The right end shows the engine version.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="takes">
+        <h2>Takes window</h2>
+        <figure class="fig">
+          <div class="view" style="--iw:1800;--ih:900">
+            <img src="assets/manual/takes.png" alt="The Takes window listing seven takes, each with name, date, length, duration, tempo and voices, and save and delete buttons." loading="lazy">
+            <span class="mark" style="--x:1.3;--y:20.6;--w:88;--h:9.8"><b>1</b></span>
+            <span class="mark" style="--x:90.6;--y:21.6;--w:4;--h:7.4"><b>2</b></span>
+            <span class="mark" style="--x:95;--y:21.6;--w:4;--h:7.4"><b>3</b></span>
+          </div>
+        </figure>
+        <p>Every play-to-stop pass is kept as a take, on disk, until you delete it.
+        Open the window from <b>Window ▸ Takes</b> or <b>Export Capture ▸ Takes…</b>.
+        The newest take is on top; the one being recorded shows a red dot and grows.</p>
+        <dl class="controls">
+          <dt><span class="n">1</span>Take</dt>
+          <dd>Click the name to rename it, then press <kbd>Return</kbd>. Below it:
+          when it was recorded, its length in bars and minutes, the tempo and the
+          voices. <b>Drag a take</b> into Live or a Finder folder to get it as a
+          MIDI file.</dd>
+          <dt><span class="n">2</span>Save as .mid</dt>
+          <dd>Saves a multitrack MIDI file, one track per voice on its channel.</dd>
+          <dt><span class="n">3</span>Delete</dt>
+          <dd>Removes the take from disk after you confirm.</dd>
+        </dl>
+        <p>A template loaded while playing starts a new take at its bar line. The
+        take in progress is saved every 10 seconds, so a crash costs you at most
+        those seconds.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="delay">
+        <h2>Delay Cheat Sheet</h2>
+        <figure class="fig">
+          <div class="view spot" style="--iw:1800;--ih:900;--zh:46">
+            <img src="assets/manual/delay.png" alt="The Delay Cheat Sheet: Pluck 1 and Pluck 2 dotted eighth 500 ms, Bass eighth 333 ms, with copy buttons." loading="lazy">
+            <span class="mark" style="--x:1.3;--y:20.4;--w:97.4;--h:20"></span>
+          </div>
+        </figure>
+        <p>Delay is the genre's reverb. <b>Window ▸ Delay Cheat Sheet</b> lists, for
+        every voice, the audio delay division and time at the current tempo:
+        dotted eighths for plucks, eighths for the bass, quarters for sustained
+        voices. The copy button puts the settings on the clipboard. Set feedback
+        and wet to about 50 %, use ping-pong and cut lows and highs on the repeats.</p>
+        <p>When a lane's MIDI delay is on, the sheet warns you that the echoes are
+        already in the MIDI.</p>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="connect">
+        <h2>Connecting synths</h2>
+
+        <h3>Ableton Live</h3>
+        <ol>
+          <li>In Berlinan, leave the output on <b>Berlinan Out (virtual)</b>.</li>
+          <li>In Live, create one MIDI track per voice with an instrument on it.</li>
+          <li>Set each track's <b>MIDI From</b> to <b>Berlinan Out</b> and the
+          channel to the voice's channel (the <span class="ui">ch N</span> label in its lane).</li>
+          <li>Set <b>Monitor</b> to <b>In</b> (or arm the track) and press play in Berlinan.</li>
+        </ol>
+        <p>To record, arm the tracks in Live, or simply export a <a href="#takes">take</a>
+        afterwards and drag it in.</p>
+
+        <h3>Hardware synths</h3>
+        <ol>
+          <li>Connect the synth over USB or a MIDI interface.</li>
+          <li>Pick it in the <a href="#output">MIDI output</a> menu.</li>
+          <li>Set the synth to receive on the channel of the voice it should play,
+          or move the voice to the synth's channel with its <a href="#channel">channel menu</a>.
+          A multitimbral synth can play several voices, one per channel.</li>
+        </ol>
+        <p>In INT mode Berlinan also sends MIDI clock, so the synth's arpeggiator or
+        sequencer runs in time.</p>
+
+        <h3>Following Live's tempo</h3>
+        <ul>
+          <li><b>Ableton Link</b> (easiest): switch Berlinan to <span class="ui">LINK</span>
+          and turn Link on in Live. Tempo and bar phase are shared both ways; start
+          Berlinan with <kbd>Space</kbd>.</li>
+          <li><b>MIDI clock</b>: switch Berlinan to <span class="ui">EXT</span>. In
+          Live's MIDI settings, turn on <b>Sync</b> for an output port Berlinan can
+          hear, such as the IAC Driver bus (enable it in Audio MIDI Setup). Starting
+          Live then starts Berlinan.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="projects">
+        <h2>Projects and templates</h2>
+        <ul>
+          <li><b>File ▸ Save Project As…</b> <kbd>⇧⌘S</kbd> saves a <code>.berlinan</code>
+          file with the whole setup: voices, channels, key, tempo, harmony mode,
+          hand-edited patterns, the seed and the snapshot slots.</li>
+          <li><b>File ▸ Open Project…</b> <kbd>⌘O</kbd> opens one (while stopped).
+          A saved project keeps its own seed and key, so it comes back exactly as you
+          left it. A damaged file is refused with an explanation instead of being loaded.</li>
+          <li><b>Templates ▸ Save as Template…</b> stores the current setup as a
+          template; it then appears under <b>My templates</b>. Unlike a project, a
+          template always starts from a fresh seed.</li>
+        </ul>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="keys">
+        <h2>Keyboard shortcuts</h2>
+        <table>
+          <thead><tr><th>Key</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>Space</kbd></td><td>Play / stop</td></tr>
+            <tr><td><kbd>1</kbd> – <kbd>7</kbd></td><td>Move the ensemble to that scale degree at the next bar</td></tr>
+            <tr><td><kbd>N</kbd></td><td>New seed</td></tr>
+            <tr><td><kbd>⌘Z</kbd></td><td>Undo the last regenerate, re-roll, snapshot recall or new seed</td></tr>
+            <tr><td><kbd>⌥</kbd>-click a slot</td><td>Store a snapshot</td></tr>
+            <tr><td><kbd>⌘O</kbd></td><td>Open a project</td></tr>
+            <tr><td><kbd>⇧⌘S</kbd></td><td>Save the project as…</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="concepts">
+        <h2>Concepts</h2>
+        <dl class="controls">
+          <dt>Repetition earns change</dt>
+          <dd>New material plays verbatim four times before it may mutate (sixteen in
+          ambient mode), and each mutation has to earn its place again. The lifecycle
+          dots show where each voice stands.</dd>
+          <dt>Degrees, not notes</dt>
+          <dd>Patterns are written in scale degrees. Transposing moves every voice by
+          the same number of degrees within the scale, so harmony stays in key.</dd>
+          <dt>Phasing</dt>
+          <dd>Voices loop at different lengths and drift against each other until they
+          line up again after the LCM shown in the footer.</dd>
+          <dt>Seed</dt>
+          <dd>A number that decides every random choice. The same project and seed
+          always give the same music; a new seed gives a new piece from the same setup.</dd>
+          <dt>Next bar</dt>
+          <dd>Changes never land mid-bar. Pattern changes for a single voice wait for
+          that voice's next loop.</dd>
+        </dl>
+      </section>
+
+      <!-- ===================================================== -->
+      <section id="trouble">
+        <h2>Troubleshooting</h2>
+        <h4>I press play but hear nothing</h4>
+        <p>Check the <a href="#output">output</a>: with Berlinan Out, a track in Live
+        must listen to Berlinan Out on the voice's channel with monitoring on. With
+        a device, the dot must be green and the synth must receive on the voice's
+        channel. In EXT mode, Berlinan waits for Start from the clock master.</p>
+        <h4>The output shows “disconnected”</h4>
+        <p>The chosen device is unplugged or switched off. Plug it back in and sending
+        resumes on its own, or pick another output.</p>
+        <h4>Two voices sound on the same synth</h4>
+        <p>They share a MIDI channel. Open a lane's <a href="#channel">channel menu</a>:
+        a channel used by another voice shows its name.</p>
+        <h4>A menu or button is greyed out</h4>
+        <p>Some settings only change while stopped: clock source, harmony mode,
+        meter, slides, ambient mode and the arranger form. B, advance, tension and
+        scenes work while playing.</p>
+        <h4>A note keeps sounding</h4>
+        <p>Press stop: Berlinan sends note-offs and All Notes Off on every channel it used.</p>
+      </section>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Berlinan by Jiří Píša. GPL-2.0-or-later. Manual for version 1.2.7.</span>
+    <span><a href="index.html">Overview</a> · <a href="https://github.com/jiripisa/berlinan">Source on GitHub</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
