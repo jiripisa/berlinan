@@ -282,6 +282,8 @@ final class UIState {
             upcomingEvents = snapshot.upcomingEvents
         }
         liveBPM = transport.currentBPM
+        syncMode = transport.currentSyncMode
+        linkPeers = transport.linkService?.numPeers ?? 0
         midiOutputAvailable = services.midi?.isOutputAvailable ?? false
         if !transport.hasPendingProjectLoad { pendingTemplateName = nil }
         mutedIDs = Set(project.voices.map(\.id).filter { transport.isMuted($0) })
@@ -433,9 +435,9 @@ final class UIState {
 
     // MARK: - Sync mode (FR-IO-4)
 
-    var syncMode: Transport.SyncMode {
-        services.transport?.currentSyncMode ?? .internalClock
-    }
+    /// Mirrored in refresh(): Transport is not observable, so a computed
+    /// property never re-rendered the INT/EXT/LINK label (phase 59).
+    private(set) var syncMode: Transport.SyncMode = .internalClock
 
     /// INT / EXT / LINK (stopped only — the transport guards it too). Link's
     /// network session is joined exactly while LINK is selected.
@@ -460,9 +462,8 @@ final class UIState {
         refresh()
     }
 
-    var linkPeers: UInt64 {
-        services.transport?.linkService?.numPeers ?? 0
-    }
+    /// Mirrored in refresh() for the same reason as syncMode.
+    private(set) var linkPeers: UInt64 = 0
 
     /// 🎲 New Seed (FR-UX-6): fresh universe, undoable.
     func newSeed() {
