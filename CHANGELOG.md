@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.9 — 2026-10-26
+
+- Fixed: after picking EXT or LINK, the clock-source label in the transport
+  bar kept showing INT (the choice itself did take effect).
+- The clock-source tooltip no longer gives a setup for Ableton Live that
+  cannot work; it now points to an IAC bus.
+- Manual and website reviewed for beginners: plainer wording, no made-up
+  terms, factual fixes (English and Czech).
+
 ## 1.2.8 — 2026-10-25
 
 - Automatic updates: at launch Berlinan checks whether a new version is

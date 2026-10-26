@@ -5,13 +5,13 @@
     <link>https://jiripisa.github.io/berlinan/</link>
     <description>Berlinan updates</description>
     <item>
-      <title>Berlinan 1.2.8</title>
-      <sparkle:version>1.2.8</sparkle:version>
-      <sparkle:shortVersionString>1.2.8</sparkle:shortVersionString>
+      <title>Berlinan 1.2.9</title>
+      <sparkle:version>1.2.9</sparkle:version>
+      <sparkle:shortVersionString>1.2.9</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <pubDate>Sun, 25 Oct 2026 22:32:06 +0000</pubDate>
-      <description><![CDATA[<ul><li>Automatic updates: at launch Berlinan checks whether a new version is out and offers it with its release notes; after you click <b>Install Update</b> it downloads, verifies and installs it and restarts. Switch the check off in <b>Berlinan ▸ Settings…</b> (⌘,); <b>Check for Updates…</b> in the app menu checks by hand.</li><li>Readability: labels are brighter (contrast at least 4.5:1) and the performance panel wraps onto two or three rows instead of cutting controls short in narrower windows.</li></ul>]]></description>
-      <enclosure url="https://github.com/jiripisa/berlinan/releases/download/v1.2.8/Berlinan-1.2.8.dmg" type="application/octet-stream" sparkle:edSignature="dX0jaJiDIctfMeCcWErutmkRrF6iKzXIX9uqDTdnxkASUY9uFzID8f3BBfFKMDAnWdA9vMFi0eKyF6fBs0FVBw==" length="2654217"/>
+      <pubDate>Mon, 26 Oct 2026 07:50:51 +0000</pubDate>
+      <description><![CDATA[<ul><li>Fixed: after picking EXT or LINK, the clock-source label in the transport bar kept showing INT (the choice itself did take effect).</li><li>The clock-source tooltip no longer gives a setup for Ableton Live that cannot work; it now points to an IAC bus.</li><li>Manual and website reviewed for beginners: plainer wording, no made-up terms, factual fixes (English and Czech).</li></ul>]]></description>
+      <enclosure url="https://github.com/jiripisa/berlinan/releases/download/v1.2.9/Berlinan-1.2.9.dmg" type="application/octet-stream" sparkle:edSignature="s0OyHhYSdpYcM+bY7fSbcu3ed9m2aZB7B9ZBmApkfcM4UAvGrRO5RblwveAvhT5hbHuo9B1vW3Q4nmLjfnNeAg==" length="2653837"/>
     </item>
   </channel>
 </rss>
