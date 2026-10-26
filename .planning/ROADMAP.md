@@ -88,6 +88,8 @@ Deferred to M7: capture browser (done as phase 49 — Takes), runtime meter chan
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 60-v1.2.9-release | Version 1.2.9 (clock label fix, tooltip, reviewed docs), notarized DMG, appcast — first Sparkle-delivered update — tagged 2026-10-26 | — | ✅ |
+| 59-sync-label | INT/EXT/LINK label and Link peers mirrored in refresh (Transport is not observable) | FR-IO-4/5 (user report) | ✅ |
 | 58-docs-review | Agent-team review of manual + website + README (pedagogue, genre expert, QA, Codex, team leader): 44 fixes — false claims, invented terms, layperson wording, EN/CS; app clock tooltip | — (user request) | ✅ |
 | 57-v1.2.8-release | Version 1.2.8 (auto-update, legibility), notarized DMG, first appcast, manual screenshots retaken — tagged 2026-10-25 | — | ✅ |
 | 56-autoupdate | Sparkle auto-update: launch check (default on, Settings ⌘, toggle), signed appcast from build.sh dist via scripts/make_appcast.py, no silent installs | FR-UX-8 (new) | ✅ |
