@@ -49,7 +49,6 @@ final class UIState {
     private(set) var controlMap: ControlMap
     private(set) var learnMode = false
     private(set) var armedMacro: ControlMacro? = nil
-    let profileStore = CCProfileStore(directory: nil)
 
     func toggleLearnMode() {
         learnMode.toggle()
@@ -191,10 +190,57 @@ final class UIState {
         services.saveAsTemplate()
     }
 
-    /// CC profile application (FR-MOD-5).
-    func applyProfile(_ profile: CCProfile, to voiceID: String) {
-        services.updateVoiceCCMap(voiceID, map: profile.map)
-        refresh()
+    // MARK: - CC LFO lanes (phase 61, FR-MOD-3)
+
+    /// Voices whose LFO strip is folded away (view state, not saved).
+    private(set) var collapsedLFOVoices: Set<String> = []
+
+    func ccLanes(for voiceID: String) -> [CCLane] {
+        project.voices.first { $0.id == voiceID }?.ccLanes ?? []
+    }
+
+    /// The CC map of a voice — resolves lanes from documents before phase 61.
+    func ccMap(for voiceID: String) -> [String: UInt8] {
+        project.voices.first { $0.id == voiceID }?.ccMap ?? [:]
+    }
+
+    func addLFO(to voiceID: String) {
+        var lanes = ccLanes(for: voiceID)
+        guard lanes.count < CCLane.maxPerVoice else { return }
+        lanes.append(CCLane.makeDefault(index: lanes.count))
+        collapsedLFOVoices.remove(voiceID)
+        services.setVoiceCCLanes(voiceID, lanes: lanes)
+    }
+
+    func removeLFO(_ index: Int, from voiceID: String) {
+        var lanes = ccLanes(for: voiceID)
+        guard lanes.indices.contains(index) else { return }
+        lanes.remove(at: index)
+        services.setVoiceCCLanes(voiceID, lanes: lanes)
+    }
+
+    /// Edit one lane. A lane from an older document addresses its CC by
+    /// name; the first edit pins the resolved number so the sound continues.
+    func updateLFO(_ index: Int, of voiceID: String,
+                   _ change: (inout CCLane) -> Void) {
+        var lanes = ccLanes(for: voiceID)
+        guard lanes.indices.contains(index) else { return }
+        var lane = lanes[index]
+        if lane.controller == nil {
+            lane.controller = lane.resolvedController(ccMap: ccMap(for: voiceID))
+        }
+        change(&lane)
+        guard lane != lanes[index] else { return }
+        lanes[index] = lane
+        services.setVoiceCCLanes(voiceID, lanes: lanes)
+    }
+
+    func toggleLFOStrip(_ voiceID: String) {
+        if collapsedLFOVoices.contains(voiceID) {
+            collapsedLFOVoices.remove(voiceID)
+        } else {
+            collapsedLFOVoices.insert(voiceID)
+        }
     }
 
     /// Per-voice MIDI channel (phase 47); `channel` is 0-based.

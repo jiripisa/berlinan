@@ -101,11 +101,13 @@ final class AppServices {
         }
     }
 
-    /// Apply a CC profile to a voice (FR-MOD-5).
-    func updateVoiceCCMap(_ voiceID: String, map: [String: UInt8]) {
+    /// The voice's CC LFO lanes (phase 61). Playing → the running engine
+    /// swaps them at its render head; stopped → rebuild.
+    func setVoiceCCLanes(_ voiceID: String, lanes: [CCLane]) {
         guard let idx = project.voices.firstIndex(where: { $0.id == voiceID }) else { return }
-        project.voices[idx].ccMap = map
+        project.voices[idx].ccLanes = lanes.isEmpty ? nil : lanes
         if transport?.isPlaying == true {
+            transport?.enqueue(.setCCLanes(voiceID: voiceID, lanes: lanes))
             transportStale = true
         } else {
             rebuildTransport()

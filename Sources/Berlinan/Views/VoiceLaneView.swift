@@ -75,13 +75,6 @@ struct VoiceLaneView: View {
                 }
                 .onDrag { ui.dragItem(for: voice.id) ?? NSItemProvider() }
                 .contextMenu {
-                    Menu("CC Profile") {
-                        ForEach(ui.profileStore.profiles, id: \.name) { profile in
-                            Button(profile.name) {
-                                ui.applyProfile(profile, to: voice.id)
-                            }
-                        }
-                    }
                     if voice.melodyActive && ui.hasLeadVoice {
                         Button("Promote Melody to Lead") {
                             ui.promoteToLead(voice.id)
