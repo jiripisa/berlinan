@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- CC LFO: right-click the Phase knob to set it to 0, 25, 50 or 75 % (the
+  LFO's starting point in its cycle).
+
 ## 1.3.0 — 2026-10-29
 
 - CC LFO editor: click **∿ ＋** under a voice name to add an LFO that

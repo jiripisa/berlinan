@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Small rotary control (phase 61, CC LFO depth/phase): drag up/down —
 /// about 150 pt sweeps the whole range. Tangerine arc = the value.
+/// `presets` adds a right-click menu that jumps to fixed values.
 struct KnobView: View {
     @Binding var value: Double
     var range: ClosedRange<Double> = 0...1
@@ -9,6 +10,7 @@ struct KnobView: View {
     var readout: (Double) -> String = { "\(Int(($0 * 100).rounded()))%" }
     var disabled = false
     var help: String = ""
+    var presets: [(title: String, value: Double)] = []
 
     @State private var dragStart: Double? = nil
 
@@ -43,6 +45,11 @@ struct KnobView: View {
             }
         }
         .help(help)
+        .contextMenu {
+            ForEach(presets, id: \.title) { preset in
+                Button(preset.title) { value = preset.value }
+            }
+        }
         .allowsHitTesting(!disabled)
     }
 
