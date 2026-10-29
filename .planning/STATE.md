@@ -61,6 +61,14 @@
   candidates:
   tie editing in the pattern editor, undo for configuration edits; runtime
   meter stays backlog.
+- Phase 58 (documentation review) DONE 2026-10-26; phase 59 (clock-source
+  label, user report) DONE 2026-10-26; 2026-10-26 — v1.2.9 RELEASED
+  (phase 60): first update delivered through Sparkle.
+- Phase 61 (CC LFO editor + midi.guide parameter browser, FR-MOD-3/9,
+  user request) DONE 2026-10-29 — strip under each voice lane, live edits
+  via LiveEngine.Action.setCCLanes, bundled midi.guide catalog (CC BY-SA
+  4.0, scripts/update_midiguide.py), CC Profile menu removed. 359 tests in 119 suites.
+  Deferred minors listed in its VERIFICATION.md.
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (user-confirmed push of main + tags v0.1.0–v1.1.0). Made PUBLIC
   2026-10-21 (see above).
