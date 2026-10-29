@@ -88,6 +88,7 @@ Deferred to M7: capture browser (done as phase 49 — Takes), runtime meter chan
 | Phase | Scope | FR-IDs | Status |
 |---|---|---|---|
 | 38-bass-walk-variety | Seeded bassMelody walks (roots stay the harmony's law; seed shapes path/syncopation/dips); regenerate tooltips for deterministic voices | FR-MEL-5(+), FR-UX-6 | ✅ |
+| 63-v1.3.1-release | Version 1.3.1 (Phase knob right-click presets 0/25/50/75 %), notarized DMG, appcast — tagged 2026-10-29 | — | ✅ |
 | 62-v1.3.0-release | Version 1.3.0 (CC LFO editor, midi.guide parameter list), notarized DMG, appcast — tagged 2026-10-29 | — | ✅ |
 | 61-cc-lfo-editor | CC LFO editor: strip under each voice lane (CC number, shape, cycle, Min/Max, depth and phase knobs, curve), live edits at the render head (also across a pending template load), midi.guide parameter browser (manufacturer › model › parameter, search), CC Profile menu removed | FR-MOD-3, FR-MOD-5, FR-MOD-9 (new) | ✅ |
 | 60-v1.2.9-release | Version 1.2.9 (clock label fix, tooltip, reviewed docs), notarized DMG, appcast — first Sparkle-delivered update — tagged 2026-10-26 | — | ✅ |

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.1 — 2026-10-29
 
 - CC LFO: right-click the Phase knob to set it to 0, 25, 50 or 75 % (the
   LFO's starting point in its cycle).
