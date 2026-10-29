@@ -78,7 +78,7 @@ Adopted 1:1 from Sampio's `build.sh` with the app name swapped and the extra CLI
 SPM produces a bare executable; the script assembles the bundle manually:
 
 1. `mkdir -p Berlinan.app/Contents/{MacOS,Resources}`; copy the built executable.
-2. Copy `Resources/Info.plist` into `Contents/`; copy `Resources/MIDIGuide/` (the midi.guide CC catalog, CC BY-SA 4.0) and `Resources/Credits.html` (About panel credits) into `Contents/Resources/`.
+2. Copy `Resources/Info.plist` into `Contents/`; copy `Resources/MIDIGuide/` (the midi.guide CC catalog, CC BY-SA 4.0) and `Resources/Credits.rtf` (About panel credits) into `Contents/Resources/`.
 3. Generate `AppIcon.icns` from `Resources/AppIcon.png` via `sips` (10 sizes: 16→1024 px) + `iconutil -c icns` into `Contents/Resources/`.
 4. `echo -n "APPL????" > Contents/PkgInfo`.
 5. `xattr -cr` the bundle (strip quarantine/extended attributes).

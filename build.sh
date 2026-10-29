@@ -63,8 +63,9 @@ cp "Resources/Info.plist" "$APP_BUNDLE/Contents/"
 # midi.guide CC catalog for the CC LFO browser (phase 61; CC BY-SA 4.0,
 # refreshed by scripts/update_midiguide.py)
 cp -R "Resources/MIDIGuide" "$APP_BUNDLE/Contents/Resources/"
-# About panel credits (the standard panel shows Credits.html)
-cp "Resources/Credits.html" "$APP_BUNDLE/Contents/Resources/"
+# About panel credits (the standard panel shows Credits.rtf; no colour set,
+# so the text follows the dark appearance)
+cp "Resources/Credits.rtf" "$APP_BUNDLE/Contents/Resources/"
 
 # Embed Sparkle (auto-update, phase 56). The app is unsandboxed, so the XPC
 # services (only needed by sandboxed apps) are left out.
