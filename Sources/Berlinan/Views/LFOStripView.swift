@@ -38,6 +38,8 @@ struct LFORowView: View {
 
     private static let cycleChoices: [Double] = [1, 2, 4, 8, 16, 32, 64]
 
+    @State private var browsing = false
+
     private var isSampleHold: Bool { lane.shape == .sampleHold }
 
     private var controller: Int? {
@@ -65,6 +67,22 @@ struct LFORowView: View {
                     }
                 }
                 .help("CC number (0–127) the LFO sends")
+                Button {
+                    browsing = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(ui.midiGuide == nil ? AppColor.ink4 : AppColor.ink2)
+                        .frame(width: 20, height: 18)
+                        .background(AppColor.bgPanel2)
+                        .clipShape(RoundedRectangle(cornerRadius: 3))
+                        .overlay(RoundedRectangle(cornerRadius: 3).stroke(AppColor.line, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .disabled(ui.midiGuide == nil)
+                .help(ui.midiGuide == nil
+                      ? "The midi.guide parameter list is missing from this build"
+                      : "Find the parameter by manufacturer and model (midi.guide)")
             }
             Text(parameterName ?? "")
                 .font(AppFont.monoCaption)
@@ -121,6 +139,13 @@ struct LFORowView: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 6)
+        .sheet(isPresented: $browsing) {
+            if let catalog = ui.midiGuide {
+                CCParameterBrowserView(catalog: catalog, initial: ui.lastBrowsedModel) { pick in
+                    ui.applyBrowserPick(pick, toLFO: index, of: voiceID)
+                }
+            }
+        }
         .background(AppColor.bgPanel)
         .clipShape(RoundedRectangle(cornerRadius: 4))
         .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.lineSoft, lineWidth: 1))

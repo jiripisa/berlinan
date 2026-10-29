@@ -235,6 +235,25 @@ final class UIState {
         services.setVoiceCCLanes(voiceID, lanes: lanes)
     }
 
+    /// The bundled midi.guide catalog (FR-MOD-9), read on first use; nil
+    /// when the app bundle lacks it (e.g. `swift run`).
+    var midiGuide: MIDIGuideCatalog? { MIDIGuideStore.catalog }
+
+    /// Where the parameter browser opens next (this run only).
+    private(set) var lastBrowsedModel: (manufacturer: String, model: String)? = nil
+
+    /// A parameter picked in the browser drives the LFO: its CC, its name,
+    /// and its value range.
+    func applyBrowserPick(_ pick: CCParameterBrowserView.Pick,
+                          toLFO index: Int, of voiceID: String) {
+        lastBrowsedModel = (pick.manufacturer, pick.model)
+        updateLFO(index, of: voiceID) { lane in
+            lane.controller = pick.parameter.cc
+            lane.label = "\(pick.manufacturer) \(pick.model) › \(pick.parameter.name)"
+            lane.setRange(min: Int(pick.parameter.min), max: Int(pick.parameter.max))
+        }
+    }
+
     func toggleLFOStrip(_ voiceID: String) {
         if collapsedLFOVoices.contains(voiceID) {
             collapsedLFOVoices.remove(voiceID)
@@ -545,4 +564,9 @@ final class UIState {
     var captureAvailable: Bool {
         services.transport?.exportCapture(lastBars: 1) != nil
     }
+}
+
+/// Loads the midi.guide catalog once, lazily (a static let).
+private enum MIDIGuideStore {
+    static let catalog = MIDIGuideCatalog.bundled()
 }
