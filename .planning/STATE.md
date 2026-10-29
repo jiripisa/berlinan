@@ -69,6 +69,8 @@
   via LiveEngine.Action.setCCLanes, bundled midi.guide catalog (CC BY-SA
   4.0, scripts/update_midiguide.py), CC Profile menu removed. 359 tests in 119 suites.
   Deferred minors listed in its VERIFICATION.md.
+- 2026-10-29 — v1.3.0 RELEASED (phase 62). Phase knob right-click presets
+  0/25/50/75 % (user request, no phase folder) → v1.3.1 RELEASED (phase 63).
 - 2026-07-18 — published to GitHub: https://github.com/jiripisa/berlinan
   (user-confirmed push of main + tags v0.1.0–v1.1.0). Made PUBLIC
   2026-10-21 (see above).
