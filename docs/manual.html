@@ -380,11 +380,12 @@
         <div class="pair">
           <figure class="fig">
             <div class="view" style="--iw:2800;--ih:1280;--zx:.6;--zy:27.6;--zw:11;--zh:10.4">
-              <img src="assets/manual/main.png" alt="The header of the Pluck 1 lane: the name, the channel and loop length, and the play-count dots.">
-              <span class="mark" style="--x:2;--y:30.4;--w:4.4;--h:2.6"><b>1</b></span>
-              <span class="mark" style="--x:2;--y:32.8;--w:2.6;--h:2.5"><b>2</b></span>
-              <span class="mark" style="--x:4.8;--y:32.8;--w:4.6;--h:2.5"><b>3</b></span>
-              <span class="mark" style="--x:2;--y:35.2;--w:2.6;--h:1.8"><b>4</b></span>
+              <img src="assets/manual/main.png" alt="The header of the Pluck 1 lane: the name, the channel and loop length, the play-count dots and the CC LFO button.">
+              <span class="mark" style="--x:2;--y:29.1;--w:4.4;--h:2.6"><b>1</b></span>
+              <span class="mark" style="--x:2;--y:31.5;--w:2.6;--h:2.5"><b>2</b></span>
+              <span class="mark" style="--x:4.8;--y:31.5;--w:4.6;--h:2.5"><b>3</b></span>
+              <span class="mark" style="--x:2;--y:33.9;--w:2.6;--h:1.8"><b>4</b></span>
+              <span class="mark" style="--x:2;--y:35.8;--w:2.6;--h:1.9"><b>5</b></span>
             </div>
           </figure>
           <figure class="fig">
@@ -411,6 +412,9 @@
           mutate, up to four dots. All empty with a cyan ring means it may change
           now. On a locked voice the filled dots are amber; the Lock button tells
           you for sure.</dd>
+          <dt><span class="n">5</span>CC LFO</dt>
+          <dd><span class="ui">∿ ＋</span> adds a <a href="#lfo">CC LFO</a> to the voice;
+          with LFOs it shows their number and hides or shows them.</dd>
         </dl>
 
         <h3 id="strip">Pattern strip</h3>
@@ -480,7 +484,7 @@
         <figure class="fig" style="max-width:30rem">
           <div class="view spot" style="--iw:840;--ih:460">
             <img src="assets/manual/menu-lane.png" alt="The lane context menu: Alternate With and Voice Off (engine).">
-            <span class="mark" style="--x:12;--y:10.4;--w:42;--h:35.6"></span>
+            <span class="mark" style="--x:7;--y:5.6;--w:42.4;--h:26"></span>
           </div>
         </figure>
         <p>Right-click a pattern strip for more:</p>
@@ -494,7 +498,24 @@
         </ul>
 
         <h3 id="lfo">CC LFO</h3>
-        <!-- LFO-STRIP-FIGURE -->
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:9.5;--zy:41.3;--zw:43;--zh:8.4">
+            <img src="assets/manual/lfo-strip.png" alt="The CC LFO strip under the Pluck 1 lane: CC number 74 with the magnifier and the name filter, shape sine, 16 bars, Min 57 and Max 95, the Depth and Phase knobs, and the curve with the playhead.">
+            <span class="mark" style="--x:12.4;--y:44.1;--w:3;--h:2.7"><b>1</b></span>
+            <span class="mark" style="--x:15.85;--y:44.1;--w:1.3;--h:2.7"><b>2</b></span>
+            <span class="mark" style="--x:34.4;--y:44.1;--w:2.9;--h:2.7"><b>3</b></span>
+            <span class="mark" style="--x:38.2;--y:44.1;--w:3.3;--h:2.7"><b>4</b></span>
+            <span class="mark" style="--x:42.25;--y:44.1;--w:9.4;--h:2.7"><b>5</b></span>
+          </div>
+        </figure>
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:51.6;--zy:41.3;--zw:47;--zh:8.4">
+            <img src="assets/manual/lfo-strip.png" alt="">
+            <span class="mark" style="--x:52.25;--y:44.1;--w:4.25;--h:2.7"><b>6</b></span>
+            <span class="mark" style="--x:57.15;--y:44.1;--w:4.25;--h:2.7"><b>7</b></span>
+            <span class="mark" style="--x:62;--y:44.1;--w:34.1;--h:2.7"><b>8</b></span>
+          </div>
+        </figure>
         <p>An LFO slowly turns one of your synth's knobs up and down over several
         bars, most often the filter: the slow breathing of the sound that is typical
         of the style. Berlinan sends it as MIDI CC on the voice's channel. Click
@@ -528,7 +549,13 @@
         <p>Every change is heard at once, also while playing, and is saved with the
         project. Changing the cycle or phase while playing can make the value jump to
         another point of the curve. <kbd>⌘Z</kbd> does not undo LFO changes.</p>
-        <!-- CC-BROWSER-FIGURE -->
+        <figure class="fig" style="max-width:40rem">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:22.9;--zy:14.8;--zw:54.1;--zh:71.7">
+            <img src="assets/manual/cc-browser.png" alt="The parameter list after typing digi: Elektron selected, models Digitakt, Digitakt II, Digitone and Digitone II, and the Digitone parameters with Ratio C on CC 91 selected.">
+            <span class="mark" style="--x:24.15;--y:19.8;--w:51.65;--h:3.8"></span>
+            <span class="mark" style="--x:55.8;--y:69.6;--w:20;--h:3"></span>
+          </div>
+        </figure>
         <p>The magnifier opens a list of more than 400 synths and effects from
         <a href="https://midi.guide">midi.guide</a>. Pick the manufacturer, then the
         model, then the parameter; each column fills the one to its right. Type in the

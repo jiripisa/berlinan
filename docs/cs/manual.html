@@ -381,11 +381,12 @@
         <div class="pair">
           <figure class="fig">
             <div class="view" style="--iw:2800;--ih:1280;--zx:.6;--zy:27.6;--zw:11;--zh:10.4">
-              <img src="../assets/manual/main.png" alt="Hlavička řádku Pluck 1: název, kanál a délka smyčky a tečky opakování.">
-              <span class="mark" style="--x:2;--y:30.4;--w:4.4;--h:2.6"><b>1</b></span>
-              <span class="mark" style="--x:2;--y:32.8;--w:2.6;--h:2.5"><b>2</b></span>
-              <span class="mark" style="--x:4.8;--y:32.8;--w:4.6;--h:2.5"><b>3</b></span>
-              <span class="mark" style="--x:2;--y:35.2;--w:2.6;--h:1.8"><b>4</b></span>
+              <img src="../assets/manual/main.png" alt="Hlavička řádku Pluck 1: název, kanál a délka smyčky, tečky opakování a tlačítko CC LFO.">
+              <span class="mark" style="--x:2;--y:29.1;--w:4.4;--h:2.6"><b>1</b></span>
+              <span class="mark" style="--x:2;--y:31.5;--w:2.6;--h:2.5"><b>2</b></span>
+              <span class="mark" style="--x:4.8;--y:31.5;--w:4.6;--h:2.5"><b>3</b></span>
+              <span class="mark" style="--x:2;--y:33.9;--w:2.6;--h:1.8"><b>4</b></span>
+              <span class="mark" style="--x:2;--y:35.8;--w:2.6;--h:1.9"><b>5</b></span>
             </div>
           </figure>
           <figure class="fig">
@@ -411,6 +412,9 @@
           <dd>Kolikrát ještě pattern zazní beze změny, než smí mutovat, nejvýš čtyři
           tečky. Všechny prázdné s azurovým kroužkem znamenají, že se teď smí změnit.
           U zamčeného hlasu jsou plné tečky jantarové; jistotu dá tlačítko Lock.</dd>
+          <dt><span class="n">5</span>CC LFO</dt>
+          <dd><span class="ui">∿ ＋</span> přidá hlasu <a href="#lfo">CC LFO</a>; když
+          hlas LFO má, ukazuje jejich počet a skryje nebo zobrazí je.</dd>
         </dl>
 
         <h3 id="strip">Pattern</h3>
@@ -480,7 +484,7 @@
         <figure class="fig" style="max-width:30rem">
           <div class="view spot" style="--iw:840;--ih:460">
             <img src="../assets/manual/menu-lane.png" alt="Kontextové menu řádku: Alternate With a Voice Off (engine).">
-            <span class="mark" style="--x:12;--y:10.4;--w:42;--h:35.6"></span>
+            <span class="mark" style="--x:7;--y:5.6;--w:42.4;--h:26"></span>
           </div>
         </figure>
         <p>Další možnosti otevřete pravým kliknutím na pattern:</p>
@@ -494,7 +498,24 @@
         </ul>
 
         <h3 id="lfo">CC LFO</h3>
-        <!-- LFO-STRIP-FIGURE -->
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:9.5;--zy:41.3;--zw:43;--zh:8.4">
+            <img src="../assets/manual/lfo-strip.png" alt="Pruh CC LFO pod stopou Pluck 1: číslo CC 74 s lupou a názvem filter, tvar sine, 16 taktů, Min 57 a Max 95, otočné ovladače Depth a Phase a křivka s ukazatelem pozice.">
+            <span class="mark" style="--x:12.4;--y:44.1;--w:3;--h:2.7"><b>1</b></span>
+            <span class="mark" style="--x:15.85;--y:44.1;--w:1.3;--h:2.7"><b>2</b></span>
+            <span class="mark" style="--x:34.4;--y:44.1;--w:2.9;--h:2.7"><b>3</b></span>
+            <span class="mark" style="--x:38.2;--y:44.1;--w:3.3;--h:2.7"><b>4</b></span>
+            <span class="mark" style="--x:42.25;--y:44.1;--w:9.4;--h:2.7"><b>5</b></span>
+          </div>
+        </figure>
+        <figure class="fig">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:51.6;--zy:41.3;--zw:47;--zh:8.4">
+            <img src="../assets/manual/lfo-strip.png" alt="">
+            <span class="mark" style="--x:52.25;--y:44.1;--w:4.25;--h:2.7"><b>6</b></span>
+            <span class="mark" style="--x:57.15;--y:44.1;--w:4.25;--h:2.7"><b>7</b></span>
+            <span class="mark" style="--x:62;--y:44.1;--w:34.1;--h:2.7"><b>8</b></span>
+          </div>
+        </figure>
         <p>LFO pomalu otáčí jedním knoflíkem vašeho syntezátoru nahoru a dolů v průběhu
         několika taktů, nejčastěji filtrem: to je pomalé dýchání zvuku typické pro
         tento styl. Berlinan ho posílá jako MIDI CC na kanálu hlasu. LFO přidáte
@@ -527,7 +548,13 @@
         <p>Každá změna je slyšet hned, i během hraní, a ukládá se s projektem. Změna
         cyklu nebo fáze během hraní může hodnotu přeskočit na jiné místo křivky.
         <kbd>⌘Z</kbd> změny LFO nevrací.</p>
-        <!-- CC-BROWSER-FIGURE -->
+        <figure class="fig" style="max-width:40rem">
+          <div class="view" style="--iw:2800;--ih:1280;--zx:22.9;--zy:14.8;--zw:54.1;--zh:71.7">
+            <img src="../assets/manual/cc-browser.png" alt="Seznam parametrů po napsání digi: vybraný Elektron, modely Digitakt, Digitakt II, Digitone a Digitone II a parametry Digitone s vybraným Ratio C na CC 91.">
+            <span class="mark" style="--x:24.15;--y:19.8;--w:51.65;--h:3.8"></span>
+            <span class="mark" style="--x:55.8;--y:69.6;--w:20;--h:3"></span>
+          </div>
+        </figure>
         <p>Lupa otevře seznam více než 400 syntezátorů a efektů z
         <a href="https://midi.guide">midi.guide</a>. Vyberte výrobce, pak model a pak
         parametr; každý sloupec naplní ten vpravo od něj. Psaním do pole hledání
