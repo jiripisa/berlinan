@@ -70,6 +70,20 @@ struct MIDIGuideCatalogTests {
                             uniquingKeysWith: { first, _ in first })
         #expect(cc["Timbre"] == 12 && cc["Shape"] == 13 && cc["Cutoff"] == 23)
     }
+
+    @Test("The snapshot offers no channel-mode messages and no fixed-value commands")
+    func snapshotHasOnlyModulatableParameters() throws {
+        let url = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Resources/MIDIGuide/midiguide.json")
+        let all = try MIDIGuideCatalog.load(from: url).manufacturers
+            .flatMap(\.models).flatMap(\.parameters)
+        // CC 120–127 = All Notes Off, Local Control, Omni/Mono/Poly …: an LFO
+        // on them would cut notes or switch modes; min == max = a command
+        // (e.g. "Store"), not something to sweep.
+        #expect(!all.contains { $0.cc >= 120 })
+        #expect(!all.contains { $0.min == $0.max })
+    }
 }
 
 private final class BundleMarker {}

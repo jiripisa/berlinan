@@ -65,7 +65,7 @@ YouTube channel):
    synth control (default CC 74, the filter on many synths) over 1–64 bars —
    shape, Min/Max, depth and phase sit in a strip under the lane and act
    live. The magnifier finds a parameter's CC number in the
-   [midi.guide](https://midi.guide) list of 446 instruments.
+   [midi.guide](https://midi.guide) list of more than 400 instruments.
 8. Updates: Berlinan checks for a new version at launch and offers it —
    nothing installs without your OK. Turn it off in **Berlinan ▸ Settings…**
    (⌘,), or use **Check for Updates…** in the app menu.

@@ -19,15 +19,17 @@ from pathlib import Path
 REPO = "pencilresearch/midi"
 HEAD_SHA = f"https://api.github.com/repos/{REPO}/commits/main"
 TARBALL = f"https://codeload.github.com/{REPO}/tar.gz/{{sha}}"
-OUT_DIR = Path("Resources/MIDIGuide")
+OUT_DIR = Path(__file__).resolve().parents[1] / "Resources/MIDIGuide"
 
 
 def cc_number(text: str) -> int | None:
+    """0–119: CC 120–127 are channel-mode messages (All Notes Off, Local
+    Control, Omni/Mono/Poly) — an LFO there would cut notes or switch modes."""
     try:
         value = int(text.strip())
     except ValueError:
         return None
-    return value if 0 <= value <= 127 else None
+    return value if 0 <= value <= 119 else None
 
 
 def bound(text: str, default: int) -> int:
@@ -55,6 +57,8 @@ def parse(archive: bytes) -> list[dict]:
                     continue
                 low = bound(row.get("cc_min_value") or "", 0)
                 high = bound(row.get("cc_max_value") or "", 127)
+                if low == high:
+                    continue                # a command (e.g. "Store"), nothing to sweep
                 catalog.setdefault(manufacturer, {}).setdefault(device, []).append({
                     "section": (row.get("section") or "").strip() or "General",
                     "name": parameter,
@@ -90,8 +94,9 @@ def main() -> None:
 contributors, licensed under Creative Commons Attribution-ShareAlike 4.0
 International (https://creativecommons.org/licenses/by-sa/4.0/).
 
-Changes: only parameters with a CC number are kept (NRPN-only rows and
-trigger files are left out), converted from CSV to JSON. This derived file
+Changes: only parameters with a CC number 0–119 and a value range are kept
+(NRPN-only rows, channel-mode messages, fixed-value commands and trigger
+files are left out), converted from CSV to JSON. This derived file
 is distributed under the same licence, CC BY-SA 4.0.
 
 Source commit: {commit} · retrieved {date.today().isoformat()} ·

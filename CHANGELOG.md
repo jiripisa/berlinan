@@ -7,8 +7,8 @@
   Shape, cycle (1–64 bars), Min/Max range, depth and phase are set in a
   strip under the voice lane; changes are heard at once, also while
   playing, and are saved with the project. Up to four LFOs per voice.
-- Parameter list: the magnifier next to the CC number opens 446 synths and
-  effects from midi.guide (manufacturer › model › parameter, with search).
+- Parameter list: the magnifier next to the CC number opens more than 400 synths
+  and effects from midi.guide (manufacturer › model › parameter, with search).
   Data: midi.guide, CC BY-SA 4.0.
 - The lane menu's **CC Profile** item is gone; the parameter list replaces it.
 
