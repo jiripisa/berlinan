@@ -60,6 +60,10 @@ cp "$SPM_BUILD_DIR/$SPM_CONFIG/$APP_NAME" "$APP_BUNDLE/Contents/MacOS/"
 # Copy Info.plist
 cp "Resources/Info.plist" "$APP_BUNDLE/Contents/"
 
+# midi.guide CC catalog for the CC LFO browser (phase 61; CC BY-SA 4.0,
+# refreshed by scripts/update_midiguide.py)
+cp -R "Resources/MIDIGuide" "$APP_BUNDLE/Contents/Resources/"
+
 # Embed Sparkle (auto-update, phase 56). The app is unsandboxed, so the XPC
 # services (only needed by sandboxed apps) are left out.
 SPARKLE_SRC=".build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
