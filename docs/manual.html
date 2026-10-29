@@ -62,6 +62,7 @@
             <li><a href="#strip">Pattern strip</a></li>
             <li><a href="#lane-buttons">Lane buttons</a></li>
             <li><a href="#lane-menu">Lane menu</a></li>
+            <li><a href="#lfo">CC LFO</a></li>
             <li><a href="#editor">Pattern editor</a></li>
           </ol>
         </li>
@@ -478,16 +479,12 @@
         <h3 id="lane-menu">Lane menu</h3>
         <figure class="fig" style="max-width:30rem">
           <div class="view spot" style="--iw:840;--ih:460">
-            <img src="assets/manual/menu-lane.png" alt="The lane context menu: CC Profile, Alternate With and Voice Off (engine).">
+            <img src="assets/manual/menu-lane.png" alt="The lane context menu: Alternate With and Voice Off (engine).">
             <span class="mark" style="--x:12;--y:10.4;--w:42;--h:35.6"></span>
           </div>
         </figure>
         <p>Right-click a pattern strip for more:</p>
         <ul>
-          <li><b>CC Profile</b>: tells Berlinan which controller numbers your synth
-          uses (for example for its filter), so the voice's automatic knob movements
-          and scenes reach the right control (<i>Generic</i>, <i>Microfreak</i>, or
-          your own profiles). A change made while playing applies after you stop.</li>
           <li><b>Promote Melody to Lead</b>: appears while melody extraction is on and the
           project has a lead voice; hands the extracted line to the lead at the next bar.</li>
           <li><b>Alternate With</b>: this voice and another play in alternating
@@ -495,6 +492,51 @@
           <li><b>Voice Off / Voice On (engine)</b>: switches the voice out of (or into)
           the ensemble at the next bar; the arranger uses the same switch.</li>
         </ul>
+
+        <h3 id="lfo">CC LFO</h3>
+        <!-- LFO-STRIP-FIGURE -->
+        <p>An LFO slowly turns one of your synth's knobs up and down over several
+        bars, most often the filter: the slow breathing of the sound that is typical
+        of the style. Berlinan sends it as MIDI CC on the voice's channel. Click
+        <span class="ui">∿ ＋</span> under the voice name to add one; it starts on
+        CC&nbsp;74, the filter on many synths. A voice can have up to four LFOs; the
+        second one starts on CC&nbsp;71 (resonance). <span class="ui">∿ 1</span>
+        shows or hides them.</p>
+        <dl class="controls">
+          <dt><span class="n">1</span>CC number</dt>
+          <dd>The controller the LFO sends, 0 to 127. Type it in, or look it up with
+          the magnifier.</dd>
+          <dt><span class="n">2</span>Magnifier</dt>
+          <dd>Opens the parameter list (below). The chosen parameter's name then shows
+          next to the number.</dd>
+          <dt><span class="n">3</span>Shape</dt>
+          <dd>Sine, triangle, saw up, saw down, square, or S&amp;H (sample and hold: a
+          new random value on every eighth note).</dd>
+          <dt><span class="n">4</span>Cycle</dt>
+          <dd>How many bars one full sweep takes, 1 to 64. S&amp;H does not use it.</dd>
+          <dt><span class="n">5</span>Min and Max</dt>
+          <dd>The range the LFO moves between, in CC values.</dd>
+          <dt><span class="n">6</span>Depth</dt>
+          <dd>Drag up or down to widen or narrow the range around its middle; Min and
+          Max follow.</dd>
+          <dt><span class="n">7</span>Phase</dt>
+          <dd>Where in its cycle the LFO is when the piece starts. S&amp;H does not use it.</dd>
+          <dt><span class="n">8</span>Curve</dt>
+          <dd>One cycle of the LFO, the range dashed; the orange line shows where it is
+          now. <span class="ui">×</span> removes the LFO and leaves the knob where it was.</dd>
+        </dl>
+        <p>Every change is heard at once, also while playing, and is saved with the
+        project. Changing the cycle or phase while playing can make the value jump to
+        another point of the curve. <kbd>⌘Z</kbd> does not undo LFO changes.</p>
+        <!-- CC-BROWSER-FIGURE -->
+        <p>The magnifier opens a list of 446 synths and effects from
+        <a href="https://midi.guide">midi.guide</a>. Pick the manufacturer, then the
+        model, then the parameter; each column fills the one to its right. Type in the
+        search field to filter by manufacturer or model name: <i>digi</i> finds
+        Elektron, because of the Digitakt and Digitone. Double-click a parameter or
+        press <span class="ui">Select</span>: the LFO takes its CC number, its name
+        and its value range. The list comes from midi.guide, shared under
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</p>
 
         <h3 id="editor">Pattern editor</h3>
         <figure class="fig" style="max-width:36rem">

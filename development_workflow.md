@@ -78,7 +78,7 @@ Adopted 1:1 from Sampio's `build.sh` with the app name swapped and the extra CLI
 SPM produces a bare executable; the script assembles the bundle manually:
 
 1. `mkdir -p Berlinan.app/Contents/{MacOS,Resources}`; copy the built executable.
-2. Copy `Resources/Info.plist` into `Contents/`.
+2. Copy `Resources/Info.plist` into `Contents/`; copy `Resources/MIDIGuide/` (the midi.guide CC catalog, CC BY-SA 4.0) and `Resources/Credits.html` (About panel credits) into `Contents/Resources/`.
 3. Generate `AppIcon.icns` from `Resources/AppIcon.png` via `sips` (10 sizes: 16→1024 px) + `iconutil -c icns` into `Contents/Resources/`.
 4. `echo -n "APPL????" > Contents/PkgInfo`.
 5. `xattr -cr` the bundle (strip quarantine/extended attributes).
@@ -226,7 +226,7 @@ chore(build): bump version to 0.3
 ### 4.5 Versioning & releases
 
 - Version lives in `Resources/Info.plist` (`CFBundleShortVersionString`); pre-1.0 scheme `0.<milestone>.<patch>` (M2 exit = 0.2.0 — first usable jam tool), 1.0 at M4 exit per spec.
-- Release procedure: bump version → `./build.sh dist` → smoke-test the DMG on a second machine or clean user account (Gatekeeper path!) → `git tag v0.x.y` → changelog entry in `CHANGELOG.md`.
+- Release procedure: refresh the midi.guide catalog (`scripts/update_midiguide.py`, review the diff) → bump version → `./build.sh dist` → smoke-test the DMG on a second machine or clean user account (Gatekeeper path!) → `git tag v0.x.y` → changelog entry in `CHANGELOG.md`.
 - **Git pushes to any remote happen only after explicit confirmation** (standing rule); no remote is configured initially.
 
 ---

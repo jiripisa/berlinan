@@ -61,10 +61,15 @@ YouTube channel):
    a multi-track `.mid`, or drag a lane's pattern strip straight into a Live
    clip slot. **Window ▸ Takes** lists every play → stop pass (kept on disk
    until you delete it): rename it, save it as `.mid` or drag it into Live.
-7. Updates: Berlinan checks for a new version at launch and offers it —
+7. **CC LFOs**: **∿ ＋** under a voice name adds an LFO that slowly moves a
+   synth control (default CC 74, the filter on many synths) over 1–64 bars —
+   shape, Min/Max, depth and phase sit in a strip under the lane and act
+   live. The magnifier finds a parameter's CC number in the
+   [midi.guide](https://midi.guide) list of 446 instruments.
+8. Updates: Berlinan checks for a new version at launch and offers it —
    nothing installs without your OK. Turn it off in **Berlinan ▸ Settings…**
    (⌘,), or use **Check for Updates…** in the app menu.
-8. Hands off the laptop: **LEARN** binds controller CCs/notes (route them
+9. Hands off the laptop: **LEARN** binds controller CCs/notes (route them
    into the virtual **Berlinan Control** input) to play/stop, degrees, new
    seed, re-roll, snapshot slots, B and advance.
 
@@ -112,3 +117,9 @@ what you export is what you heard.
 GPL-2.0-or-later — see `LICENSE`. The vendored
 [Ableton Link](https://github.com/Ableton/link) library (`Vendor/link`,
 git submodule) is GPLv2+; Berlinan mirrors its license.
+
+The CC parameter list (`Resources/MIDIGuide/midiguide.json`) is derived from
+the [midi.guide](https://midi.guide) database by Pencil Research and
+contributors, licensed [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/);
+see `Resources/MIDIGuide/NOTICE.md`. Refresh it with
+`scripts/update_midiguide.py`.
