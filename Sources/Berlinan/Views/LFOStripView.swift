@@ -89,7 +89,7 @@ struct LFORowView: View {
                 .foregroundStyle(AppColor.ink2)
                 .lineLimit(1)
                 .truncationMode(.middle)
-                .frame(width: 150, alignment: .leading)
+                .frame(width: 220, alignment: .leading)
                 .help(parameterName ?? "")
 
             shapeMenu

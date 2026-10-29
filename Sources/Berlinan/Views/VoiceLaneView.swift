@@ -45,6 +45,10 @@ struct VoiceLaneView: View {
                     .padding(.leading, 131)
             }
         }
+        .padding(8)
+        .background(AppColor.bgPanel2)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.lineSoft, lineWidth: 1))
     }
 
     /// `∿ ＋` adds the first CC LFO; with LFOs it shows/hides the strip.
@@ -187,10 +191,6 @@ struct VoiceLaneView: View {
                 }
             }
         }
-        .padding(8)
-        .background(AppColor.bgPanel2)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppColor.lineSoft, lineWidth: 1))
     }
 
     /// MIDI channel picker (phase 47) — also while playing; a channel shared
