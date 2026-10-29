@@ -31,7 +31,48 @@ struct VoiceLaneView: View {
         Int(voice.pattern.length / (ui.project.meter.ticksPerBeat / 4))
     }
 
+    private var lfoCount: Int { ui.ccLanes(for: voice.id).count }
+    private var showsLFOStrip: Bool {
+        lfoCount > 0 && !ui.collapsedLFOVoices.contains(voice.id)
+    }
+
     var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            laneRow
+            if showsLFOStrip {
+                // Under the pattern strip: identity edge 3 + 10 + header 108 + 10.
+                LFOStripView(ui: ui, voiceID: voice.id)
+                    .padding(.leading, 131)
+            }
+        }
+    }
+
+    /// `∿ ＋` adds the first CC LFO; with LFOs it shows/hides the strip.
+    private var lfoButton: some View {
+        Button {
+            if lfoCount == 0 {
+                ui.addLFO(to: voice.id)
+            } else {
+                ui.toggleLFOStrip(voice.id)
+            }
+        } label: {
+            HStack(spacing: 3) {
+                Text("∿")
+                Text(lfoCount == 0 ? "＋" : "\(lfoCount)")
+                if lfoCount > 0 {
+                    Image(systemName: showsLFOStrip ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 7, weight: .semibold))
+                }
+            }
+            .font(AppFont.monoCaption)
+            .foregroundStyle(lfoCount > 0 ? AppColor.tangerine : AppColor.ink3)
+        }
+        .buttonStyle(.plain)
+        .help(lfoCount == 0 ? "Add a CC LFO (filter, CC 74)"
+                            : "Show or hide this voice's CC LFOs")
+    }
+
+    private var laneRow: some View {
         HStack(spacing: 10) {
             // Identity edge + header block
             RoundedRectangle(cornerRadius: 1.5)
@@ -52,6 +93,7 @@ struct VoiceLaneView: View {
                 }
                 LifecycleDotsView(lifecycle: voice.pattern.lifecycle,
                                   locked: voice.pattern.locked)
+                lfoButton
             }
             .frame(width: 108, alignment: .leading)
 
