@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import BerlinanEngine
 
@@ -180,5 +181,97 @@ struct SMFCCTests {
             break
         }
         #expect(found, "expected CC74 events on channel 0")
+    }
+}
+
+// MARK: - Editing (phase 61)
+
+@Suite("CC lane editing")
+struct CCLaneEditingTests {
+
+    @Test("A direct controller wins over the target's CC map entry")
+    func directControllerWinsOverMap() {
+        var l = lane(shape: .sine)
+        l.controller = 23
+        let events = render([l], in: 0..<bar)
+        #expect(!events.isEmpty)
+        #expect(events.allSatisfy { $0.controller == 23 })
+    }
+
+    @Test("Without a controller the lane still resolves through the map")
+    func oldLaneStillResolvesThroughMap() {
+        let l = lane(shape: .sine)
+        #expect(l.resolvedController(ccMap: filterMap) == 74)
+        #expect(render([l], in: 0..<bar).allSatisfy { $0.controller == 74 })
+    }
+
+    @Test("Old JSON without the new keys decodes; nil keys are not encoded")
+    func codableCompatibility() throws {
+        let old = #"{"target":"filter","shape":"sine","cycleBars":16,"depth":0.3,"center":0.6,"phase":0,"preStrikeTicks":10}"#
+        let decoded = try JSONDecoder().decode(CCLane.self, from: Data(old.utf8))
+        #expect(decoded.controller == nil && decoded.label == nil)
+        let encoded = String(decoding: try JSONEncoder().encode(decoded), as: UTF8.self)
+        #expect(!encoded.contains("controller") && !encoded.contains("label"))
+    }
+
+    @Test("Min/Max are the center/depth range in CC values")
+    func minMaxFromCenterDepth() {
+        let l = lane(shape: .sine, depth: 0.3, center: 0.6)
+        #expect(l.minValue == 57 && l.maxValue == 95)
+    }
+
+    @Test("setRange clamps to 0–127 and swaps min > max")
+    func setRangeSwapsAndClamps() {
+        var l = lane(shape: .sine)
+        l.setRange(min: 140, max: -5)
+        #expect(l.minValue == 0 && l.maxValue == 127)
+        l.setRange(min: 100, max: 20)
+        #expect(l.minValue == 20 && l.maxValue == 100)
+        let values = render([l], in: 0..<bar).map { Int($0.value) }
+        #expect(!values.isEmpty && values.allSatisfy { (20...100).contains($0) })
+    }
+
+    @Test("Depth keeps the center and stays inside 0–127")
+    func depthKeepsCenterAndStaysInRange() {
+        var l = lane(shape: .sine, depth: 0.3, center: 0.6)
+        l.setDepthKeepingCenter(0.5)
+        #expect(abs(l.depth - 0.5) < 1e-9 && abs(l.center - 0.6) < 1e-9)
+        #expect(l.minValue == 44 && l.maxValue == 108)
+        var high = lane(shape: .sine, depth: 0.1, center: 0.9)
+        high.setDepthKeepingCenter(0.5)
+        #expect(abs(high.depth - 0.2) < 1e-9)
+        #expect(high.maxValue == 127)
+    }
+
+    @Test("New lanes default to CC 74, then 71, then 74")
+    func defaultsAlternate74And71() {
+        #expect(CCLane.makeDefault(index: 0).controller == 74)
+        #expect(CCLane.makeDefault(index: 1).controller == 71)
+        #expect(CCLane.makeDefault(index: 2).controller == 74)
+        let first = CCLane.makeDefault(index: 0)
+        #expect(first.shape == .sine && first.cycleBars == 16)
+        #expect(first.minValue == 57 && first.maxValue == 95)
+        #expect(CCLane.maxPerVoice == 4)
+    }
+
+    @Test("A sync tick forces one emission of an unchanged value")
+    func syncTickForcesOneEmission() {
+        let flat = lane(shape: .sine, depth: 0)
+        let forced = ModulationEngine.render(lanes: [flat], ccMap: filterMap,
+                                             voiceID: "v", in: bar..<(2 * bar),
+                                             meter: meter, seed: 1, syncTick: bar)
+        #expect(forced.map(\.at) == [bar])
+        #expect(render([flat], in: bar..<(2 * bar)).isEmpty)
+    }
+
+    @Test("A sync tick forces one S&H emission")
+    func syncTickForcesSampleHold() {
+        let flat = lane(shape: .sampleHold, depth: 0)
+        let forced = ModulationEngine.render(lanes: [flat], ccMap: filterMap,
+                                             voiceID: "v", in: bar..<(2 * bar),
+                                             meter: meter, seed: 1, syncTick: bar)
+        #expect(forced.count == 1)
+        #expect(forced.first.map { $0.at >= bar } == true)
+        #expect(render([flat], in: bar..<(2 * bar)).isEmpty)
     }
 }
