@@ -59,6 +59,9 @@ public struct LiveEngine: Sendable {
         /// Morph every CC target toward the named scene over `bars`
         /// (phase 34); binds at the next bar. Unknown name → no-op.
         case morphToScene(name: String, bars: Int)
+        /// Replace the voice's CC LFO lanes (phase 61); binds at the render
+        /// head (≤ lookahead latency) and emits the new values there at once.
+        case setCCLanes(voiceID: String, lanes: [CCLane])
     }
 
     /// Bar-quantized global changes that split the render window.
@@ -156,6 +159,9 @@ public struct LiveEngine: Sendable {
     private var pendingChanges: [(tick: Tick, change: GlobalChange)] = []
     /// Live-toggleable MIDI-delay state (FR-MOD-7), seeded from the project.
     private var delayConfigs: [String: MIDIDelayConfig] = [:]
+    /// Bind tick of each voice's latest live lane edit (phase 61): the CC
+    /// renderer re-sends every lane's value there.
+    private var ccSyncTicks: [String: Tick] = [:]
 
     // MARK: Arrangement (FR-A-1/2/6, phase 26)
 
@@ -364,7 +370,8 @@ public struct LiveEngine: Sendable {
                 lanes: config.ccLanes ?? [], ccMap: config.ccMap ?? [:],
                 voiceID: config.id, in: range, meter: project.meter,
                 seed: SeedStream.derive(master: project.masterSeed,
-                                        "voice", config.id, "cc"))
+                                        "voice", config.id, "cc"),
+                syncTick: ccSyncTicks[config.id] ?? 0)
         }
         events += sceneEmissions(in: range)
         return events
@@ -469,6 +476,11 @@ public struct LiveEngine: Sendable {
             let tick = barBindTick(requestTick)
             let index = pendingAdvances.firstIndex { $0 > tick } ?? pendingAdvances.count
             pendingAdvances.insert(tick, at: index)
+        case .setCCLanes(let voiceID, let lanes):
+            guard let index = project.voices.firstIndex(where: { $0.id == voiceID })
+            else { return }
+            project.voices[index].ccLanes = lanes
+            ccSyncTicks[voiceID] = max(requestTick, renderedUpTo)
         case .setMIDIDelay(let voiceID, let enabled):
             guard let role = states.first(where: { $0.voice.id == voiceID })?.voice.role
             else { return }

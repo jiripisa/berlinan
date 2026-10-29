@@ -110,37 +110,3 @@ private final class ReceivedBox: @unchecked Sendable {
     func append(_ t: ControlTrigger) { lock.lock(); storage.append(t); lock.unlock() }
     var all: [ControlTrigger] { lock.lock(); defer { lock.unlock() }; return storage }
 }
-
-// MARK: - CC profiles (FR-MOD-5)
-
-@Suite("CC profile store")
-struct CCProfileTests {
-
-    @Test("Built-ins present with the manual's mappings")
-    func builtins() {
-        let store = CCProfileStore(directory: nil)
-        let names = store.profiles.map(\.name)
-        #expect(names.contains("Generic"))
-        #expect(names.contains("Microfreak"))
-        let microfreak = store.profiles.first { $0.name == "Microfreak" }!
-        #expect(microfreak.map["shape"] == 12)      // M §13.4
-        #expect(microfreak.map["timbre"] == 13)
-        let generic = store.profiles.first { $0.name == "Generic" }!
-        #expect(generic.map["filter"] == 74)
-    }
-
-    @Test("User profiles load from a directory and win over nothing")
-    func userProfiles() throws {
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("berlinan-profiles-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let json = #"{"name": "MySynth", "map": {"filter": 71, "resonance": 70}}"#
-        try Data(json.utf8).write(to: dir.appendingPathComponent("mysynth.json"))
-
-        let store = CCProfileStore(directory: dir)
-        let mine = store.profiles.first { $0.name == "MySynth" }
-        #expect(mine != nil)
-        #expect(mine?.map["filter"] == 71)
-        #expect(store.profiles.map(\.name).contains("Generic"))   // built-ins stay
-    }
-}

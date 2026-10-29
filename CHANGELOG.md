@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- CC LFO editor: click **∿ ＋** under a voice name to add an LFO that
+  slowly moves a synth control (default CC 74, the filter on many synths).
+  Shape, cycle (1–64 bars), Min/Max range, depth and phase are set in a
+  strip under the voice lane; changes are heard at once, also while
+  playing, and are saved with the project. Up to four LFOs per voice.
+- Parameter list: the magnifier next to the CC number opens more than 400 synths
+  and effects from midi.guide (manufacturer › model › parameter, with search).
+  Data: midi.guide, CC BY-SA 4.0.
+- The lane menu's **CC Profile** item is gone; the parameter list replaces it.
+
 ## 1.2.9 — 2026-10-26
 
 - Fixed: after picking EXT or LINK, the clock-source label in the transport

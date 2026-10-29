@@ -342,6 +342,20 @@ public final class Transport: @unchecked Sendable {
         }
     }
 
+    /// A voice's CC LFO lanes (phase 61): the running engine swaps them at
+    /// its render head; a pending template load carries them too.
+    public func setCCLanes(voiceID: String, lanes: [CCLane]) {
+        lock.lock(); defer { lock.unlock() }
+        pendingActions.append(.setCCLanes(voiceID: voiceID, lanes: lanes))
+        let stored = lanes.isEmpty ? nil : lanes
+        if let index = project.voices.firstIndex(where: { $0.id == voiceID }) {
+            project.voices[index].ccLanes = stored
+        }
+        if let index = pendingProject?.voices.firstIndex(where: { $0.id == voiceID }) {
+            pendingProject?.voices[index].ccLanes = stored
+        }
+    }
+
     // MARK: - Scheduler loop (dedicated thread)
 
     private func schedulerLoop() {
