@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.0 — 2026-10-29
 
 - CC LFO editor: click **∿ ＋** under a voice name to add an LFO that
   slowly moves a synth control (default CC 74, the filter on many synths).
