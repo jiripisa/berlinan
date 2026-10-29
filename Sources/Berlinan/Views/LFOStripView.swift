@@ -118,7 +118,9 @@ struct LFORowView: View {
                      readout: { "\(Int(($0 * 360).rounded()))°" },
                      disabled: isSampleHold,
                      help: isSampleHold ? "S&H steps on 8th notes — phase does not apply"
-                                        : "Where in its cycle the LFO starts")
+                                        : "Where in its cycle the LFO starts (right-click for 0/25/50/75 %)",
+                     presets: [("0 % (0°)", 0), ("25 % (90°)", 0.25),
+                               ("50 % (180°)", 0.5), ("75 % (270°)", 0.75)])
 
             LFOCurveView(lane: lane, meter: ui.project.meter)
                 .equatable()
