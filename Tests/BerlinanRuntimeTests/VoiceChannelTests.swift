@@ -26,6 +26,14 @@ private final class TimedWords: @unchecked Sendable {
         }.count
     }
 
+    /// Control changes for `controller` on any channel.
+    func controlChanges(_ controller: UInt8) -> Int {
+        lock.lock(); defer { lock.unlock() }
+        return storage.filter {
+            ($0.word >> 16) & 0xF0 == 0xB0 && ($0.word >> 8) & 0x7F == UInt32(controller)
+        }.count
+    }
+
     func contains(_ word: UInt32) -> Bool {
         lock.lock(); defer { lock.unlock() }
         return storage.contains { $0.word == word }
@@ -137,5 +145,28 @@ struct VoiceChannelTests {
         #expect(synth.received.noteOns(channel: 11, after: settled) > 0)
         #expect(synth.received.noteOns(channel: 2, after: settled) == 0,
                 "the template's own bass channel must not come back")
+    }
+
+    @Test("A CC LFO added while a template load is pending survives the swap (phase 61)")
+    func ccLanesSurviveTemplateLoad() throws {
+        let synth = ChannelSynth(name: "Berlinan Channel Synth D")
+        let midi = try MIDIService(clientName: "BerlinanChannelTest4",
+                                   sourceName: "Berlinan Channel Test 4")
+        midi.setOutput(synth.uniqueID)
+        let transport = Transport(project: fast(.demo), midi: midi)
+        transport.play()
+        defer { transport.stop() }
+        Thread.sleep(forTimeInterval: 0.4)
+
+        transport.loadProject(fast(.fullEnsemble))
+        // The pad exists only in the template being loaded.
+        transport.setCCLanes(voiceID: "pad", lanes: [
+            CCLane(target: "", shape: .sine, cycleBars: 16, depth: 0, center: 0.5,
+                   controller: 33),
+        ])
+        Thread.sleep(forTimeInterval: 2.6)
+
+        #expect(!transport.hasPendingProjectLoad)
+        #expect(synth.received.controlChanges(33) > 0)
     }
 }

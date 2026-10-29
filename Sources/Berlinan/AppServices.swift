@@ -107,7 +107,7 @@ final class AppServices {
         guard let idx = project.voices.firstIndex(where: { $0.id == voiceID }) else { return }
         project.voices[idx].ccLanes = lanes.isEmpty ? nil : lanes
         if transport?.isPlaying == true {
-            transport?.enqueue(.setCCLanes(voiceID: voiceID, lanes: lanes))
+            transport?.setCCLanes(voiceID: voiceID, lanes: lanes)
             transportStale = true
         } else {
             rebuildTransport()
